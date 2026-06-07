@@ -1,0 +1,22 @@
+{
+  "name": "x402-base-analytics",
+  "version": "1.0.0",
+  "description": "Base chain analytics API with x402 micropayments — wallet analytics + DeFi yield optimizer",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "@x402/express": "latest",
+    "@x402/core": "latest",
+    "@x402/evm": "latest",
+    "@x402/extensions": "latest",
+    "express": "^4.21.0",
+    "dotenv": "^16.4.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
