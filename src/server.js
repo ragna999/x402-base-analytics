@@ -125,6 +125,32 @@ async function main() {
       ),
     },
 
+    // === SNIPER TRACKER ===
+    "GET /api/sniper/token/:address": {
+      accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
+      description: "Early buyers (snipers) analysis for a token — find wallets that bought before the pump",
+      mimeType: "application/json",
+      ...discover(
+        { address: { description: "Token contract address (0x...)", type: "string", required: true } },
+        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+      ),
+    },
+    "GET /api/sniper/wallet/:address": {
+      accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
+      description: "Sniper track record for a wallet — score, success rate, tokens traded",
+      mimeType: "application/json",
+      ...discover(
+        { address: { description: "Wallet address (0x...)", type: "string", required: true } },
+        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+      ),
+    },
+    "GET /api/sniper/trending": {
+      accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
+      description: "Top snipers from trending tokens on Base — wallets that buy early on multiple tokens",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+
     // === TOKEN SAFETY ===
     "GET /api/token-safety/:address": {
       accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
@@ -302,7 +328,7 @@ STATS ($0.01):  [NEW]
   GET /api/protocols/base/tvl
   GET /api/protocols/base/movers
 
-SNIPER TRACKER (FREE - testing):
+SNIPER TRACKER ($0.01):
   GET /api/sniper/token/:address
   GET /api/sniper/wallet/:address
   GET /api/sniper/trending
