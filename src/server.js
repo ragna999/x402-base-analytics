@@ -11,12 +11,12 @@ import { getTxHistory } from "./analytics/history.js";
 import { getWalletSummary } from "./analytics/summary.js";
 
 // DeFi yields
-import {
-  getAllYields,
-  getBestYieldsForAsset,
-  getYieldsByRisk,
-  getRebalanceRecommendation,
-} from "./aggregator.js";
+import { getAllYields, getBestYieldsForAsset, getYieldsByRisk, getRebalanceRecommendation } from "./aggregator.js";
+
+// New: Token safety, wallet risk, protocol stats
+import { analyzeTokenSafety } from "./tokenSafety.js";
+import { analyzeWalletRisk } from "./walletRisk.js";
+import { getBaseProtocolStats, getBaseTvlHistory, getBaseMovers } from "./protocolStats.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -27,7 +27,6 @@ if (!PAY_TO) {
   process.exit(1);
 }
 
-// --- Facilitator ---
 async function createFacilitator() {
   const urls = [
     process.env.FACILITATOR_URL || "https://api.cdp.coinbase.com/platform/v2/x402",
@@ -57,13 +56,10 @@ async function main() {
     .register("eip155:8453", new ExactEvmScheme());
 
   const N = "eip155:8453";
-
-  // Helper: Bazaar discovery extension
   const discover = (input, inputSchema) => ({
     extensions: { ...declareDiscoveryExtension({ input, inputSchema }) },
   });
 
-  // --- Payment config ---
   const paymentConfig = {
     // === WALLET ANALYTICS ===
     "GET /api/portfolio/:address": {
@@ -72,7 +68,7 @@ async function main() {
       mimeType: "application/json",
       ...discover(
         { address: { description: "EVM wallet address (0x...)", type: "string", required: true } },
-        { type: "object", properties: { address: { type: "string", description: "EVM wallet address" } }, required: ["address"] }
+        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
       ),
     },
     "GET /api/history/:address": {
@@ -81,7 +77,7 @@ async function main() {
       mimeType: "application/json",
       ...discover(
         { address: { description: "EVM wallet address (0x...)", type: "string", required: true } },
-        { type: "object", properties: { address: { type: "string", description: "EVM wallet address" } }, required: ["address"] }
+        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
       ),
     },
     "GET /api/summary/:address": {
@@ -90,7 +86,7 @@ async function main() {
       mimeType: "application/json",
       ...discover(
         { address: { description: "EVM wallet address (0x...)", type: "string", required: true } },
-        { type: "object", properties: { address: { type: "string", description: "EVM wallet address" } }, required: ["address"] }
+        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
       ),
     },
 
@@ -106,8 +102,8 @@ async function main() {
       description: "Best yield for a specific asset (USDC, ETH, etc.) across all Base DeFi protocols",
       mimeType: "application/json",
       ...discover(
-        { asset: { description: "Asset symbol (e.g. USDC, ETH, DAI)", type: "string", required: true } },
-        { type: "object", properties: { asset: { type: "string", description: "Asset symbol" } }, required: ["asset"] }
+        { asset: { description: "Asset symbol (e.g. USDC, ETH)", type: "string", required: true } },
+        { type: "object", properties: { asset: { type: "string" } }, required: ["asset"] }
       ),
     },
     "GET /api/yields/risk": {
@@ -125,6 +121,48 @@ async function main() {
         { type: "object", properties: { protocol: { type: "string" }, apy: { type: "number" } }, required: ["protocol", "apy"] }
       ),
     },
+
+    // === TOKEN SAFETY ===
+    "GET /api/token-safety/:address": {
+      accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
+      description: "Token safety analysis — rug risk score, honeypot check, holder analysis, tax info. Uses GoPlus Security data.",
+      mimeType: "application/json",
+      ...discover(
+        { address: { description: "Token contract address (0x...)", type: "string", required: true } },
+        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+      ),
+    },
+
+    // === WALLET RISK ===
+    "GET /api/wallet-risk/:address": {
+      accepts: [{ scheme: "exact", price: "$0.03", network: N, payTo: PAY_TO }],
+      description: "Wallet risk scoring — age, activity patterns, scam interaction, bot detection. On-chain behavior analysis.",
+      mimeType: "application/json",
+      ...discover(
+        { address: { description: "Wallet address (0x...)", type: "string", required: true } },
+        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+      ),
+    },
+
+    // === BASE PROTOCOL STATS ===
+    "GET /api/protocols/base": {
+      accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
+      description: "All Base protocol stats — TVL, categories, top protocols. Data from DeFiLlama.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+    "GET /api/protocols/base/tvl": {
+      accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
+      description: "Base chain TVL history — 30 day trend, 7d/30d change. Data from DeFiLlama.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+    "GET /api/protocols/base/movers": {
+      accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
+      description: "Top gainers and losers on Base in 24h by TVL change",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
   };
 
   // --- Middleware ---
@@ -132,108 +170,117 @@ async function main() {
 
   // === FREE ROUTES ===
   app.get("/health", (req, res) => {
-    res.json({ status: "ok", network: "base", payTo: PAY_TO, version: "2.0.0" });
+    res.json({ status: "ok", network: "base", payTo: PAY_TO, version: "3.0.0" });
   });
 
   app.get("/api/protocols", (req, res) => {
     res.json({
       wallet: ["portfolio", "history", "summary"],
       yields: ["morpho", "moonwell", "aerodrome"],
+      safety: ["token-safety", "wallet-risk"],
+      stats: ["protocols/base", "protocols/base/tvl", "protocols/base/movers"],
     });
   });
 
-  // === WALLET ANALYTICS ROUTES ===
+  // === WALLET ANALYTICS ===
   app.get("/api/portfolio/:address", async (req, res) => {
-    try {
-      res.json(await getPortfolio(req.params.address));
-    } catch (err) {
-      console.error("Portfolio error:", err.message);
-      res.status(500).json({ error: "Failed to fetch portfolio" });
-    }
+    try { res.json(await getPortfolio(req.params.address)); }
+    catch (err) { console.error("Portfolio error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
   app.get("/api/history/:address", async (req, res) => {
-    try {
-      const limit = Math.min(parseInt(req.query.limit) || 20, 100);
-      res.json(await getTxHistory(req.params.address, limit));
-    } catch (err) {
-      console.error("History error:", err.message);
-      res.status(500).json({ error: "Failed to fetch history" });
-    }
+    try { res.json(await getTxHistory(req.params.address, Math.min(parseInt(req.query.limit) || 20, 100))); }
+    catch (err) { console.error("History error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
   app.get("/api/summary/:address", async (req, res) => {
-    try {
-      res.json(await getWalletSummary(req.params.address));
-    } catch (err) {
-      console.error("Summary error:", err.message);
-      res.status(500).json({ error: "Failed to fetch summary" });
-    }
+    try { res.json(await getWalletSummary(req.params.address)); }
+    catch (err) { console.error("Summary error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
-  // === DEFI YIELD ROUTES ===
+  // === DEFI YIELDS ===
   app.get("/api/yields", async (req, res) => {
-    try {
-      res.json(await getAllYields());
-    } catch (err) {
-      console.error("Yields error:", err.message);
-      res.status(500).json({ error: "Failed to fetch yields" });
-    }
+    try { res.json(await getAllYields()); }
+    catch (err) { console.error("Yields error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
   app.get("/api/yields/best/:asset", async (req, res) => {
-    try {
-      res.json(await getBestYieldsForAsset(req.params.asset));
-    } catch (err) {
-      console.error("Best yield error:", err.message);
-      res.status(500).json({ error: "Failed to fetch best yield" });
-    }
+    try { res.json(await getBestYieldsForAsset(req.params.asset)); }
+    catch (err) { console.error("Best yield error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
   app.get("/api/yields/risk", async (req, res) => {
-    try {
-      res.json(await getYieldsByRisk());
-    } catch (err) {
-      console.error("Risk yields error:", err.message);
-      res.status(500).json({ error: "Failed to fetch yields by risk" });
-    }
+    try { res.json(await getYieldsByRisk()); }
+    catch (err) { console.error("Risk yields error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
   app.get("/api/yields/rebalance", async (req, res) => {
     try {
       const { protocol, apy } = req.query;
-      if (!protocol || !apy) {
-        return res.status(400).json({ error: "Missing: protocol, apy" });
-      }
+      if (!protocol || !apy) return res.status(400).json({ error: "Missing: protocol, apy" });
       res.json(await getRebalanceRecommendation(protocol, apy));
-    } catch (err) {
-      console.error("Rebalance error:", err.message);
-      res.status(500).json({ error: "Failed to generate recommendation" });
-    }
+    } catch (err) { console.error("Rebalance error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  // === TOKEN SAFETY ===
+  app.get("/api/token-safety/:address", async (req, res) => {
+    try { res.json(await analyzeTokenSafety(req.params.address)); }
+    catch (err) { console.error("Token safety error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  // === WALLET RISK ===
+  app.get("/api/wallet-risk/:address", async (req, res) => {
+    try { res.json(await analyzeWalletRisk(req.params.address)); }
+    catch (err) { console.error("Wallet risk error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  // === BASE PROTOCOL STATS ===
+  app.get("/api/protocols/base", async (req, res) => {
+    try { res.json(await getBaseProtocolStats()); }
+    catch (err) { console.error("Protocol stats error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/protocols/base/tvl", async (req, res) => {
+    try { res.json(await getBaseTvlHistory()); }
+    catch (err) { console.error("TVL error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/protocols/base/movers", async (req, res) => {
+    try { res.json(await getBaseMovers()); }
+    catch (err) { console.error("Movers error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
   // --- Start ---
   app.listen(PORT, () => {
     console.log(`
-Base Analytics API v2.0 running on port ${PORT}
+Base Analytics API v3.0 running on port ${PORT}
 Payments -> ${PAY_TO}
 
 FREE:
   GET /health
   GET /api/protocols
 
-WALLET:
-  GET /api/portfolio/:address     ($0.005)
-  GET /api/history/:address       ($0.01)
-  GET /api/summary/:address       ($0.02)
+WALLET ($0.005-$0.02):
+  GET /api/portfolio/:address
+  GET /api/history/:address
+  GET /api/summary/:address
 
-YIELDS:
-  GET /api/yields                 ($0.02)
-  GET /api/yields/best/:asset     ($0.01)
-  GET /api/yields/risk            ($0.02)
-  GET /api/yields/rebalance       ($0.05)
+YIELDS ($0.01-$0.05):
+  GET /api/yields
+  GET /api/yields/best/:asset
+  GET /api/yields/risk
+  GET /api/yields/rebalance
 
-Bazaar discovery: ENABLED
+SAFETY ($0.02-$0.03):  [NEW]
+  GET /api/token-safety/:address
+  GET /api/wallet-risk/:address
+
+STATS ($0.01):  [NEW]
+  GET /api/protocols/base
+  GET /api/protocols/base/tvl
+  GET /api/protocols/base/movers
+
+Total: 14 endpoints | Bazaar discovery: ENABLED
 `);
   });
 }
