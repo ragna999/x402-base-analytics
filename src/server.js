@@ -18,6 +18,9 @@ import { analyzeTokenSafety } from "./tokenSafety.js";
 import { analyzeWalletRisk } from "./walletRisk.js";
 import { getBaseProtocolStats, getBaseTvlHistory, getBaseMovers } from "./protocolStats.js";
 
+// Sniper tracker
+import { getTokenSnipers, getWalletSniperRecord, getTrendingSnipers } from "./sniper.js";
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PAY_TO = process.env.PAY_TO_ADDRESS;
@@ -179,6 +182,7 @@ async function main() {
       yields: ["morpho", "moonwell", "aerodrome"],
       safety: ["token-safety", "wallet-risk"],
       stats: ["protocols/base", "protocols/base/tvl", "protocols/base/movers"],
+      sniper: ["token/:address", "wallet/:address", "trending"],
     });
   });
 
@@ -250,6 +254,24 @@ async function main() {
     catch (err) { console.error("Movers error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
+  // === SNIPER TRACKER (FREE - testing phase) ===
+  app.get("/api/sniper/token/:address", async (req, res) => {
+    try {
+      const maxBuyers = Math.min(parseInt(req.query.limit) || 20, 50);
+      res.json(await getTokenSnipers(req.params.address, { maxBuyers }));
+    } catch (err) { console.error("Sniper token error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/sniper/wallet/:address", async (req, res) => {
+    try { res.json(await getWalletSniperRecord(req.params.address)); }
+    catch (err) { console.error("Sniper wallet error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/sniper/trending", async (req, res) => {
+    try { res.json(await getTrendingSnipers()); }
+    catch (err) { console.error("Sniper trending error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
   // --- Start ---
   app.listen(PORT, () => {
     console.log(`
@@ -280,7 +302,12 @@ STATS ($0.01):  [NEW]
   GET /api/protocols/base/tvl
   GET /api/protocols/base/movers
 
-Total: 14 endpoints | Bazaar discovery: ENABLED
+SNIPER TRACKER (FREE - testing):
+  GET /api/sniper/token/:address
+  GET /api/sniper/wallet/:address
+  GET /api/sniper/trending
+
+Total: 17 endpoints | Bazaar discovery: ENABLED
 `);
   });
 }
