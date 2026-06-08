@@ -4,7 +4,7 @@ const BLOCKSCOUT_BASE = "https://base.blockscout.com/api/v2";
  * Get recent transaction history from Blockscout (free, no API key)
  */
 export async function getTxHistory(address, limit = 20) {
-  const url = `${BLOCKSCOUT_BASE}/addresses/${address}/transactions?limit=${limit}`;
+  const url = `${BLOCKSCOUT_BASE}/addresses/${address}/transactions`;
   const res = await fetch(url);
 
   if (!res.ok) {
@@ -13,7 +13,7 @@ export async function getTxHistory(address, limit = 20) {
 
   const data = await res.json();
 
-  const transactions = (data.items || []).map((tx) => ({
+  const transactions = (data.items || []).slice(0, limit).map((tx) => ({
     hash: tx.hash,
     block: tx.block,
     timestamp: tx.timestamp,

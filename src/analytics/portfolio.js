@@ -10,23 +10,35 @@ import {
 export async function getPortfolio(address) {
   address = address.toLowerCase();
 
-  // Fetch ETH + all known token balances in parallel
-  const ethPromise = getEthBalance(address);
-  const tokenPromises = Object.entries(KNOWN_TOKENS).map(
-    async ([contractAddr, meta]) => {
+  // Fetch ETH balance first
+  const ethWei = await getEthBalance(address);
+
+  // Fetch token balances sequentially to avoid rate limits
+  const tokenResults = [];
+  for (const [contractAddr, meta] of Object.entries(KNOWN_TOKENS)) {
+    try {
       const raw = await getTokenBalance(contractAddr, address);
-      return {
+      tokenResults.push({
         contract: contractAddr,
         symbol: meta.symbol,
         name: meta.name,
         decimals: meta.decimals,
         rawBalance: raw.toString(),
         balance: Number(raw) / 10 ** meta.decimals,
-      };
+      });
+    } catch (e) {
+      // Skip failed tokens
+      tokenResults.push({
+        contract: contractAddr,
+        symbol: meta.symbol,
+        name: meta.name,
+        decimals: meta.decimals,
+        rawBalance: "0",
+        balance: 0,
+        error: e.message,
+      });
     }
-  );
-
-  const [ethWei, tokenResults] = await Promise.all([ethPromise, Promise.all(tokenPromises)]);
+  }
 
   const ethBalance = Number(ethWei) / 1e18;
 
