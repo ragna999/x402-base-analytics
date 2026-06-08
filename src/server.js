@@ -69,160 +69,151 @@ async function main() {
   });
 
   const paymentConfig = {
-    // === WALLET ANALYTICS ===
-    "GET /api/portfolio/:address": {
-      accepts: [{ scheme: "exact", price: "$0.005", network: N, payTo: PAY_TO }],
-      description: "Wallet token portfolio on Base (ETH + ERC-20 balances)",
-      mimeType: "application/json",
-      ...discover(
-        { address: { description: "EVM wallet address (0x...)", type: "string", required: true } },
-        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
-      ),
-    },
-    "GET /api/history/:address": {
-      accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
-      description: "Recent transaction history for a wallet on Base",
-      mimeType: "application/json",
-      ...discover(
-        { address: { description: "EVM wallet address (0x...)", type: "string", required: true } },
-        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
-      ),
-    },
-    "GET /api/summary/:address": {
-      accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
-      description: "Full wallet analytics: portfolio, history, activity stats on Base",
-      mimeType: "application/json",
-      ...discover(
-        { address: { description: "EVM wallet address (0x...)", type: "string", required: true } },
-        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
-      ),
-    },
+    // === FREE DAY — ALL ENDPOINTS FREE FOR 24 HOURS ===
+    // Uncomment below to re-enable payments
 
-    // === DEFI YIELDS ===
-    "GET /api/yields": {
-      accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
-      description: "Real-time DeFi yields on Base — Morpho, Moonwell, Aerodrome. Sorted by APY.",
-      mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
-    },
-    "GET /api/yields/best/:asset": {
-      accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
-      description: "Best yield for a specific asset (USDC, ETH, etc.) across all Base DeFi protocols",
-      mimeType: "application/json",
-      ...discover(
-        { asset: { description: "Asset symbol (e.g. USDC, ETH)", type: "string", required: true } },
-        { type: "object", properties: { asset: { type: "string" } }, required: ["asset"] }
-      ),
-    },
-    "GET /api/yields/risk": {
-      accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
-      description: "DeFi yields categorized by risk level (low/medium/high)",
-      mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
-    },
-    "GET /api/yields/rebalance": {
-      accepts: [{ scheme: "exact", price: "$0.05", network: N, payTo: PAY_TO }],
-      description: "Rebalance recommendation — compare your current yield vs best available",
-      mimeType: "application/json",
-      ...discover(
-        { protocol: { description: "Current protocol", type: "string" }, apy: { description: "Current APY", type: "number" } },
-        { type: "object", properties: { protocol: { type: "string" }, apy: { type: "number" } }, required: ["protocol", "apy"] }
-      ),
-    },
-
-    // === SNIPER TRACKER ===
-    "GET /api/sniper/token/:address": {
-      accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
-      description: "Early buyers (snipers) analysis for a token — find wallets that bought before the pump",
-      mimeType: "application/json",
-      ...discover(
-        { address: { description: "Token contract address (0x...)", type: "string", required: true } },
-        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
-      ),
-    },
-    "GET /api/sniper/wallet/:address": {
-      accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
-      description: "Sniper track record for a wallet — score, success rate, tokens traded",
-      mimeType: "application/json",
-      ...discover(
-        { address: { description: "Wallet address (0x...)", type: "string", required: true } },
-        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
-      ),
-    },
-    "GET /api/sniper/trending": {
-      accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
-      description: "Top snipers from trending tokens on Base — wallets that buy early on multiple tokens",
-      mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
-    },
-
-    // === SMART MONEY TRACKER ===
-    "GET /api/smart-money/wallet/:address": {
-      accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
-      description: "Smart money analysis for a wallet — score, classification, trading patterns, token activity",
-      mimeType: "application/json",
-      ...discover(
-        { address: { description: "Wallet address (0x...)", type: "string", required: true } },
-        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
-      ),
-    },
-    "GET /api/smart-money/token/:address": {
-      accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
-      description: "Find smart money buyers of a token — who's buying, are they still holding, smart money signal strength",
-      mimeType: "application/json",
-      ...discover(
-        { address: { description: "Token contract address (0x...)", type: "string", required: true } },
-        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
-      ),
-    },
-    "GET /api/smart-money/activity": {
-      accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
-      description: "What smart money wallets are buying right now on Base — scans trending tokens for multi-token early buyers",
-      mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
-    },
-
-    // === TOKEN SAFETY ===
-    "GET /api/token-safety/:address": {
-      accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
-      description: "Token safety analysis — rug risk score, honeypot check, holder analysis, tax info. Uses GoPlus Security data.",
-      mimeType: "application/json",
-      ...discover(
-        { address: { description: "Token contract address (0x...)", type: "string", required: true } },
-        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
-      ),
-    },
-
-    // === WALLET RISK ===
-    "GET /api/wallet-risk/:address": {
-      accepts: [{ scheme: "exact", price: "$0.03", network: N, payTo: PAY_TO }],
-      description: "Wallet risk scoring — age, activity patterns, scam interaction, bot detection. On-chain behavior analysis.",
-      mimeType: "application/json",
-      ...discover(
-        { address: { description: "Wallet address (0x...)", type: "string", required: true } },
-        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
-      ),
-    },
-
-    // === BASE PROTOCOL STATS ===
-    "GET /api/protocols/base": {
-      accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
-      description: "All Base protocol stats — TVL, categories, top protocols. Data from DeFiLlama.",
-      mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
-    },
-    "GET /api/protocols/base/tvl": {
-      accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
-      description: "Base chain TVL history — 30 day trend, 7d/30d change. Data from DeFiLlama.",
-      mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
-    },
-    "GET /api/protocols/base/movers": {
-      accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
-      description: "Top gainers and losers on Base in 24h by TVL change",
-      mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
-    },
+    // // === WALLET ANALYTICS ===
+    // "GET /api/portfolio/:address": {
+    //   accepts: [{ scheme: "exact", price: "$0.005", network: N, payTo: PAY_TO }],
+    //   description: "Wallet token portfolio on Base (ETH + ERC-20 balances)",
+    //   mimeType: "application/json",
+    //   ...discover(
+    //     { address: { description: "EVM wallet address (0x...)", type: "string", required: true } },
+    //     { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+    //   ),
+    // },
+    // "GET /api/history/:address": {
+    //   accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
+    //   description: "Recent transaction history for a wallet on Base",
+    //   mimeType: "application/json",
+    //   ...discover(
+    //     { address: { description: "EVM wallet address (0x...)", type: "string", required: true } },
+    //     { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+    //   ),
+    // },
+    // "GET /api/summary/:address": {
+    //   accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
+    //   description: "Full wallet analytics: portfolio, history, activity stats on Base",
+    //   mimeType: "application/json",
+    //   ...discover(
+    //     { address: { description: "EVM wallet address (0x...)", type: "string", required: true } },
+    //     { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+    //   ),
+    // },
+    // "GET /api/yields": {
+    //   accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
+    //   description: "Real-time DeFi yields on Base — Morpho, Moonwell, Aerodrome. Sorted by APY.",
+    //   mimeType: "application/json",
+    //   ...discover({}, { type: "object", properties: {} }),
+    // },
+    // "GET /api/yields/best/:asset": {
+    //   accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
+    //   description: "Best yield for a specific asset (USDC, ETH, etc.) across all Base DeFi protocols",
+    //   mimeType: "application/json",
+    //   ...discover(
+    //     { asset: { description: "Asset symbol (e.g. USDC, ETH)", type: "string", required: true } },
+    //     { type: "object", properties: { asset: { type: "string" } }, required: ["asset"] }
+    //   ),
+    // },
+    // "GET /api/yields/risk": {
+    //   accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
+    //   description: "DeFi yields categorized by risk level (low/medium/high)",
+    //   mimeType: "application/json",
+    //   ...discover({}, { type: "object", properties: {} }),
+    // },
+    // "GET /api/yields/rebalance": {
+    //   accepts: [{ scheme: "exact", price: "$0.05", network: N, payTo: PAY_TO }],
+    //   description: "Rebalance recommendation — compare your current yield vs best available",
+    //   mimeType: "application/json",
+    //   ...discover(
+    //     { protocol: { description: "Current protocol", type: "string" }, apy: { description: "Current APY", type: "number" } },
+    //     { type: "object", properties: { protocol: { type: "string" }, apy: { type: "number" } }, required: ["protocol", "apy"] }
+    //   ),
+    // },
+    // "GET /api/sniper/token/:address": {
+    //   accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
+    //   description: "Early buyers (snipers) analysis for a token — find wallets that bought before the pump",
+    //   mimeType: "application/json",
+    //   ...discover(
+    //     { address: { description: "Token contract address (0x...)", type: "string", required: true } },
+    //     { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+    //   ),
+    // },
+    // "GET /api/sniper/wallet/:address": {
+    //   accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
+    //   description: "Sniper track record for a wallet — score, success rate, tokens traded",
+    //   mimeType: "application/json",
+    //   ...discover(
+    //     { address: { description: "Wallet address (0x...)", type: "string", required: true } },
+    //     { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+    //   ),
+    // },
+    // "GET /api/sniper/trending": {
+    //   accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
+    //   description: "Top snipers from trending tokens on Base — wallets that buy early on multiple tokens",
+    //   mimeType: "application/json",
+    //   ...discover({}, { type: "object", properties: {} }),
+    // },
+    // "GET /api/smart-money/wallet/:address": {
+    //   accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
+    //   description: "Smart money analysis for a wallet — score, classification, trading patterns, token activity",
+    //   mimeType: "application/json",
+    //   ...discover(
+    //     { address: { description: "Wallet address (0x...)", type: "string", required: true } },
+    //     { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+    //   ),
+    // },
+    // "GET /api/smart-money/token/:address": {
+    //   accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
+    //   description: "Find smart money buyers of a token — who's buying, are they still holding, smart money signal strength",
+    //   mimeType: "application/json",
+    //   ...discover(
+    //     { address: { description: "Token contract address (0x...)", type: "string", required: true } },
+    //     { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+    //   ),
+    // },
+    // "GET /api/smart-money/activity": {
+    //   accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
+    //   description: "What smart money wallets are buying right now on Base — scans trending tokens for multi-token early buyers",
+    //   mimeType: "application/json",
+    //   ...discover({}, { type: "object", properties: {} }),
+    // },
+    // "GET /api/token-safety/:address": {
+    //   accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
+    //   description: "Token safety analysis — rug risk score, honeypot check, holder analysis, tax info. Uses GoPlus Security data.",
+    //   mimeType: "application/json",
+    //   ...discover(
+    //     { address: { description: "Token contract address (0x...)", type: "string", required: true } },
+    //     { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+    //   ),
+    // },
+    // "GET /api/wallet-risk/:address": {
+    //   accepts: [{ scheme: "exact", price: "$0.03", network: N, payTo: PAY_TO }],
+    //   description: "Wallet risk scoring — age, activity patterns, scam interaction, bot detection. On-chain behavior analysis.",
+    //   mimeType: "application/json",
+    //   ...discover(
+    //     { address: { description: "Wallet address (0x...)", type: "string", required: true } },
+    //     { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+    //   ),
+    // },
+    // "GET /api/protocols/base": {
+    //   accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
+    //   description: "All Base protocol stats — TVL, categories, top protocols. Data from DeFiLlama.",
+    //   mimeType: "application/json",
+    //   ...discover({}, { type: "object", properties: {} }),
+    // },
+    // "GET /api/protocols/base/tvl": {
+    //   accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
+    //   description: "Base chain TVL history — 30 day trend, 7d/30d change. Data from DeFiLlama.",
+    //   mimeType: "application/json",
+    //   ...discover({}, { type: "object", properties: {} }),
+    // },
+    // "GET /api/protocols/base/movers": {
+    //   accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
+    //   description: "Top gainers and losers on Base in 24h by TVL change",
+    //   mimeType: "application/json",
+    //   ...discover({}, { type: "object", properties: {} }),
+    // },
   };
 
   // --- Middleware ---
@@ -238,7 +229,7 @@ async function main() {
   });
 
   app.get("/health", (req, res) => {
-    res.json({ status: "ok", network: "base", payTo: PAY_TO, version: "4.0.0" });
+    res.json({ status: "ok", network: "base", payTo: PAY_TO, version: "5.0.0-free", note: "All endpoints free for 24 hours!" });
   });
 
   app.get("/api/protocols", (req, res) => {
