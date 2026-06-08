@@ -112,14 +112,42 @@ async function getTokenPrice(tokenAddress) {
 }
 
 // Search trending tokens on Base via DEX Screener
+// token-profiles/latest/v1 rarely has Base tokens, so we use multiple strategies
 async function getTrendingTokens() {
   try {
-    const data = await fetchJSON(`${DEXSCREENER}/token-profiles/latest/v1`);
-    const profiles = Array.isArray(data) ? data : [];
-    return profiles
-      .filter((p) => p.chainId === "base")
-      .slice(0, 30)
-      .map((p) => p.tokenAddress);
+    // Strategy 1: Search for popular Base memecoins/tokens
+    const searches = ["base", "aero", "degen", "brett", "toshi"];
+    const allTokens = new Set();
+
+    for (const q of searches) {
+      try {
+        const data = await fetchJSON(
+          `${DEXSCREENER}/latest/dex/search?q=${q}`
+        );
+        const pairs = data.pairs || [];
+        for (const p of pairs) {
+          if (p.chainId === "base" && p.baseToken?.address) {
+            allTokens.add(p.baseToken.address.toLowerCase());
+          }
+        }
+      } catch {
+        continue;
+      }
+      if (allTokens.size >= 20) break;
+    }
+
+    // Strategy 2: Also check token-profiles for any base entries
+    try {
+      const profiles = await fetchJSON(`${DEXSCREENER}/token-profiles/latest/v1`);
+      const arr = Array.isArray(profiles) ? profiles : [];
+      for (const p of arr) {
+        if (p.chainId === "base" && p.tokenAddress) {
+          allTokens.add(p.tokenAddress.toLowerCase());
+        }
+      }
+    } catch {}
+
+    return Array.from(allTokens).slice(0, 30);
   } catch {
     return [];
   }
