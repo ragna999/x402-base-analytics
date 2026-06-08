@@ -174,6 +174,15 @@ async function getAddressInfo(address) {
   }
 }
 
+// Get address counters (tx count, token transfers, gas usage)
+async function getAddressCounters(address) {
+  try {
+    return await fetchJSON(`${BLOCKSCOUT}/addresses/${address}/counters`);
+  } catch {
+    return null;
+  }
+}
+
 // Get token transfers for a specific token contract
 async function getTokenContractTransfers(tokenAddress, limit = 200) {
   try {
@@ -195,14 +204,16 @@ async function getTokenContractTransfers(tokenAddress, limit = 200) {
 export async function analyzeSmartMoneyWallet(address) {
   address = address.toLowerCase();
 
-  const [addrInfo, txs, transfers, ethBalance] = await Promise.all([
+  const [addrInfo, counters, txs, transfers, ethBalance] = await Promise.all([
     getAddressInfo(address),
+    getAddressCounters(address),
     getTransactions(address, 100),
     getTokenTransfers(address, 100),
     getETHBalance(address),
   ]);
 
-  const txCount = addrInfo?.transactions_count || txs.length;
+  const txCount = parseInt(counters?.transactions_count || 0);
+  const tokenTransferCount = parseInt(counters?.token_transfers_count || 0);
   const uniqueTokens = new Set(
     transfers.map((t) => t.token?.address_hash?.toLowerCase()).filter(Boolean)
   );
@@ -311,6 +322,7 @@ export async function analyzeSmartMoneyWallet(address) {
     metrics: {
       ethBalance: ethBalance.toFixed(4),
       txCount,
+      tokenTransferCount,
       tokenCount,
       recentTxs7d: recentTxs.length,
       monthlyTxs: monthlyTxs.length,
@@ -370,19 +382,22 @@ export async function analyzeTokenSmartMoney(tokenAddress, opts = {}) {
   const analyzed = [];
   for (const buyer of buyers) {
     try {
-      const [ethBal, addrInfo, tokenBal] = await Promise.all([
+      const [ethBal, counters, tokenBal] = await Promise.all([
         getETHBalance(buyer.address),
-        getAddressInfo(buyer.address),
+        getAddressCounters(buyer.address),
         getTokenBalance(tokenAddress, buyer.address),
       ]);
 
-      const txCount = addrInfo?.transactions_count || 0;
+      const txCount = parseInt(counters?.transactions_count || 0);
+      const tokenTransferCount = parseInt(counters?.token_transfers_count || 0);
 
       let quickScore = 0;
       if (ethBal > 5) quickScore += 25;
       else if (ethBal > 1) quickScore += 15;
       if (txCount > 200) quickScore += 20;
       else if (txCount > 50) quickScore += 10;
+      if (tokenTransferCount > 1000) quickScore += 15;
+      else if (tokenTransferCount > 100) quickScore += 10;
       if (buyer.transferCount > 3) quickScore += 15;
 
       const stillHolding = tokenBal > 0n;
@@ -392,6 +407,7 @@ export async function analyzeTokenSmartMoney(tokenAddress, opts = {}) {
         smartMoneyScore: quickScore,
         ethBalance: ethBal.toFixed(4),
         txCount,
+        tokenTransferCount,
         buyCount: buyer.transferCount,
         firstSeen: buyer.firstSeen,
         stillHolding,
