@@ -234,6 +234,7 @@ async function main() {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ragna Analytics — Base Chain Intelligence</title>
+  <meta name="base:app_id" content="6a269dfdbac148992eb51dc4" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
