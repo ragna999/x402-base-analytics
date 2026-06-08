@@ -21,6 +21,9 @@ import { getBaseProtocolStats, getBaseTvlHistory, getBaseMovers } from "./protoc
 // Sniper tracker
 import { getTokenSnipers, getWalletSniperRecord, getTrendingSnipers } from "./sniper.js";
 
+// Smart money tracker
+import { analyzeSmartMoneyWallet, analyzeTokenSmartMoney, getSmartMoneyActivity } from "./smartMoney.js";
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PAY_TO = process.env.PAY_TO_ADDRESS;
@@ -151,6 +154,32 @@ async function main() {
       ...discover({}, { type: "object", properties: {} }),
     },
 
+    // === SMART MONEY TRACKER ===
+    "GET /api/smart-money/wallet/:address": {
+      accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
+      description: "Smart money analysis for a wallet — score, classification, trading patterns, token activity",
+      mimeType: "application/json",
+      ...discover(
+        { address: { description: "Wallet address (0x...)", type: "string", required: true } },
+        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+      ),
+    },
+    "GET /api/smart-money/token/:address": {
+      accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
+      description: "Find smart money buyers of a token — who's buying, are they still holding, smart money signal strength",
+      mimeType: "application/json",
+      ...discover(
+        { address: { description: "Token contract address (0x...)", type: "string", required: true } },
+        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+      ),
+    },
+    "GET /api/smart-money/activity": {
+      accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
+      description: "What smart money wallets are buying right now on Base — scans trending tokens for multi-token early buyers",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+
     // === TOKEN SAFETY ===
     "GET /api/token-safety/:address": {
       accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
@@ -199,7 +228,7 @@ async function main() {
 
   // === FREE ROUTES ===
   app.get("/health", (req, res) => {
-    res.json({ status: "ok", network: "base", payTo: PAY_TO, version: "3.0.0" });
+    res.json({ status: "ok", network: "base", payTo: PAY_TO, version: "4.0.0" });
   });
 
   app.get("/api/protocols", (req, res) => {
@@ -209,6 +238,7 @@ async function main() {
       safety: ["token-safety", "wallet-risk"],
       stats: ["protocols/base", "protocols/base/tvl", "protocols/base/movers"],
       sniper: ["token/:address", "wallet/:address", "trending"],
+      smartMoney: ["wallet/:address", "token/:address", "activity"],
     });
   });
 
@@ -298,6 +328,24 @@ async function main() {
     catch (err) { console.error("Sniper trending error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
+  // === SMART MONEY TRACKER ===
+  app.get("/api/smart-money/wallet/:address", async (req, res) => {
+    try { res.json(await analyzeSmartMoneyWallet(req.params.address)); }
+    catch (err) { console.error("Smart money wallet error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/smart-money/token/:address", async (req, res) => {
+    try {
+      const maxBuyers = Math.min(parseInt(req.query.limit) || 30, 50);
+      res.json(await analyzeTokenSmartMoney(req.params.address, { maxBuyers }));
+    } catch (err) { console.error("Smart money token error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/smart-money/activity", async (req, res) => {
+    try { res.json(await getSmartMoneyActivity()); }
+    catch (err) { console.error("Smart money activity error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
   // --- Start ---
   app.listen(PORT, () => {
     console.log(`
@@ -333,7 +381,12 @@ SNIPER TRACKER ($0.01):
   GET /api/sniper/wallet/:address
   GET /api/sniper/trending
 
-Total: 17 endpoints | Bazaar discovery: ENABLED
+SMART MONEY ($0.02):
+  GET /api/smart-money/wallet/:address
+  GET /api/smart-money/token/:address
+  GET /api/smart-money/activity
+
+Total: 20 endpoints | Bazaar discovery: ENABLED
 `);
   });
 }
