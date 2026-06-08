@@ -154,31 +154,31 @@ async function main() {
       ...discover({}, { type: "object", properties: {} }),
     },
 
-    // === SMART MONEY TRACKER === (FREE for testing — will convert to paid after verification)
-    // "GET /api/smart-money/wallet/:address": {
-    //   accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
-    //   description: "Smart money analysis for a wallet — score, classification, trading patterns, token activity",
-    //   mimeType: "application/json",
-    //   ...discover(
-    //     { address: { description: "Wallet address (0x...)", type: "string", required: true } },
-    //     { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
-    //   ),
-    // },
-    // "GET /api/smart-money/token/:address": {
-    //   accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
-    //   description: "Find smart money buyers of a token — who's buying, are they still holding, smart money signal strength",
-    //   mimeType: "application/json",
-    //   ...discover(
-    //     { address: { description: "Token contract address (0x...)", type: "string", required: true } },
-    //     { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
-    //   ),
-    // },
-    // "GET /api/smart-money/activity": {
-    //   accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
-    //   description: "What smart money wallets are buying right now on Base — scans trending tokens for multi-token early buyers",
-    //   mimeType: "application/json",
-    //   ...discover({}, { type: "object", properties: {} }),
-    // },
+    // === SMART MONEY TRACKER ===
+    "GET /api/smart-money/wallet/:address": {
+      accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
+      description: "Smart money analysis for a wallet — score, classification, trading patterns, token activity",
+      mimeType: "application/json",
+      ...discover(
+        { address: { description: "Wallet address (0x...)", type: "string", required: true } },
+        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+      ),
+    },
+    "GET /api/smart-money/token/:address": {
+      accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
+      description: "Find smart money buyers of a token — who's buying, are they still holding, smart money signal strength",
+      mimeType: "application/json",
+      ...discover(
+        { address: { description: "Token contract address (0x...)", type: "string", required: true } },
+        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+      ),
+    },
+    "GET /api/smart-money/activity": {
+      accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
+      description: "What smart money wallets are buying right now on Base — scans trending tokens for multi-token early buyers",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
 
     // === TOKEN SAFETY ===
     "GET /api/token-safety/:address": {
