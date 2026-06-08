@@ -2,7 +2,7 @@
 # Deploy: flyctl launch --copy-config --name x402-mcp
 
 app = "x402-mcp"
-primary_region = "sin"  # Singapore (closest to Indonesia)
+# primary_region = "sin"  # Singapore (closest to Indonesia) — let Fly auto-select
 
 [build]
   dockerfile = "Dockerfile"

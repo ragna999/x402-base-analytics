@@ -1,0 +1,21 @@
+# render.yaml — MCP Server for x402 Base Analytics
+# Deploy to Render: connect GitHub repo at render.com/new
+
+services:
+  - type: web
+    name: x402-mcp
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: singapore  # closest to Indonesia
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MCP_PORT
+        value: "4022"
+      - key: FACILITATOR_URL
+        value: https://api.cdp.coinbase.com/platform/v2/x402
+      - key: PAY_TO_ADDRESS
+        sync: false  # set manually in Render dashboard
+    healthCheckPath: /health
+    autoDeploy: true
