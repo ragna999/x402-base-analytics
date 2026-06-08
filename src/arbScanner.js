@@ -208,7 +208,7 @@ async function scanPair(tokenIn, tokenOut, amountIn, symbol) {
 }
 
 // Detect arbitrage opportunity
-function detectArbitrage(quotes, tokenInDecimals, tokenOutDecimals) {
+function detectArbitrage(quotes, tokenInDecimals, tokenOutDecimals, amountInRaw) {
   if (quotes.length < 2) return null;
 
   // Sort by output (highest first)
@@ -228,7 +228,8 @@ function detectArbitrage(quotes, tokenInDecimals, tokenOutDecimals) {
   const gasCostUSD = gasCostETH * ethPrice;
 
   // Aave flash loan fee: 0.05% of borrowed amount
-  const flashLoanFee = (amountIn / Math.pow(10, tokenInDecimals)) * 0.0005;
+  const borrowedAmount = Number(amountInRaw) / Math.pow(10, tokenInDecimals);
+  const flashLoanFee = borrowedAmount * 0.0005;
 
   // Calculate profit in token terms
   const profitRaw = diff;
@@ -287,7 +288,8 @@ export async function scanAllPairs(amountUSDC = 1000) {
       const arb = detectArbitrage(
         quotes,
         tokenIn.decimals,
-        tokenOut.decimals
+        tokenOut.decimals,
+        adjustedAmountIn
       );
 
       if (arb && arb.profitable) {
@@ -338,7 +340,7 @@ export async function scanSpecificPair(
     `${fromSymbol}/${toSymbol}`
   );
 
-  const arb = detectArbitrage(quotes, from.decimals, to.decimals);
+  const arb = detectArbitrage(quotes, from.decimals, to.decimals, adjustedAmount);
 
   return {
     pair: `${fromSymbol} → ${toSymbol}`,
