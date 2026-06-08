@@ -237,17 +237,18 @@ function detectArbitrage(quotes, tokenInDecimals, tokenOutDecimals, amountInRaw)
     profitRaw / Math.pow(10, tokenOutDecimals);
 
   const totalCosts = gasCostUSD + flashLoanFee;
+  const profitUSD = profitFormatted * ethPrice;
 
   return {
-    profitable: diffPercent > 0.3 && profitFormatted > totalCosts,
+    profitable: diffPercent > 0.3 && profitUSD > totalCosts,
     buyFrom: worst.dex,
     sellTo: best.dex,
     spreadPercent: diffPercent.toFixed(2),
-    estimatedProfitUSD: (profitFormatted * ethPrice).toFixed(4),
+    estimatedProfitUSD: profitUSD.toFixed(4),
     gasCostUSD: gasCostUSD.toFixed(4),
     flashLoanFeeUSD: flashLoanFee.toFixed(4),
     totalCostsUSD: totalCosts.toFixed(4),
-    netProfitUSD: (profitFormatted * ethPrice - totalCosts).toFixed(4),
+    netProfitUSD: (profitUSD - totalCosts).toFixed(4),
   };
 }
 
