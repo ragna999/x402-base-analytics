@@ -27,6 +27,9 @@ import { getTokenSnipers, getWalletSniperRecord, getTrendingSnipers } from "./sn
 // Smart money tracker
 import { analyzeSmartMoneyWallet, analyzeTokenSmartMoney, getSmartMoneyActivity } from "./smartMoney.js";
 
+// Arbitrage scanner
+import { scanAllPairs, scanSpecificPair, getSupportedTokens, getSupportedDexs } from "./arbScanner.js";
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PAY_TO = process.env.PAY_TO_ADDRESS;
@@ -361,6 +364,25 @@ async function main() {
   app.get("/api/smart-money/activity", async (req, res) => {
     try { res.json(await getSmartMoneyActivity()); }
     catch (err) { console.error("Smart money activity error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  // === ARBITRAGE SCANNER (internal tool — free) ===
+  app.get("/api/arb/scan", async (req, res) => {
+    try {
+      const amount = parseInt(req.query.amount) || 1000;
+      res.json(await scanAllPairs(amount));
+    } catch (err) { console.error("Arb scan error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/arb/pair/:from/:to", async (req, res) => {
+    try {
+      const amount = parseInt(req.query.amount) || 1000;
+      res.json(await scanSpecificPair(req.params.from.toUpperCase(), req.params.to.toUpperCase(), amount));
+    } catch (err) { console.error("Arb pair error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/arb/tokens", (req, res) => {
+    res.json({ tokens: getSupportedTokens(), dexs: getSupportedDexs() });
   });
 
   // --- Start ---
