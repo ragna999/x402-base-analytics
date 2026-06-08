@@ -377,8 +377,9 @@ async function main() {
   app.get("/api/arb/pair/:from/:to", async (req, res) => {
     try {
       const amount = parseInt(req.query.amount) || 1000;
-      res.json(await scanSpecificPair(req.params.from.toUpperCase(), req.params.to.toUpperCase(), amount));
-    } catch (err) { console.error("Arb pair error:", err.message); res.status(500).json({ error: "Failed" }); }
+      const result = await scanSpecificPair(req.params.from.toUpperCase(), req.params.to.toUpperCase(), amount);
+      res.json(result);
+    } catch (err) { console.error("Arb pair error:", err.message); res.status(500).json({ error: "Failed", details: err.message }); }
   });
 
   app.get("/api/arb/tokens", (req, res) => {
