@@ -30,6 +30,7 @@ import { analyzeSmartMoneyWallet, analyzeTokenSmartMoney, getSmartMoneyActivity 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PAY_TO = process.env.PAY_TO_ADDRESS;
+const BUILDER_CODE = process.env.BUILDER_CODE || "bc_7isseb6n";
 
 if (!PAY_TO) {
   console.error("ERROR: PAY_TO_ADDRESS not set in .env");
@@ -231,7 +232,20 @@ async function main() {
   });
 
   app.get("/health", (req, res) => {
-    res.json({ status: "ok", network: "base", payTo: PAY_TO, version: "5.0.0-free", note: "All endpoints free for 24 hours!" });
+    res.json({ status: "ok", network: "base", payTo: PAY_TO, version: "5.0.0-free", builderCode: BUILDER_CODE, note: "All endpoints free for 24 hours!" });
+  });
+
+  // Builder Code info (ERC-8021)
+  app.get("/builder-code", (req, res) => {
+    res.json({
+      builderCode: BUILDER_CODE,
+      standard: "ERC-8021",
+      network: "base",
+      walletAddress: PAY_TO,
+      registrationUrl: "https://base.dev",
+      howToUse: "Append builder code suffix to transaction calldata for attribution. See https://docs.base.org/apps/builder-codes/agent-developers",
+      hexSuffix: "0x0762617365617070" + Buffer.from(BUILDER_CODE).toString("hex") + "80218021802180218021802180218021",
+    });
   });
 
   app.get("/api/protocols", (req, res) => {

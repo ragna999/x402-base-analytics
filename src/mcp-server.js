@@ -40,6 +40,7 @@ import {
 } from "./smartMoney.js";
 
 const PAY_TO = process.env.PAY_TO_ADDRESS;
+const BUILDER_CODE = process.env.BUILDER_CODE || "bc_7isseb6n";
 const MCP_PORT = process.env.MCP_PORT || 4022;
 
 if (!PAY_TO) {
