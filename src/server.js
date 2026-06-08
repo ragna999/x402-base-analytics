@@ -218,10 +218,10 @@ async function main() {
   };
 
   // --- Middleware ---
+  app.use(cors());
   app.use(paymentMiddleware(paymentConfig, resourceServer));
 
   // === FREE ROUTES ===
-  app.use(cors());
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = dirname(__filename);
   app.use(express.static(join(__dirname, '..', 'public')));
