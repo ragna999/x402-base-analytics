@@ -163,22 +163,26 @@ async function getAerodromeQuote(tokenIn, tokenOut, amountIn) {
     const reserves = await getAerodromeReserves(tokenIn, tokenOut);
     if (!reserves) return 0n;
 
-    const tokenA = tokenIn.toLowerCase();
-    const factoryAddr = DEXS.aerodrome.factory.toLowerCase();
+    // Get token0 from pool to determine ordering
+    const token0Data = "0x0dfe1681"; // token0()
+    const token0Result = await rpcCall("eth_call", [
+      { to: reserves.poolAddress, data: token0Data },
+      "latest",
+    ]);
+    const token0 = "0x" + token0Result.slice(26, 66).toLowerCase();
+    const tokenInLower = tokenIn.toLowerCase();
 
     // Determine which reserve is for tokenIn
-    // Need to check token ordering in pool
-    const poolToken0Data =
-      "0x0dfe1681" + // token0()
-      reserves.poolAddress.toLowerCase().replace("0x", "").padStart(64, "0");
+    let reserveIn, reserveOut;
+    if (token0 === tokenInLower) {
+      reserveIn = reserves.reserve0;
+      reserveOut = reserves.reserve1;
+    } else {
+      reserveIn = reserves.reserve1;
+      reserveOut = reserves.reserve0;
+    }
 
-    // Simplified: assume reserve0 = tokenIn, reserve1 = tokenOut
-    // In production, check token0() to determine ordering
-    return calculateAerodromeOutput(
-      reserves.reserve0,
-      reserves.reserve1,
-      amountIn
-    );
+    return calculateAerodromeOutput(reserveIn, reserveOut, amountIn);
   } catch {
     return 0n;
   }
