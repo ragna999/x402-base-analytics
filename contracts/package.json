@@ -1,0 +1,19 @@
+{
+  "name": "flash-loan-arb",
+  "version": "1.0.0",
+  "description": "Flash loan arbitrage bot for Base",
+  "private": true,
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "deploy": "npx hardhat run scripts/deploy.js --network base",
+    "verify": "npx hardhat verify --network base"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.19.0"
+  },
+  "dependencies": {
+    "@aave/v3-core": "^1.19.0",
+    "dotenv": "^16.4.0"
+  }
+}
