@@ -99,7 +99,10 @@ async function getUniswapQuote(tokenIn, tokenOut, amountIn, fee = 3000) {
       { to: DEXS.uniswapV3.quoter, data },
       "latest",
     ]);
-    return decodeUint256(result);
+    // Quoter returns multiple values — first 32 bytes is amountOut
+    if (!result || result === "0x" || result.length < 66) return 0n;
+    const amountOut = BigInt(result.slice(0, 66));
+    return amountOut;
   } catch {
     return 0n;
   }
