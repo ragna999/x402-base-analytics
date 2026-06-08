@@ -220,24 +220,33 @@ function detectArbitrage(quotes, tokenInDecimals, tokenOutDecimals) {
   const diffPercent =
     (diff / worst.output) * 100;
 
-  // Estimate gas cost (simplified)
-  const gasEstimate = 200000; // ~200K gas for flash loan arb
-  const gasPrice = 0.001; // ~0.001 gwei on Base (very cheap)
-  const gasCost = gasEstimate * gasPrice;
+  // Estimate gas cost (Base is very cheap: ~0.005 gwei)
+  const gasEstimate = 300000; // ~300K gas for flash loan arb
+  const gasPriceGwei = 0.005; // Base gas price
+  const gasCostETH = (gasEstimate * gasPriceGwei) / 1e9; // Convert to ETH
+  const ethPrice = 2600; // Approximate ETH price
+  const gasCostUSD = gasCostETH * ethPrice;
+
+  // Aave flash loan fee: 0.05% of borrowed amount
+  const flashLoanFee = (amountIn / Math.pow(10, tokenInDecimals)) * 0.0005;
 
   // Calculate profit in token terms
   const profitRaw = diff;
   const profitFormatted =
     profitRaw / Math.pow(10, tokenOutDecimals);
 
+  const totalCosts = gasCostUSD + flashLoanFee;
+
   return {
-    profitable: diffPercent > 0.3, // Minimum 0.3% spread
+    profitable: diffPercent > 0.3 && profitFormatted > totalCosts,
     buyFrom: worst.dex,
     sellTo: best.dex,
     spreadPercent: diffPercent.toFixed(2),
-    estimatedProfit: profitFormatted.toFixed(6),
-    gasCostEstimate: gasCost.toFixed(6),
-    netProfit: (profitFormatted - gasCost).toFixed(6),
+    estimatedProfitUSD: (profitFormatted * ethPrice).toFixed(4),
+    gasCostUSD: gasCostUSD.toFixed(4),
+    flashLoanFeeUSD: flashLoanFee.toFixed(4),
+    totalCostsUSD: totalCosts.toFixed(4),
+    netProfitUSD: (profitFormatted * ethPrice - totalCosts).toFixed(4),
   };
 }
 
