@@ -1,5 +1,7 @@
 import "dotenv/config";
 import express from "express";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 import { paymentMiddleware, x402ResourceServer } from "@x402/express";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
 import { HTTPFacilitatorClient } from "@x402/core/server";
@@ -227,57 +229,12 @@ async function main() {
   app.use(paymentMiddleware(paymentConfig, resourceServer));
 
   // === FREE ROUTES ===
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = dirname(__filename);
+  app.use(express.static(join(__dirname, '..', 'public')));
+
   app.get("/", (req, res) => {
-    res.send(`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ragna Analytics — Base Chain Intelligence</title>
-  <meta name="base:app_id" content="6a269dfdbac148992eb51dc4" />
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-    .container { max-width: 600px; padding: 2rem; text-align: center; }
-    h1 { font-size: 2.5rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #0052ff, #6a5cff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    p { color: #888; margin-bottom: 1.5rem; line-height: 1.6; }
-    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
-    .stat { background: #111; border-radius: 12px; padding: 1rem; border: 1px solid #222; }
-    .stat .num { font-size: 1.5rem; font-weight: 700; color: #0052ff; }
-    .stat .label { font-size: 0.75rem; color: #666; margin-top: 0.25rem; }
-    a { color: #0052ff; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .endpoints { text-align: left; background: #111; border-radius: 12px; padding: 1.5rem; border: 1px solid #222; margin-bottom: 1.5rem; }
-    .endpoints h3 { color: #fff; margin-bottom: 0.75rem; font-size: 0.9rem; }
-    .ep { color: #888; font-size: 0.8rem; font-family: monospace; margin-bottom: 0.25rem; }
-    .ep .price { color: #4ade80; }
-    .footer { color: #444; font-size: 0.75rem; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>Ragna Analytics</h1>
-    <p>AI-powered on-chain intelligence for Base. Smart analytics for smart money.</p>
-    <div class="stats">
-      <div class="stat"><div class="num">20</div><div class="label">REST Endpoints</div></div>
-      <div class="stat"><div class="num">13</div><div class="label">MCP Tools</div></div>
-      <div class="stat"><div class="num">6</div><div class="label">Categories</div></div>
-    </div>
-    <div class="endpoints">
-      <h3>Available Services</h3>
-      <div class="ep">GET /api/portfolio/:address <span class="price">$0.005</span></div>
-      <div class="ep">GET /api/summary/:address <span class="price">$0.02</span></div>
-      <div class="ep">GET /api/yields <span class="price">$0.02</span></div>
-      <div class="ep">GET /api/token-safety/:address <span class="price">$0.02</span></div>
-      <div class="ep">GET /api/smart-money/activity <span class="price">$0.02</span></div>
-      <div class="ep">GET /api/sniper/trending <span class="price">$0.01</span></div>
-      <div class="ep" style="color: #666; margin-top: 0.5rem;">+ 14 more endpoints...</div>
-    </div>
-    <p><a href="/health">Health Check</a> · <a href="/api/protocols">API Docs</a></p>
-    <div class="footer">Built on Base · Powered by x402 Protocol</div>
-  </div>
-</body>
-</html>`);
+    res.sendFile(join(__dirname, '..', 'public', 'index.html'));
   });
 
   app.get("/health", (req, res) => {
