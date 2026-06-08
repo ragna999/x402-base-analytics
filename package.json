@@ -6,15 +6,18 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
+    "start:mcp": "node src/mcp-server.js",
     "dev": "node --watch src/server.js"
   },
   "dependencies": {
-    "@x402/express": "latest",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@x402/core": "latest",
     "@x402/evm": "latest",
+    "@x402/express": "latest",
     "@x402/extensions": "latest",
-    "express": "^4.21.0",
-    "dotenv": "^16.4.0"
+    "@x402/mcp": "^2.14.0",
+    "dotenv": "^16.4.0",
+    "express": "^4.21.0"
   },
   "engines": {
     "node": ">=18"
