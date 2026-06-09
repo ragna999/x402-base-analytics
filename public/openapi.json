@@ -1,18 +1,18 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Ragna Analytics — Base Chain Intelligence",
+    "title": "RagRadar — Base Chain Intelligence",
     "version": "6.0.0",
     "description": "AI-powered on-chain analytics for Base chain. 25 REST endpoints covering wallet analytics, DeFi yields, token safety, smart money tracking, whale alerts, sniper detection, and protocol stats. All data from free sources (GeckoTerminal, Blockscout, DeFiLlama, GoPlus).",
     "x-guidance": "Use GET endpoints to query Base chain analytics. Paid endpoints return HTTP 402 with x402 payment challenge. Wallet addresses are 0x-format EVM addresses. Token addresses are Base chain (8453) contract addresses. All responses are JSON.",
     "contact": {
-      "name": "Ragna Analytics",
-      "url": "https://x402-base-analytics.vercel.app"
+      "name": "RagRadar",
+      "url": "https://ragradar.vercel.app"
     }
   },
   "servers": [
     {
-      "url": "https://x402-base-analytics.vercel.app",
+      "url": "https://ragradar.vercel.app",
       "description": "Production (Vercel)"
     }
   ],
