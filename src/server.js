@@ -8,7 +8,10 @@ import { ExactEvmScheme } from "@x402/evm/exact/server";
 import { HTTPFacilitatorClient } from "@x402/core/server";
 import { declareDiscoveryExtension } from "@x402/extensions/bazaar";
 
-// Wallet analytics
+// Chain config
+import { CHAINS, SUPPORTED_CHAINS } from "./chains.js";
+
+// Wallet analytics (multi-chain)
 import { getPortfolio } from "./analytics/portfolio.js";
 import { getTxHistory } from "./analytics/history.js";
 import { getWalletSummary } from "./analytics/summary.js";
@@ -16,7 +19,7 @@ import { getWalletSummary } from "./analytics/summary.js";
 // DeFi yields
 import { getAllYields, getBestYieldsForAsset, getYieldsByRisk, getRebalanceRecommendation } from "./aggregator.js";
 
-// New: Token safety, wallet risk, protocol stats
+// Token safety, wallet risk, protocol stats
 import { analyzeTokenSafety } from "./tokenSafety.js";
 import { analyzeWalletRisk } from "./walletRisk.js";
 import { getBaseProtocolStats, getBaseTvlHistory, getBaseMovers } from "./protocolStats.js";
@@ -35,6 +38,9 @@ import { getWhaleAlerts, getTokenWhaleActivity, getWhaleMovements, getWhaleHeatm
 
 // Aggregated endpoints
 import { getTokenIntelligence, getMarketPulse, getWalletIntelligence, getDefiDashboard, getRiskAssessment } from "./aggregated.js";
+
+// GMX Perps (Arbitrum-specific)
+import { getGmxStats, getGmxFundingRates, getGlpYield, getGmxLiquidations } from "./gmxPerps.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -71,219 +77,269 @@ async function main() {
     process.exit(1);
   }
 
+  // Register both Base and Arbitrum
   const resourceServer = new x402ResourceServer(facilitatorClient)
-    .register("eip155:8453", new ExactEvmScheme());
+    .register("eip155:8453", new ExactEvmScheme())
+    .register("eip155:42161", new ExactEvmScheme());
 
-  const N = "eip155:8453";
+  const BASE = "eip155:8453";
+  const ARB = "eip155:42161";
+
   const discover = (input, inputSchema) => ({
     extensions: { ...declareDiscoveryExtension({ input, inputSchema }) },
   });
 
+  // Multi-chain accepts helper
+  const multiChain = (price, payTo = PAY_TO) => [
+    { scheme: "exact", price, network: BASE, payTo },
+    { scheme: "exact", price, network: ARB, payTo },
+  ];
+
   const paymentConfig = {
-// === WALLET ANALYTICS ===
-"GET /api/portfolio/:address": {
-  accepts: [{ scheme: "exact", price: "$0.005", network: N, payTo: PAY_TO }],
-  description: "Wallet token portfolio on Base (ETH + ERC-20 balances)",
-  mimeType: "application/json",
-  ...discover(
-    { address: { description: "EVM wallet address (0x...)", type: "string", required: true } },
-    { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
-  ),
-},
-"GET /api/history/:address": {
-  accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
-  description: "Recent transaction history for a wallet on Base",
-  mimeType: "application/json",
-  ...discover(
-    { address: { description: "EVM wallet address (0x...)", type: "string", required: true } },
-    { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
-  ),
-},
-"GET /api/summary/:address": {
-  accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
-  description: "Full wallet analytics: portfolio, history, activity stats on Base",
-  mimeType: "application/json",
-  ...discover(
-    { address: { description: "EVM wallet address (0x...)", type: "string", required: true } },
-    { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
-  ),
-},
-"GET /api/yields": {
-  accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
-  description: "Real-time DeFi yields on Base — Morpho, Moonwell, Aerodrome. Sorted by APY.",
-  mimeType: "application/json",
-  ...discover({}, { type: "object", properties: {} }),
-},
-"GET /api/yields/best/:asset": {
-  accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
-  description: "Best yield for a specific asset (USDC, ETH, etc.) across all Base DeFi protocols",
-  mimeType: "application/json",
-  ...discover(
-    { asset: { description: "Asset symbol (e.g. USDC, ETH)", type: "string", required: true } },
-    { type: "object", properties: { asset: { type: "string" } }, required: ["asset"] }
-  ),
-},
-"GET /api/yields/risk": {
-  accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
-  description: "DeFi yields categorized by risk level (low/medium/high)",
-  mimeType: "application/json",
-  ...discover({}, { type: "object", properties: {} }),
-},
-"GET /api/yields/rebalance": {
-  accepts: [{ scheme: "exact", price: "$0.05", network: N, payTo: PAY_TO }],
-  description: "Rebalance recommendation — compare your current yield vs best available",
-  mimeType: "application/json",
-  ...discover(
-    { protocol: { description: "Current protocol", type: "string" }, apy: { description: "Current APY", type: "number" } },
-    { type: "object", properties: { protocol: { type: "string" }, apy: { type: "number" } }, required: ["protocol", "apy"] }
-  ),
-},
-"GET /api/sniper/token/:address": {
-  accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
-  description: "Early buyers (snipers) analysis for a token — find wallets that bought before the pump",
-  mimeType: "application/json",
-  ...discover(
-    { address: { description: "Token contract address (0x...)", type: "string", required: true } },
-    { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
-  ),
-},
-"GET /api/sniper/wallet/:address": {
-  accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
-  description: "Sniper track record for a wallet — score, success rate, tokens traded",
-  mimeType: "application/json",
-  ...discover(
-    { address: { description: "Wallet address (0x...)", type: "string", required: true } },
-    { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
-  ),
-},
-"GET /api/sniper/trending": {
-  accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
-  description: "Top snipers from trending tokens on Base — wallets that buy early on multiple tokens",
-  mimeType: "application/json",
-  ...discover({}, { type: "object", properties: {} }),
-},
-"GET /api/smart-money/wallet/:address": {
-  accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
-  description: "Smart money analysis for a wallet — score, classification, trading patterns, token activity",
-  mimeType: "application/json",
-  ...discover(
-    { address: { description: "Wallet address (0x...)", type: "string", required: true } },
-    { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
-  ),
-},
-"GET /api/smart-money/token/:address": {
-  accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
-  description: "Find smart money buyers of a token — who's buying, are they still holding, smart money signal strength",
-  mimeType: "application/json",
-  ...discover(
-    { address: { description: "Token contract address (0x...)", type: "string", required: true } },
-    { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
-  ),
-},
-"GET /api/smart-money/activity": {
-  accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
-  description: "What smart money wallets are buying right now on Base — scans trending tokens for multi-token early buyers",
-  mimeType: "application/json",
-  ...discover({}, { type: "object", properties: {} }),
-},
-"GET /api/token-safety/:address": {
-  accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
-  description: "Token safety analysis — rug risk score, honeypot check, holder analysis, tax info. Uses GoPlus Security data.",
-  mimeType: "application/json",
-  ...discover(
-    { address: { description: "Token contract address (0x...)", type: "string", required: true } },
-    { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
-  ),
-},
-"GET /api/wallet-risk/:address": {
-  accepts: [{ scheme: "exact", price: "$0.03", network: N, payTo: PAY_TO }],
-  description: "Wallet risk scoring — age, activity patterns, scam interaction, bot detection. On-chain behavior analysis.",
-  mimeType: "application/json",
-  ...discover(
-    { address: { description: "Wallet address (0x...)", type: "string", required: true } },
-    { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
-  ),
-},
-"GET /api/protocols/base": {
-  accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
-  description: "All Base protocol stats — TVL, categories, top protocols. Data from DeFiLlama.",
-  mimeType: "application/json",
-  ...discover({}, { type: "object", properties: {} }),
-},
-"GET /api/protocols/base/tvl": {
-  accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
-  description: "Base chain TVL history — 30 day trend, 7d/30d change. Data from DeFiLlama.",
-  mimeType: "application/json",
-  ...discover({}, { type: "object", properties: {} }),
-},
-"GET /api/protocols/base/movers": {
-  accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
-  description: "Top gainers and losers on Base in 24h by TVL change",
-  mimeType: "application/json",
-  ...discover({}, { type: "object", properties: {} }),
-},
-// === WHALE ALERTS ===
-"GET /api/whale/alerts": {
-  accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
-  description: "Recent whale alerts — large transfers from known whale wallets",
-  mimeType: "application/json",
-  ...discover({}, { type: "object", properties: {} }),
-},
-"GET /api/whale/alerts/:token": {
-  accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
-  description: "Token whale activity — holder concentration, risk score",
-  mimeType: "application/json",
-  ...discover({ token: { description: "Token address", type: "string", required: true } }, { type: "object", properties: { token: { type: "string" } }, required: ["token"] }),
-},
-"GET /api/whale/movements": {
-  accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
-  description: "Cross-token whale activity — volume, buy/sell ratio",
-  mimeType: "application/json",
-  ...discover({}, { type: "object", properties: {} }),
-},
-"GET /api/whale/heatmap": {
-  accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
-  description: "Whale heatmap — tokens ranked by whale activity score",
-  mimeType: "application/json",
-  ...discover({}, { type: "object", properties: {} }),
-},
-"GET /api/whale/accumulation": {
-  accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
-  description: "Accumulation signals — tokens being accumulated by large buyers",
-  mimeType: "application/json",
-  ...discover({}, { type: "object", properties: {} }),
-},
-// === AGGREGATED ENDPOINTS ===
-"GET /api/intelligence/token/:address": {
-  accepts: [{ scheme: "exact", price: "$0.05", network: N, payTo: PAY_TO }],
-  description: "Complete token intelligence — safety + whale + smart money + snipers combined",
-  mimeType: "application/json",
-  ...discover({ address: { description: "Token contract address (0x...)", type: "string", required: true } }, { type: "object", properties: { address: { type: "string" } }, required: ["address"] }),
-},
-"GET /api/intelligence/wallet/:address": {
-  accepts: [{ scheme: "exact", price: "$0.05", network: N, payTo: PAY_TO }],
-  description: "Complete wallet intelligence — portfolio + smart money + sniper + risk combined",
-  mimeType: "application/json",
-  ...discover({ address: { description: "Wallet address (0x...)", type: "string", required: true } }, { type: "object", properties: { address: { type: "string" } }, required: ["address"] }),
-},
-"GET /api/market/pulse": {
-  accepts: [{ scheme: "exact", price: "$0.05", network: N, payTo: PAY_TO }],
-  description: "Real-time market pulse — whale picks + smart money activity + top movers + yields",
-  mimeType: "application/json",
-  ...discover({}, { type: "object", properties: {} }),
-},
-"GET /api/defi/dashboard": {
-  accepts: [{ scheme: "exact", price: "$0.03", network: N, payTo: PAY_TO }],
-  description: "DeFi dashboard — yields + protocols + TVL + movers combined",
-  mimeType: "application/json",
-  ...discover({}, { type: "object", properties: {} }),
-},
-"GET /api/risk/:address": {
-  accepts: [{ scheme: "exact", price: "$0.03", network: N, payTo: PAY_TO }],
-  description: "Risk assessment — token safety + whale concentration + smart money signal",
-  mimeType: "application/json",
-  ...discover({ address: { description: "Token contract address (0x...)", type: "string", required: true } }, { type: "object", properties: { address: { type: "string" } }, required: ["address"] }),
-},
+    // === WALLET ANALYTICS (MULTI-CHAIN) ===
+    "GET /api/portfolio/:chain/:address": {
+      accepts: multiChain("$0.005"),
+      description: "Wallet token portfolio — supports Base + Arbitrum",
+      mimeType: "application/json",
+      ...discover(
+        { chain: { description: "Chain: base or arbitrum", type: "string", required: true }, address: { description: "EVM wallet address (0x...)", type: "string", required: true } },
+        { type: "object", properties: { chain: { type: "string" }, address: { type: "string" } }, required: ["chain", "address"] }
+      ),
+    },
+    "GET /api/history/:chain/:address": {
+      accepts: multiChain("$0.01"),
+      description: "Recent transaction history — supports Base + Arbitrum",
+      mimeType: "application/json",
+      ...discover(
+        { chain: { description: "Chain: base or arbitrum", type: "string", required: true }, address: { description: "EVM wallet address (0x...)", type: "string", required: true } },
+        { type: "object", properties: { chain: { type: "string" }, address: { type: "string" } }, required: ["chain", "address"] }
+      ),
+    },
+    "GET /api/summary/:chain/:address": {
+      accepts: multiChain("$0.02"),
+      description: "Full wallet analytics: portfolio, history, activity — supports Base + Arbitrum",
+      mimeType: "application/json",
+      ...discover(
+        { chain: { description: "Chain: base or arbitrum", type: "string", required: true }, address: { description: "EVM wallet address (0x...)", type: "string", required: true } },
+        { type: "object", properties: { chain: { type: "string" }, address: { type: "string" } }, required: ["chain", "address"] }
+      ),
+    },
+
+    // === TOKEN SAFETY (MULTI-CHAIN) ===
+    "GET /api/token-safety/:chain/:address": {
+      accepts: multiChain("$0.02"),
+      description: "Token safety analysis — rug risk, honeypot, holder analysis. Supports Base + Arbitrum",
+      mimeType: "application/json",
+      ...discover(
+        { chain: { description: "Chain: base or arbitrum", type: "string", required: true }, address: { description: "Token contract address (0x...)", type: "string", required: true } },
+        { type: "object", properties: { chain: { type: "string" }, address: { type: "string" } }, required: ["chain", "address"] }
+      ),
+    },
+
+    // === DEFI YIELDS ===
+    "GET /api/yields": {
+      accepts: [{ scheme: "exact", price: "$0.02", network: BASE, payTo: PAY_TO }],
+      description: "Real-time DeFi yields on Base — Morpho, Moonwell, Aerodrome. Sorted by APY.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+    "GET /api/yields/best/:asset": {
+      accepts: [{ scheme: "exact", price: "$0.01", network: BASE, payTo: PAY_TO }],
+      description: "Best yield for a specific asset (USDC, ETH, etc.) across all Base DeFi protocols",
+      mimeType: "application/json",
+      ...discover(
+        { asset: { description: "Asset symbol (e.g. USDC, ETH)", type: "string", required: true } },
+        { type: "object", properties: { asset: { type: "string" } }, required: ["asset"] }
+      ),
+    },
+    "GET /api/yields/risk": {
+      accepts: [{ scheme: "exact", price: "$0.02", network: BASE, payTo: PAY_TO }],
+      description: "DeFi yields categorized by risk level (low/medium/high)",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+    "GET /api/yields/rebalance": {
+      accepts: [{ scheme: "exact", price: "$0.05", network: BASE, payTo: PAY_TO }],
+      description: "Rebalance recommendation — compare your current yield vs best available",
+      mimeType: "application/json",
+      ...discover(
+        { protocol: { description: "Current protocol", type: "string" }, apy: { description: "Current APY", type: "number" } },
+        { type: "object", properties: { protocol: { type: "string" }, apy: { type: "number" } }, required: ["protocol", "apy"] }
+      ),
+    },
+
+    // === WALLET RISK ===
+    "GET /api/wallet-risk/:address": {
+      accepts: [{ scheme: "exact", price: "$0.03", network: BASE, payTo: PAY_TO }],
+      description: "Wallet risk scoring — age, activity patterns, scam interaction, bot detection",
+      mimeType: "application/json",
+      ...discover(
+        { address: { description: "Wallet address (0x...)", type: "string", required: true } },
+        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+      ),
+    },
+
+    // === PROTOCOL STATS ===
+    "GET /api/protocols/base": {
+      accepts: [{ scheme: "exact", price: "$0.01", network: BASE, payTo: PAY_TO }],
+      description: "All Base protocol stats — TVL, categories, top protocols. Data from DeFiLlama.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+    "GET /api/protocols/base/tvl": {
+      accepts: [{ scheme: "exact", price: "$0.01", network: BASE, payTo: PAY_TO }],
+      description: "Base chain TVL history — 30 day trend, 7d/30d change",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+    "GET /api/protocols/base/movers": {
+      accepts: [{ scheme: "exact", price: "$0.01", network: BASE, payTo: PAY_TO }],
+      description: "Top gainers and losers on Base in 24h by TVL change",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+
+    // === SNIPER TRACKER ===
+    "GET /api/sniper/token/:address": {
+      accepts: [{ scheme: "exact", price: "$0.01", network: BASE, payTo: PAY_TO }],
+      description: "Early buyers (snipers) analysis for a token",
+      mimeType: "application/json",
+      ...discover(
+        { address: { description: "Token contract address (0x...)", type: "string", required: true } },
+        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+      ),
+    },
+    "GET /api/sniper/wallet/:address": {
+      accepts: [{ scheme: "exact", price: "$0.01", network: BASE, payTo: PAY_TO }],
+      description: "Sniper track record for a wallet",
+      mimeType: "application/json",
+      ...discover(
+        { address: { description: "Wallet address (0x...)", type: "string", required: true } },
+        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+      ),
+    },
+    "GET /api/sniper/trending": {
+      accepts: [{ scheme: "exact", price: "$0.01", network: BASE, payTo: PAY_TO }],
+      description: "Top snipers from trending tokens on Base",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+
+    // === SMART MONEY ===
+    "GET /api/smart-money/wallet/:address": {
+      accepts: [{ scheme: "exact", price: "$0.02", network: BASE, payTo: PAY_TO }],
+      description: "Smart money analysis for a wallet",
+      mimeType: "application/json",
+      ...discover(
+        { address: { description: "Wallet address (0x...)", type: "string", required: true } },
+        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+      ),
+    },
+    "GET /api/smart-money/token/:address": {
+      accepts: [{ scheme: "exact", price: "$0.02", network: BASE, payTo: PAY_TO }],
+      description: "Find smart money buyers of a token",
+      mimeType: "application/json",
+      ...discover(
+        { address: { description: "Token contract address (0x...)", type: "string", required: true } },
+        { type: "object", properties: { address: { type: "string" } }, required: ["address"] }
+      ),
+    },
+    "GET /api/smart-money/activity": {
+      accepts: [{ scheme: "exact", price: "$0.02", network: BASE, payTo: PAY_TO }],
+      description: "What smart money wallets are buying right now on Base",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+
+    // === WHALE ALERTS ===
+    "GET /api/whale/alerts": {
+      accepts: [{ scheme: "exact", price: "$0.01", network: BASE, payTo: PAY_TO }],
+      description: "Recent whale alerts — large transfers from known whale wallets",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+    "GET /api/whale/alerts/:token": {
+      accepts: [{ scheme: "exact", price: "$0.02", network: BASE, payTo: PAY_TO }],
+      description: "Token whale activity — holder concentration, risk score",
+      mimeType: "application/json",
+      ...discover({ token: { description: "Token address", type: "string", required: true } }, { type: "object", properties: { token: { type: "string" } }, required: ["token"] }),
+    },
+    "GET /api/whale/movements": {
+      accepts: [{ scheme: "exact", price: "$0.01", network: BASE, payTo: PAY_TO }],
+      description: "Cross-token whale activity — volume, buy/sell ratio",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+    "GET /api/whale/heatmap": {
+      accepts: [{ scheme: "exact", price: "$0.01", network: BASE, payTo: PAY_TO }],
+      description: "Whale heatmap — tokens ranked by whale activity score",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+    "GET /api/whale/accumulation": {
+      accepts: [{ scheme: "exact", price: "$0.02", network: BASE, payTo: PAY_TO }],
+      description: "Accumulation signals — tokens being accumulated by large buyers",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+
+    // === AGGREGATED ENDPOINTS ===
+    "GET /api/intelligence/token/:address": {
+      accepts: [{ scheme: "exact", price: "$0.05", network: BASE, payTo: PAY_TO }],
+      description: "Complete token intelligence — safety + whale + smart money + snipers combined",
+      mimeType: "application/json",
+      ...discover({ address: { description: "Token contract address (0x...)", type: "string", required: true } }, { type: "object", properties: { address: { type: "string" } }, required: ["address"] }),
+    },
+    "GET /api/intelligence/wallet/:address": {
+      accepts: [{ scheme: "exact", price: "$0.05", network: BASE, payTo: PAY_TO }],
+      description: "Complete wallet intelligence — portfolio + smart money + sniper + risk combined",
+      mimeType: "application/json",
+      ...discover({ address: { description: "Wallet address (0x...)", type: "string", required: true } }, { type: "object", properties: { address: { type: "string" } }, required: ["address"] }),
+    },
+    "GET /api/market/pulse": {
+      accepts: [{ scheme: "exact", price: "$0.05", network: BASE, payTo: PAY_TO }],
+      description: "Real-time market pulse — whale picks + smart money activity + top movers + yields",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+    "GET /api/defi/dashboard": {
+      accepts: [{ scheme: "exact", price: "$0.03", network: BASE, payTo: PAY_TO }],
+      description: "DeFi dashboard — yields + protocols + TVL + movers combined",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+    "GET /api/risk/:address": {
+      accepts: [{ scheme: "exact", price: "$0.03", network: BASE, payTo: PAY_TO }],
+      description: "Risk assessment — token safety + whale concentration + smart money signal",
+      mimeType: "application/json",
+      ...discover({ address: { description: "Token contract address (0x...)", type: "string", required: true } }, { type: "object", properties: { address: { type: "string" } }, required: ["address"] }),
+    },
+
+    // === GMX PERPS (ARBITRUM-SPECIFIC) ===
+    "GET /api/arbitrum/gmx/stats": {
+      accepts: [{ scheme: "exact", price: "$0.02", network: ARB, payTo: PAY_TO }],
+      description: "GMX V2 stats — open interest, volume, fees. Arbitrum-specific.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+    "GET /api/arbitrum/gmx/funding": {
+      accepts: [{ scheme: "exact", price: "$0.01", network: ARB, payTo: PAY_TO }],
+      description: "GMX funding rates — market sentiment indicator. Arbitrum-specific.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+    "GET /api/arbitrum/gmx/glp": {
+      accepts: [{ scheme: "exact", price: "$0.01", network: ARB, payTo: PAY_TO }],
+      description: "GLP/APR yield data from GMX. Arbitrum-specific.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+    "GET /api/arbitrum/gmx/liquidations": {
+      accepts: [{ scheme: "exact", price: "$0.02", network: ARB, payTo: PAY_TO }],
+      description: "Recent GMX liquidations feed. Arbitrum-specific.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
   };
 
   // --- Middleware ---
@@ -300,27 +356,32 @@ async function main() {
   });
 
   app.get("/health", (req, res) => {
-    res.json({ status: "ok", network: "base", payTo: PAY_TO, version: "8.0.0-aggregator", builderCode: BUILDER_CODE });
+    res.json({
+      status: "ok",
+      networks: SUPPORTED_CHAINS,
+      payTo: PAY_TO,
+      version: "9.0.0-multichain",
+      builderCode: BUILDER_CODE,
+    });
   });
 
-  // Builder Code info (ERC-8021)
   app.get("/builder-code", (req, res) => {
     res.json({
       builderCode: BUILDER_CODE,
       standard: "ERC-8021",
-      network: "base",
+      networks: SUPPORTED_CHAINS,
       walletAddress: PAY_TO,
       registrationUrl: "https://base.dev",
-      howToUse: "Append builder code suffix to transaction calldata for attribution. See https://docs.base.org/apps/builder-codes/agent-developers",
       hexSuffix: "0x0762617365617070" + Buffer.from(BUILDER_CODE).toString("hex") + "80218021802180218021802180218021",
     });
   });
 
   app.get("/api/protocols", (req, res) => {
     res.json({
-      wallet: ["portfolio", "history", "summary"],
-      yields: ["morpho", "moonwell", "aerodrome"],
-      safety: ["token-safety", "wallet-risk"],
+      supportedChains: SUPPORTED_CHAINS,
+      wallet: ["portfolio/:chain/:address", "history/:chain/:address", "summary/:chain/:address"],
+      yields: ["yields", "yields/best/:asset", "yields/risk", "yields/rebalance"],
+      safety: ["token-safety/:chain/:address", "wallet-risk/:address"],
       stats: ["protocols/base", "protocols/base/tvl", "protocols/base/movers"],
       sniper: ["token/:address", "wallet/:address", "trending"],
       smartMoney: ["wallet/:address", "token/:address", "activity"],
@@ -329,23 +390,42 @@ async function main() {
       market: ["pulse"],
       defi: ["dashboard"],
       risk: [":address"],
+      arbitrum: ["gmx/stats", "gmx/funding", "gmx/glp", "gmx/liquidations"],
     });
   });
 
-  // === WALLET ANALYTICS ===
-  app.get("/api/portfolio/:address", async (req, res) => {
-    try { res.json(await getPortfolio(req.params.address)); }
-    catch (err) { console.error("Portfolio error:", err.message); res.status(500).json({ error: "Failed" }); }
+  // === MULTI-CHAIN WALLET ANALYTICS ===
+  app.get("/api/portfolio/:chain/:address", async (req, res) => {
+    try {
+      const { chain, address } = req.params;
+      if (!SUPPORTED_CHAINS.includes(chain)) return res.status(400).json({ error: `Unsupported chain. Use: ${SUPPORTED_CHAINS.join(", ")}` });
+      res.json(await getPortfolio(chain, address));
+    } catch (err) { console.error("Portfolio error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
-  app.get("/api/history/:address", async (req, res) => {
-    try { res.json(await getTxHistory(req.params.address, Math.min(parseInt(req.query.limit) || 20, 100))); }
-    catch (err) { console.error("History error:", err.message); res.status(500).json({ error: "Failed" }); }
+  app.get("/api/history/:chain/:address", async (req, res) => {
+    try {
+      const { chain, address } = req.params;
+      if (!SUPPORTED_CHAINS.includes(chain)) return res.status(400).json({ error: `Unsupported chain. Use: ${SUPPORTED_CHAINS.join(", ")}` });
+      res.json(await getTxHistory(chain, address, Math.min(parseInt(req.query.limit) || 20, 100)));
+    } catch (err) { console.error("History error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
-  app.get("/api/summary/:address", async (req, res) => {
-    try { res.json(await getWalletSummary(req.params.address)); }
-    catch (err) { console.error("Summary error:", err.message); res.status(500).json({ error: "Failed" }); }
+  app.get("/api/summary/:chain/:address", async (req, res) => {
+    try {
+      const { chain, address } = req.params;
+      if (!SUPPORTED_CHAINS.includes(chain)) return res.status(400).json({ error: `Unsupported chain. Use: ${SUPPORTED_CHAINS.join(", ")}` });
+      res.json(await getWalletSummary(chain, address));
+    } catch (err) { console.error("Summary error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  // === MULTI-CHAIN TOKEN SAFETY ===
+  app.get("/api/token-safety/:chain/:address", async (req, res) => {
+    try {
+      const { chain, address } = req.params;
+      if (!SUPPORTED_CHAINS.includes(chain)) return res.status(400).json({ error: `Unsupported chain. Use: ${SUPPORTED_CHAINS.join(", ")}` });
+      res.json(await analyzeTokenSafety(chain, address));
+    } catch (err) { console.error("Token safety error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
   // === DEFI YIELDS ===
@@ -372,12 +452,6 @@ async function main() {
     } catch (err) { console.error("Rebalance error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
-  // === TOKEN SAFETY ===
-  app.get("/api/token-safety/:address", async (req, res) => {
-    try { res.json(await analyzeTokenSafety(req.params.address)); }
-    catch (err) { console.error("Token safety error:", err.message); res.status(500).json({ error: "Failed" }); }
-  });
-
   // === WALLET RISK ===
   app.get("/api/wallet-risk/:address", async (req, res) => {
     try { res.json(await analyzeWalletRisk(req.params.address)); }
@@ -400,7 +474,7 @@ async function main() {
     catch (err) { console.error("Movers error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
-  // === SNIPER TRACKER (FREE - testing phase) ===
+  // === SNIPER TRACKER ===
   app.get("/api/sniper/token/:address", async (req, res) => {
     try {
       const maxBuyers = Math.min(parseInt(req.query.limit) || 20, 50);
@@ -473,7 +547,7 @@ async function main() {
     } catch (err) { console.error("Whale accumulation error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
-  // === ARBITRAGE SCANNER (internal tool — free) ===
+  // === ARBITRAGE SCANNER (internal — free) ===
   app.get("/api/arb/scan", async (req, res) => {
     try {
       const amount = parseInt(req.query.amount) || 1000;
@@ -519,54 +593,50 @@ async function main() {
     catch (err) { console.error("Risk assessment error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
+  // === GMX PERPS (ARBITRUM-SPECIFIC) ===
+  app.get("/api/arbitrum/gmx/stats", async (req, res) => {
+    try { res.json(await getGmxStats()); }
+    catch (err) { console.error("GMX stats error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/arbitrum/gmx/funding", async (req, res) => {
+    try { res.json(await getGmxFundingRates()); }
+    catch (err) { console.error("GMX funding error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/arbitrum/gmx/glp", async (req, res) => {
+    try { res.json(await getGlpYield()); }
+    catch (err) { console.error("GLP yield error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/arbitrum/gmx/liquidations", async (req, res) => {
+    try { res.json(await getGmxLiquidations()); }
+    catch (err) { console.error("GMX liquidations error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
   // --- Start ---
   app.listen(PORT, () => {
     console.log(`
-Base Analytics API v3.0 running on port ${PORT}
+RagRadar v9.0.0-multichain on port ${PORT}
 Payments -> ${PAY_TO}
+Networks -> ${SUPPORTED_CHAINS.join(", ")}
 
-FREE:
-  GET /health
-  GET /api/protocols
+MULTI-CHAIN ENDPOINTS:
+  GET /api/portfolio/:chain/:address   (base, arbitrum)
+  GET /api/history/:chain/:address     (base, arbitrum)
+  GET /api/summary/:chain/:address     (base, arbitrum)
+  GET /api/token-safety/:chain/:address (base, arbitrum, polygon, avalanche, celo)
 
-WALLET ($0.005-$0.02):
-  GET /api/portfolio/:address
-  GET /api/history/:address
-  GET /api/summary/:address
+ARBITRUM-SPECIFIC (GMX):
+  GET /api/arbitrum/gmx/stats
+  GET /api/arbitrum/gmx/funding
+  GET /api/arbitrum/gmx/glp
+  GET /api/arbitrum/gmx/liquidations
 
-YIELDS ($0.01-$0.05):
-  GET /api/yields
-  GET /api/yields/best/:asset
-  GET /api/yields/risk
-  GET /api/yields/rebalance
+BASE-SPECIFIC:
+  GET /api/yields, /api/protocols/base, /api/sniper/*, /api/smart-money/*, /api/whale/*, /api/intelligence/*
 
-SAFETY ($0.02-$0.03):  [NEW]
-  GET /api/token-safety/:address
-  GET /api/wallet-risk/:address
-
-STATS ($0.01):  [NEW]
-  GET /api/protocols/base
-  GET /api/protocols/base/tvl
-  GET /api/protocols/base/movers
-
-SNIPER TRACKER ($0.01):
-  GET /api/sniper/token/:address
-  GET /api/sniper/wallet/:address
-  GET /api/sniper/trending
-
-SMART MONEY ($0.02):
-  GET /api/smart-money/wallet/:address
-  GET /api/smart-money/token/:address
-  GET /api/smart-money/activity
-
-WHALE ALERTS ($0.01-$0.02):  [NEW]
-  GET /api/whale/alerts
-  GET /api/whale/alerts/:token
-  GET /api/whale/movements
-  GET /api/whale/heatmap
-  GET /api/whale/accumulation
-
-Total: 25 endpoints | Bazaar discovery: ENABLED
+Total: 32 endpoints | 2 chains
 `);
   });
 }

@@ -7,3 +7,6 @@ contracts/
 contracts-avax/
 contracts-polygon/
 pac-exploit/
+# Research files (development reference)
+*_ECOSYSTEM_RESEARCH.md
+RESEARCH_*.md

@@ -1,19 +1,22 @@
-const BLOCKSCOUT_BASE = "https://base.blockscout.com/api/v2";
+import { getChain, getBlockscoutTxHistory } from "../chains.js";
 
 /**
  * Get recent transaction history from Blockscout (free, no API key)
+ * Supports: Base, Arbitrum, Celo (all have Blockscout)
+ * @param {string} chainSlug - Chain identifier
+ * @param {string} address - Wallet address
+ * @param {number} limit - Max transactions to return
  */
-export async function getTxHistory(address, limit = 20) {
-  const url = `${BLOCKSCOUT_BASE}/addresses/${address}/transactions`;
-  const res = await fetch(url);
-
-  if (!res.ok) {
-    throw new Error(`Blockscout API error: ${res.status}`);
+export async function getTxHistory(chainSlug, address, limit = 20) {
+  const chain = getChain(chainSlug);
+  
+  if (!chain.blockscout) {
+    throw new Error(`Chain ${chain.name} does not have Blockscout support. Use Base, Arbitrum, or Celo.`);
   }
 
-  const data = await res.json();
+  const items = await getBlockscoutTxHistory(chainSlug, address, limit);
 
-  const transactions = (data.items || []).slice(0, limit).map((tx) => ({
+  const transactions = items.map((tx) => ({
     hash: tx.hash,
     block: tx.block,
     timestamp: tx.timestamp,
@@ -30,7 +33,8 @@ export async function getTxHistory(address, limit = 20) {
 
   return {
     address,
-    network: "base",
+    network: chainSlug,
+    chainName: chain.name,
     timestamp: new Date().toISOString(),
     count: transactions.length,
     transactions,

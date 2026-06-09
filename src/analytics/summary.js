@@ -1,19 +1,22 @@
 import { getPortfolio } from "./portfolio.js";
 import { getTxHistory } from "./history.js";
-import { rpcCall } from "./base.js";
+import { rpcCall, getChain } from "../chains.js";
 
 /**
  * Full wallet summary: portfolio + history + activity stats
+ * @param {string} chainSlug - Chain identifier
+ * @param {string} address - Wallet address
  */
-export async function getWalletSummary(address) {
+export async function getWalletSummary(chainSlug, address) {
   address = address.toLowerCase();
+  const chain = getChain(chainSlug);
 
   // Fetch everything in parallel
   const [portfolio, history, txCountHex, blockNumberHex] = await Promise.all([
-    getPortfolio(address),
-    getTxHistory(address, 50),
-    rpcCall("eth_getTransactionCount", [address, "latest"]),
-    rpcCall("eth_blockNumber", []),
+    getPortfolio(chainSlug, address),
+    getTxHistory(chainSlug, address, 50),
+    rpcCall(chainSlug, "eth_getTransactionCount", [address, "latest"]),
+    rpcCall(chainSlug, "eth_blockNumber", []),
   ]);
 
   const txCount = parseInt(txCountHex, 16);
@@ -46,7 +49,8 @@ export async function getWalletSummary(address) {
 
   return {
     address,
-    network: "base",
+    network: chainSlug,
+    chainName: chain.name,
     timestamp: now.toISOString(),
     blockNumber,
     summary: {

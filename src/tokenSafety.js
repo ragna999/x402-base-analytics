@@ -1,28 +1,67 @@
 // Token Safety Checker — rug risk analysis
 // Data sources: GoPlus Security API (free), on-chain
+// Supports: Base, Arbitrum, Polygon, Avalanche, Celo
 
 const GOPLUS_API = "https://api.gopluslabs.io/api/v1";
 
-// Known safe tokens on Base
-const SAFE_TOKENS = new Set([
-  "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC
-  "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6Ca", // USDbC
-  "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb", // DAI
-  "0x4200000000000000000000000000000000000006", // WETH
-  "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22", // cbETH
-]);
+// GoPlus chain IDs mapping
+const GOPLUS_CHAIN_IDS = {
+  base: 8453,
+  arbitrum: 42161,
+  polygon: 137,
+  avalanche: 43114,
+  celo: 42220,
+};
+
+// Known safe tokens per chain
+const SAFE_TOKENS = {
+  base: new Set([
+    "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC
+    "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6Ca", // USDbC
+    "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb", // DAI
+    "0x4200000000000000000000000000000000000006", // WETH
+    "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22", // cbETH
+  ]),
+  arbitrum: new Set([
+    "0xaf88d065e77c8cC2239327C5EDb3A432268e5831", // USDC
+    "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8", // USDC.e
+    "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9", // USDT
+    "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1", // WETH
+    "0x912CE59144191C1204E64559FE8253a0e49E6548", // ARB
+    "0xfc5A1A6EB076a2C7aD06eD22C90d7E710E35ad0a", // GMX
+  ]),
+  polygon: new Set([
+    "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174", // USDC.e
+    "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", // USDC
+    "0xc2132D05D31c914a87C6611C10748AEb04B58e8F", // USDT
+    "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619", // WETH
+  ]),
+  avalanche: new Set([
+    "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E", // USDC
+    "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7", // USDT
+    "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7", // WAVAX
+  ]),
+  celo: new Set([
+    "0x765DE816845861e75A25fCA122bb6898B8B1282a", // cUSD
+    "0xD8763CBa276a3738E6DE85b4b3bF5FDed6D6cA73", // cEUR
+    "0x471EcE3750Da237f93B8E339c536989b8978a438", // CELO
+  ]),
+};
 
 /**
  * Analyze token safety using GoPlus + on-chain data
+ * @param {string} chainSlug - Chain identifier
+ * @param {string} tokenAddress - Token contract address
  */
-export async function analyzeTokenSafety(tokenAddress) {
+export async function analyzeTokenSafety(chainSlug, tokenAddress) {
   tokenAddress = tokenAddress.toLowerCase();
 
   // Check if it's a known safe token
-  const isKnownSafe = SAFE_TOKENS.has(tokenAddress);
+  const chainSafeTokens = SAFE_TOKENS[chainSlug] || new Set();
+  const isKnownSafe = chainSafeTokens.has(tokenAddress);
 
   // Fetch from GoPlus Security API
-  const goplus = await fetchGoPlusData(tokenAddress);
+  const goplus = await fetchGoPlusData(chainSlug, tokenAddress);
 
   // Calculate risk score (0-100, lower = safer)
   const risks = [];
@@ -122,7 +161,7 @@ export async function analyzeTokenSafety(tokenAddress) {
 
   return {
     token: tokenAddress,
-    chain: "base",
+    chain: chainSlug,
     timestamp: new Date().toISOString(),
     riskScore,
     verdict,
@@ -140,9 +179,12 @@ export async function analyzeTokenSafety(tokenAddress) {
   };
 }
 
-async function fetchGoPlusData(tokenAddress) {
+async function fetchGoPlusData(chainSlug, tokenAddress) {
   try {
-    const res = await fetch(`${GOPLUS_API}/token_security/8453?contract_addresses=${tokenAddress}`);
+    const chainId = GOPLUS_CHAIN_IDS[chainSlug];
+    if (!chainId) return null;
+    
+    const res = await fetch(`${GOPLUS_API}/token_security/${chainId}?contract_addresses=${tokenAddress}`);
     if (!res.ok) return null;
     const data = await res.json();
     const result = data?.result?.[tokenAddress.toLowerCase()];
