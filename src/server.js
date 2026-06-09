@@ -5,6 +5,8 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { paymentMiddleware, x402ResourceServer } from "@x402/express";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
+import { ExactSvmScheme } from "@x402/svm/exact/server";
+import { createKeyPairSignerFromBytes } from "@solana/kit";
 import { HTTPFacilitatorClient } from "@x402/core/server";
 import { declareDiscoveryExtension } from "@x402/extensions/bazaar";
 
@@ -46,10 +48,25 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const PAY_TO = process.env.PAY_TO_ADDRESS;
 const BUILDER_CODE = process.env.BUILDER_CODE || "bc_7isseb6n";
+const SOLANA_KEY_HEX = process.env.SOLANA_PRIVATE_KEY;
+const SOLANA_NETWORK = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
 
 if (!PAY_TO) {
   console.error("ERROR: PAY_TO_ADDRESS not set in .env");
   process.exit(1);
+}
+
+// Derive Solana address from private key
+let SOLANA_PAY_TO = null;
+if (SOLANA_KEY_HEX) {
+  try {
+    const keypairBytes = Buffer.from(SOLANA_KEY_HEX, "hex");
+    const svmSigner = await createKeyPairSignerFromBytes(keypairBytes);
+    SOLANA_PAY_TO = svmSigner.address;
+    console.log(`Solana wallet: ${SOLANA_PAY_TO}`);
+  } catch (e) {
+    console.warn("Failed to load Solana key:", e.message);
+  }
 }
 
 async function createFacilitator() {
@@ -77,28 +94,39 @@ async function main() {
     process.exit(1);
   }
 
-  // Register both Base and Arbitrum
+  // Register Base, Arbitrum, and Solana
   const resourceServer = new x402ResourceServer(facilitatorClient)
     .register("eip155:8453", new ExactEvmScheme())
-    .register("eip155:42161", new ExactEvmScheme());
+    .register("eip155:42161", new ExactEvmScheme())
+    .register(SOLANA_NETWORK, new ExactSvmScheme());
 
   const BASE = "eip155:8453";
   const ARB = "eip155:42161";
+  const SOL = SOLANA_NETWORK;
 
   const discover = (input, inputSchema) => ({
     extensions: { ...declareDiscoveryExtension({ input, inputSchema }) },
   });
 
-  // Multi-chain accepts helper
+  // Multi-chain accepts helper (EVM only)
   const multiChain = (price, payTo = PAY_TO) => [
     { scheme: "exact", price, network: BASE, payTo },
     { scheme: "exact", price, network: ARB, payTo },
   ];
 
+  // Multi-chain accepts with Solana (for discoverable endpoints)
+  const multiChainWithSol = (price) => {
+    const accepts = multiChain(price);
+    if (SOLANA_PAY_TO) {
+      accepts.push({ scheme: "exact", price, network: SOL, payTo: SOLANA_PAY_TO });
+    }
+    return accepts;
+  };
+
   const paymentConfig = {
-    // === WALLET ANALYTICS (MULTI-CHAIN) ===
+    // === WALLET ANALYTICS (MULTI-CHAIN + SOLANA) ===
     "GET /api/portfolio/:chain/:address": {
-      accepts: multiChain("$0.005"),
+      accepts: multiChainWithSol("$0.005"),
       description: "Wallet token portfolio — supports Base + Arbitrum",
       mimeType: "application/json",
       ...discover(
@@ -107,7 +135,7 @@ async function main() {
       ),
     },
     "GET /api/history/:chain/:address": {
-      accepts: multiChain("$0.01"),
+      accepts: multiChainWithSol("$0.01"),
       description: "Recent transaction history — supports Base + Arbitrum",
       mimeType: "application/json",
       ...discover(
@@ -116,7 +144,7 @@ async function main() {
       ),
     },
     "GET /api/summary/:chain/:address": {
-      accepts: multiChain("$0.02"),
+      accepts: multiChainWithSol("$0.02"),
       description: "Full wallet analytics: portfolio, history, activity — supports Base + Arbitrum",
       mimeType: "application/json",
       ...discover(
@@ -127,7 +155,7 @@ async function main() {
 
     // === TOKEN SAFETY (MULTI-CHAIN) ===
     "GET /api/token-safety/:chain/:address": {
-      accepts: multiChain("$0.02"),
+      accepts: multiChainWithSol("$0.02"),
       description: "Token safety analysis — rug risk, honeypot, holder analysis. Supports Base + Arbitrum",
       mimeType: "application/json",
       ...discover(
@@ -356,11 +384,14 @@ async function main() {
   });
 
   app.get("/health", (req, res) => {
+    const networks = [...SUPPORTED_CHAINS];
+    if (SOLANA_PAY_TO) networks.push("solana");
     res.json({
       status: "ok",
-      networks: SUPPORTED_CHAINS,
+      networks,
       payTo: PAY_TO,
-      version: "9.0.0-multichain",
+      solanaPayTo: SOLANA_PAY_TO || "not configured",
+      version: "9.1.0-solana",
       builderCode: BUILDER_CODE,
     });
   });
