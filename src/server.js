@@ -219,6 +219,37 @@ async function main() {
   mimeType: "application/json",
   ...discover({}, { type: "object", properties: {} }),
 },
+// === WHALE ALERTS ===
+"GET /api/whale/alerts": {
+  accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
+  description: "Recent whale alerts — large transfers from known whale wallets",
+  mimeType: "application/json",
+  ...discover({}, { type: "object", properties: {} }),
+},
+"GET /api/whale/alerts/:token": {
+  accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
+  description: "Token whale activity — holder concentration, risk score",
+  mimeType: "application/json",
+  ...discover({ token: { description: "Token address", type: "string", required: true } }, { type: "object", properties: { token: { type: "string" } }, required: ["token"] }),
+},
+"GET /api/whale/movements": {
+  accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
+  description: "Cross-token whale activity — volume, buy/sell ratio",
+  mimeType: "application/json",
+  ...discover({}, { type: "object", properties: {} }),
+},
+"GET /api/whale/heatmap": {
+  accepts: [{ scheme: "exact", price: "$0.01", network: N, payTo: PAY_TO }],
+  description: "Whale heatmap — tokens ranked by whale activity score",
+  mimeType: "application/json",
+  ...discover({}, { type: "object", properties: {} }),
+},
+"GET /api/whale/accumulation": {
+  accepts: [{ scheme: "exact", price: "$0.02", network: N, payTo: PAY_TO }],
+  description: "Accumulation signals — tokens being accumulated by large buyers",
+  mimeType: "application/json",
+  ...discover({}, { type: "object", properties: {} }),
+},
   };
 
   // --- Middleware ---
