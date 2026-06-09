@@ -30,6 +30,9 @@ import { analyzeSmartMoneyWallet, analyzeTokenSmartMoney, getSmartMoneyActivity 
 // Arbitrage scanner
 import { scanAllPairs, scanSpecificPair, getSupportedTokens, getSupportedDexs } from "./arbScanner.js";
 
+// Whale alerts
+import { getWhaleAlerts, getTokenWhaleActivity, getWhaleMovements, getWhaleHeatmap, getAccumulationSignals } from "./whaleAlerts.js";
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PAY_TO = process.env.PAY_TO_ADDRESS;
@@ -235,7 +238,7 @@ async function main() {
   });
 
   app.get("/health", (req, res) => {
-    res.json({ status: "ok", network: "base", payTo: PAY_TO, version: "5.0.0-free", builderCode: BUILDER_CODE, note: "All endpoints free for 24 hours!" });
+    res.json({ status: "ok", network: "base", payTo: PAY_TO, version: "6.0.0-whale", builderCode: BUILDER_CODE, note: "All endpoints free for 24 hours!" });
   });
 
   // Builder Code info (ERC-8021)
@@ -259,6 +262,7 @@ async function main() {
       stats: ["protocols/base", "protocols/base/tvl", "protocols/base/movers"],
       sniper: ["token/:address", "wallet/:address", "trending"],
       smartMoney: ["wallet/:address", "token/:address", "activity"],
+      whale: ["alerts", "alerts/:token", "movements", "heatmap", "accumulation"],
     });
   });
 
@@ -366,6 +370,43 @@ async function main() {
     catch (err) { console.error("Smart money activity error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
+  // === WHALE ALERTS ===
+  app.get("/api/whale/alerts", async (req, res) => {
+    try {
+      const minAmount = parseInt(req.query.min_amount) || 10000;
+      const limit = Math.min(parseInt(req.query.limit) || 50, 100);
+      res.json(await getWhaleAlerts({ minAmount, limit }));
+    } catch (err) { console.error("Whale alerts error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/whale/alerts/:token", async (req, res) => {
+    try {
+      const limit = Math.min(parseInt(req.query.limit) || 30, 50);
+      res.json(await getTokenWhaleActivity(req.params.token, { limit }));
+    } catch (err) { console.error("Whale token error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/whale/movements", async (req, res) => {
+    try {
+      const limit = Math.min(parseInt(req.query.limit) || 20, 50);
+      res.json(await getWhaleMovements({ limit }));
+    } catch (err) { console.error("Whale movements error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/whale/heatmap", async (req, res) => {
+    try {
+      const limit = Math.min(parseInt(req.query.limit) || 20, 50);
+      res.json(await getWhaleHeatmap({ limit }));
+    } catch (err) { console.error("Whale heatmap error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/whale/accumulation", async (req, res) => {
+    try {
+      const limit = Math.min(parseInt(req.query.limit) || 10, 30);
+      res.json(await getAccumulationSignals({ limit }));
+    } catch (err) { console.error("Whale accumulation error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
   // === ARBITRAGE SCANNER (internal tool — free) ===
   app.get("/api/arb/scan", async (req, res) => {
     try {
@@ -426,7 +467,14 @@ SMART MONEY ($0.02):
   GET /api/smart-money/token/:address
   GET /api/smart-money/activity
 
-Total: 20 endpoints | Bazaar discovery: ENABLED
+WHALE ALERTS ($0.01-$0.02):  [NEW]
+  GET /api/whale/alerts
+  GET /api/whale/alerts/:token
+  GET /api/whale/movements
+  GET /api/whale/heatmap
+  GET /api/whale/accumulation
+
+Total: 25 endpoints | Bazaar discovery: ENABLED
 `);
   });
 }

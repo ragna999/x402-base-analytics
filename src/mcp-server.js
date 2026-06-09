@@ -39,6 +39,15 @@ import {
   getSmartMoneyActivity,
 } from "./smartMoney.js";
 
+// Whale alerts
+import {
+  getWhaleAlerts,
+  getTokenWhaleActivity,
+  getWhaleMovements,
+  getWhaleHeatmap,
+  getAccumulationSignals,
+} from "./whaleAlerts.js";
+
 const PAY_TO = process.env.PAY_TO_ADDRESS;
 const BUILDER_CODE = process.env.BUILDER_CODE || "bc_7isseb6n";
 const MCP_PORT = process.env.MCP_PORT || 4022;
@@ -354,6 +363,90 @@ async function main() {
     )
   );
 
+  // === WHALE TOOLS ===
+
+  mcpServer.tool(
+    "get_whale_alerts",
+    "Get recent whale alerts on Base — large transfers, whale buys/sells, pool activity. Cost: $0.01",
+    {
+      min_amount: z.number().optional().describe("Minimum USD amount to flag (default $10,000)"),
+      limit: z.number().optional().describe("Max alerts to return (default 50)"),
+    },
+    standardPaid("Whale alerts")(
+      async (args) => {
+        const data = await getWhaleAlerts({
+          minAmount: args.min_amount || 10000,
+          limit: Math.min(args.limit || 50, 100),
+        });
+        return {
+          content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+        };
+      }
+    )
+  );
+
+  mcpServer.tool(
+    "get_token_whale_activity",
+    "Get whale activity for a specific token — holder concentration, top holders, risk score. Cost: $0.02",
+    { address: z.string().describe("Token contract address (0x...)") },
+    premiumPaid("Token whale activity")(
+      async (args) => {
+        const data = await getTokenWhaleActivity(args.address, { limit: 30 });
+        return {
+          content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+        };
+      }
+    )
+  );
+
+  mcpServer.tool(
+    "get_whale_movements",
+    "What are whales doing across trending Base tokens — volume, buy/sell ratio, signals. Cost: $0.01",
+    {
+      limit: z.number().optional().describe("Max results (default 20)"),
+    },
+    standardPaid("Whale movements")(
+      async (args) => {
+        const data = await getWhaleMovements({ limit: Math.min(args.limit || 20, 50) });
+        return {
+          content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+        };
+      }
+    )
+  );
+
+  mcpServer.tool(
+    "get_whale_heatmap",
+    "Whale heatmap — tokens ranked by whale activity score, accumulation/distribution signals. Cost: $0.01",
+    {
+      limit: z.number().optional().describe("Max results (default 20)"),
+    },
+    standardPaid("Whale heatmap")(
+      async (args) => {
+        const data = await getWhaleHeatmap({ limit: Math.min(args.limit || 20, 50) });
+        return {
+          content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+        };
+      }
+    )
+  );
+
+  mcpServer.tool(
+    "get_accumulation_signals",
+    "Detect tokens being accumulated by large buyers — high volume, buying pressure, large avg tx. Cost: $0.02",
+    {
+      limit: z.number().optional().describe("Max results (default 10)"),
+    },
+    premiumPaid("Accumulation signals")(
+      async (args) => {
+        const data = await getAccumulationSignals({ limit: Math.min(args.limit || 10, 30) });
+        return {
+          content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+        };
+      }
+    )
+  );
+
   // === EXPRESS SERVER FOR SSE TRANSPORT ===
 
   const app = express();
@@ -379,8 +472,8 @@ async function main() {
       protocol: "MCP",
       transport: "SSE",
       payTo: PAY_TO,
-      tools: 13,
-      version: "4.0.0",
+      tools: 18,
+      version: "5.0.0-whale",
     });
   });
 
@@ -392,7 +485,7 @@ Transport: SSE
 URL: http://localhost:${MCP_PORT}/sse
 Health: http://localhost:${MCP_PORT}/health
 
-Tools (13):
+Tools (18):
   WALLET:
     get_portfolio          ($0.005) — token balances
     get_tx_history         ($0.01)  — transaction history
@@ -414,6 +507,13 @@ Tools (13):
     analyze_smart_money_wallet  ($0.02) — wallet scoring
     find_smart_money_buyers     ($0.02) — token buyers
     get_smart_money_activity    ($0.02) — trending activity
+
+  WHALE ALERTS:  [NEW]
+    get_whale_alerts           ($0.01) — large transfers & swaps
+    get_token_whale_activity   ($0.02) — holder concentration
+    get_whale_movements        ($0.01) — cross-token whale activity
+    get_whale_heatmap          ($0.01) — accumulation/distribution
+    get_accumulation_signals   ($0.02) — buying pressure detection
 
   PROTOCOLS:
     get_base_protocols     ($0.01)  — DeFiLlama data

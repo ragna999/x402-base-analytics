@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ragna Analytics — Base Chain Intelligence</title>
   <meta name="base:app_id" content="6a269dfdbac148992eb51dc4" />
-  <meta name="description" content="AI-powered on-chain analytics for Base. 20 REST endpoints + 13 MCP tools. Smart money tracking, DeFi yields, token safety, and more.">
+  <meta name="description" content="AI-powered on-chain analytics for Base. 25 REST endpoints + 18 MCP tools. Smart money tracking, whale alerts, DeFi yields, token safety, and more.">
   <style>
     :root {
       --bg: #0a0a0a;
@@ -172,6 +172,7 @@
     <div class="cat-card"><div class="cat-icon">🛡️</div><h3>Token Safety</h3><p>Rug detection, honeypot check, holder analysis</p><div class="cat-count">2 endpoints</div></div>
     <div class="cat-card"><div class="cat-icon">🎯</div><h3>Sniper Tracker</h3><p>Find early buyers, track sniper wallets, trending</p><div class="cat-count">3 endpoints</div></div>
     <div class="cat-card"><div class="cat-icon">🧠</div><h3>Smart Money</h3><p>Wallet scoring, smart money buyers, activity tracking</p><div class="cat-count">3 endpoints</div></div>
+    <div class="cat-card"><div class="cat-icon">🐋</div><h3>Whale Alerts</h3><p>Large transfers, whale heatmap, accumulation signals</p><div class="cat-count">5 endpoints</div></div>
     <div class="cat-card"><div class="cat-icon">📊</div><h3>Protocol Stats</h3><p>Base TVL, top protocols, 24h movers from DeFiLlama</p><div class="cat-count">3 endpoints</div></div>
   </div>
 </section>
@@ -266,6 +267,75 @@ const data = await res.json();</code></pre>
         <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Scans trending Base tokens, finds wallets buying 2+ tokens early, shows their recent buys as potential signals.</p>
         <div class="code-label">cURL</div>
         <pre><code>curl -s https://x402-base-analytics.vercel.app/api/smart-money/activity</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="endpoint-group">
+    <h3>🐋 Whale Alerts</h3>
+    <div class="endpoint">
+      <div class="endpoint-header" onclick="toggleDetail(this)">
+        <span class="method get">GET</span>
+        <span class="endpoint-path">/api/whale/alerts</span>
+        <span class="endpoint-price">$0.01</span>
+        <span class="endpoint-desc">Recent whale alerts</span>
+      </div>
+      <div class="endpoint-detail">
+        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Large transfers from known whale wallets, trending pool activity with whale signals. Filter by min_amount.</p>
+        <div class="code-label">cURL</div>
+        <pre><code>curl -s https://x402-base-analytics.vercel.app/api/whale/alerts?min_amount=50000</code></pre>
+      </div>
+    </div>
+    <div class="endpoint">
+      <div class="endpoint-header" onclick="toggleDetail(this)">
+        <span class="method get">GET</span>
+        <span class="endpoint-path">/api/whale/alerts/:token</span>
+        <span class="endpoint-price">$0.02</span>
+        <span class="endpoint-desc">Token whale activity</span>
+      </div>
+      <div class="endpoint-detail">
+        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Holder concentration, top holders with labels, whale detection, risk score 0-100 for any token.</p>
+        <div class="code-label">cURL</div>
+        <pre><code>curl -s https://x402-base-analytics.vercel.app/api/whale/alerts/0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913</code></pre>
+      </div>
+    </div>
+    <div class="endpoint">
+      <div class="endpoint-header" onclick="toggleDetail(this)">
+        <span class="method get">GET</span>
+        <span class="endpoint-path">/api/whale/movements</span>
+        <span class="endpoint-price">$0.01</span>
+        <span class="endpoint-desc">Cross-token whale activity</span>
+      </div>
+      <div class="endpoint-detail">
+        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">What whales are doing across all trending Base tokens — volume, buy/sell ratio, whale vs retail signal.</p>
+        <div class="code-label">cURL</div>
+        <pre><code>curl -s https://x402-base-analytics.vercel.app/api/whale/movements</code></pre>
+      </div>
+    </div>
+    <div class="endpoint">
+      <div class="endpoint-header" onclick="toggleDetail(this)">
+        <span class="method get">GET</span>
+        <span class="endpoint-path">/api/whale/heatmap</span>
+        <span class="endpoint-price">$0.01</span>
+        <span class="endpoint-desc">Whale activity heatmap</span>
+      </div>
+      <div class="endpoint-detail">
+        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Tokens ranked by whale activity score (0-100). Combines volume, avg tx size, buying pressure. Shows accumulation vs distribution signals.</p>
+        <div class="code-label">cURL</div>
+        <pre><code>curl -s https://x402-base-analytics.vercel.app/api/whale/heatmap</code></pre>
+      </div>
+    </div>
+    <div class="endpoint">
+      <div class="endpoint-header" onclick="toggleDetail(this)">
+        <span class="method get">GET</span>
+        <span class="endpoint-path">/api/whale/accumulation</span>
+        <span class="endpoint-price">$0.02</span>
+        <span class="endpoint-desc">Accumulation signals</span>
+      </div>
+      <div class="endpoint-detail">
+        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Detect tokens being accumulated by large buyers — high volume, buying pressure, large average transaction size.</p>
+        <div class="code-label">cURL</div>
+        <pre><code>curl -s https://x402-base-analytics.vercel.app/api/whale/accumulation</code></pre>
       </div>
     </div>
   </div>

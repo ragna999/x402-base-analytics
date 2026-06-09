@@ -4,3 +4,6 @@ node_modules/
 .hermes-tmp.*/
 src/.hermes-tmp.*/
 contracts/
+contracts-avax/
+contracts-polygon/
+pac-exploit/
