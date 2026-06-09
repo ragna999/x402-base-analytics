@@ -479,14 +479,19 @@
 
     /* === PLAYGROUND WINDOW === */
     .playground-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      display: flex;
+      flex-direction: column;
       gap: 10px;
     }
 
     .playground-input {
       display: flex;
       flex-direction: column;
+      gap: 8px;
+    }
+
+    .playground-input .btn-row {
+      display: flex;
       gap: 8px;
     }
 
@@ -507,6 +512,7 @@
       padding: 4px 6px;
       font-family: 'Courier New', monospace;
       font-size: 12px;
+      width: 100%;
     }
 
     .input-field:focus {
@@ -524,7 +530,8 @@
       padding: 10px;
       font-family: 'Courier New', monospace;
       font-size: 11px;
-      min-height: 200px;
+      min-height: 300px;
+      max-height: 500px;
       overflow: auto;
       white-space: pre-wrap;
     }
@@ -607,7 +614,7 @@
       }
       
       .playground-grid {
-        grid-template-columns: 1fr;
+        flex-direction: column;
       }
       
       .hero-title {
