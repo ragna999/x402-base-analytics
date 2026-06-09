@@ -1,171 +1,163 @@
-import { getMorphoYields } from "./providers/morpho.js";
-import { getMoonwellYields } from "./providers/moonwell.js";
-import { getAerodromeYields } from "./providers/aerodrome.js";
+// Yield aggregator using DeFiLlama (free, no auth, reliable)
+// Replaces broken Morpho/Moonwell/Aerodrome direct APIs
 
-// Cache results for 5 minutes (avoid hammering upstream APIs)
+const DEFILLAMA_YIELDS = "https://yields.llama.fi/pools";
+
+// Cache results for 5 minutes
 let cache = { data: null, timestamp: 0 };
 const CACHE_TTL = 5 * 60 * 1000;
 
 /**
- * Fetch yields from all protocols in parallel
+ * Fetch all Base yield pools from DeFiLlama
  */
-async function fetchAllYields() {
+async function fetchBaseYields() {
   const now = Date.now();
   if (cache.data && (now - cache.timestamp) < CACHE_TTL) {
     return cache.data;
   }
 
-  const [morpho, moonwell, aerodrome] = await Promise.all([
-    getMorphoYields(),
-    getMoonwellYields(),
-    getAerodromeYields(),
-  ]);
+  try {
+    const res = await fetch(DEFILLAMA_YIELDS, {
+      headers: { "Accept": "application/json" },
+    });
 
-  cache = {
-    data: { morpho, moonwell, aerodrome, fetchedAt: new Date().toISOString() },
-    timestamp: now,
-  };
+    if (!res.ok) throw new Error(`DeFiLlama Yields API: ${res.status}`);
+    const data = await res.json();
 
-  return cache.data;
-}
+    // Filter for Base chain pools
+    const basePools = (data.data || [])
+      .filter((p) => p.chain === "Base" && p.tvlUsd > 10000)
+      .map((p) => ({
+        protocol: p.project || "unknown",
+        name: p.symbol || "UNKNOWN",
+        pool: p.pool,
+        asset: p.symbol || "UNKNOWN",
+        apy: p.apy ? Math.round(p.apy * 100) / 100 : null,
+        apyBase: p.apyBase ? Math.round(p.apyBase * 100) / 100 : null,
+        apyReward: p.apyReward ? Math.round(p.apyReward * 100) / 100 : null,
+        tvlUsd: Math.round(p.tvlUsd || 0),
+        chain: "base",
+        stablecoin: p.stablecoin || false,
+        IL: p.ilRisk || "no",
+        exposure: p.exposure || "single",
+      }))
+      .filter((p) => p.apy !== null && p.apy > 0 && p.apy < 10000) // Filter outliers
+      .sort((a, b) => b.tvlUsd - a.tvlUsd);
 
-/**
- * Normalize yield data into a unified format
- */
-function normalize(entry) {
-  const apy = entry.apy ?? entry.supplyApy ?? entry.apr ?? null;
-  return {
-    protocol: entry.protocol,
-    name: entry.name,
-    asset: entry.asset,
-    apy: apy !== null ? Math.round(apy * 100) / 100 : null,
-    tvlUsd: entry.tvlUsd ? Math.round(entry.tvlUsd) : null,
-    type: entry.type || (entry.protocol === "morpho" ? "vault" : entry.protocol === "moonwell" ? "lending" : "lp"),
-    chain: "chain",
-  };
+    cache = { data: basePools, timestamp: now };
+    return basePools;
+  } catch (err) {
+    console.error("DeFiLlama yields fetch error:", err.message);
+    return [];
+  }
 }
 
 /**
  * Get all yields, sorted by APY descending
  */
 export async function getAllYields() {
-  const raw = await fetchAllYields();
-
-  const all = [
-    ...raw.morpho.map(normalize),
-    ...raw.moonwell.map(normalize),
-    ...raw.aerodrome.map(normalize),
-  ].filter((y) => y.apy !== null && y.apy > 0);
-
-  all.sort((a, b) => b.apy - a.apy);
-
+  const yields = await fetchBaseYields();
   return {
-    timestamp: raw.fetchedAt,
-    count: all.length,
+    timestamp: new Date().toISOString(),
+    count: yields.length,
     protocols: {
-      morpho: raw.morpho.length,
-      moonwell: raw.moonwell.length,
-      aerodrome: raw.aerodrome.length,
+      morpho: yields.filter((y) => y.protocol.includes("morpho")).length,
+      moonwell: yields.filter((y) => y.protocol.includes("moonwell")).length,
+      aerodrome: yields.filter((y) => y.protocol.includes("aerodrome")).length,
+      other: yields.filter((y) => !y.protocol.includes("morpho") && !y.protocol.includes("moonwell") && !y.protocol.includes("aerodrome")).length,
     },
-    yields: all,
+    yields: yields.slice(0, 100),
   };
 }
 
 /**
- * Get best yields for a specific asset
+ * Get best yield for a specific asset
  */
-export async function getBestYieldsForAsset(assetSymbol) {
-  const raw = await fetchAllYields();
-  const target = assetSymbol.toUpperCase();
+export async function getBestYieldsForAsset(asset) {
+  const yields = await fetchBaseYields();
+  const assetUpper = asset.toUpperCase();
 
-  const matches = [
-    ...raw.morpho.map(normalize),
-    ...raw.moonwell.map(normalize),
-    ...raw.aerodrome.map(normalize),
-  ].filter((y) => {
-    const asset = y.asset.toUpperCase();
-    return (
-      y.apy !== null &&
-      y.apy > 0 &&
-      (asset === target || asset.includes(target) || asset.startsWith(target))
-    );
-  });
-
-  matches.sort((a, b) => b.apy - a.apy);
+  const matching = yields
+    .filter((y) => {
+      const name = (y.asset || "").toUpperCase();
+      return name.includes(assetUpper) || name === assetUpper;
+    })
+    .sort((a, b) => (b.apy || 0) - (a.apy || 0));
 
   return {
-    asset: target,
-    timestamp: raw.fetchedAt,
-    count: matches.length,
-    bestYield: matches[0] || null,
-    top5: matches.slice(0, 5),
-    allMatches: matches,
+    timestamp: new Date().toISOString(),
+    asset: assetUpper,
+    count: matching.length,
+    bestYield: matching[0] || null,
+    top5: matching.slice(0, 5),
   };
 }
 
 /**
- * Get best yield by risk level
- * - low: lending (Moonwell, Morpho blue-chip vaults)
- * - medium: established LPs (Aerodrome stable pairs)
- * - high: volatile LPs, leveraged vaults
+ * Get yields categorized by risk level
  */
 export async function getYieldsByRisk() {
-  const raw = await fetchAllYields();
+  const yields = await fetchBaseYields();
 
-  const all = [
-    ...raw.morpho.map(normalize),
-    ...raw.moonwell.map(normalize),
-    ...raw.aerodrome.map(normalize),
-  ].filter((y) => y.apy !== null && y.apy > 0);
-
-  const low = all.filter((y) => y.type === "lending" || y.type === "vault")
-    .sort((a, b) => b.apy - a.apy);
-
-  const medium = all.filter((y) => y.type === "stable" || (y.type === "lp" && y.tvlUsd > 100000))
-    .sort((a, b) => b.apy - a.apy);
-
-  const high = all.filter((y) => y.type === "volatile" || y.type === "lp")
-    .sort((a, b) => b.apy - a.apy);
+  const lowRisk = yields.filter((y) => y.apy < 5 && (y.stablecoin || y.apy < 3));
+  const mediumRisk = yields.filter((y) => y.apy >= 5 && y.apy < 20);
+  const highRisk = yields.filter((y) => y.apy >= 20);
 
   return {
-    timestamp: raw.fetchedAt,
-    low: { count: low.length, best: low[0] || null, top5: low.slice(0, 5) },
-    medium: { count: medium.length, best: medium[0] || null, top5: medium.slice(0, 5) },
-    high: { count: high.length, best: high[0] || null, top5: high.slice(0, 5) },
+    timestamp: new Date().toISOString(),
+    low: {
+      count: lowRisk.length,
+      avgApy: avgApy(lowRisk),
+      top3: lowRisk.sort((a, b) => b.apy - a.apy).slice(0, 3),
+    },
+    medium: {
+      count: mediumRisk.length,
+      avgApy: avgApy(mediumRisk),
+      top3: mediumRisk.sort((a, b) => b.apy - a.apy).slice(0, 3),
+    },
+    high: {
+      count: highRisk.length,
+      avgApy: avgApy(highRisk),
+      top3: highRisk.sort((a, b) => b.apy - a.apy).slice(0, 3),
+    },
   };
 }
 
 /**
- * Get rebalance recommendations
- * Compare current position APY vs best available
+ * Get rebalance recommendation
  */
 export async function getRebalanceRecommendation(currentProtocol, currentApy) {
-  const raw = await fetchAllYields();
-  const currentApyNum = Number(currentApy);
+  const yields = await fetchBaseYields();
+  const currentApyNum = parseFloat(currentApy);
 
-  const all = [
-    ...raw.morpho.map(normalize),
-    ...raw.moonwell.map(normalize),
-    ...raw.aerodrome.map(normalize),
-  ].filter((y) => y.apy !== null && y.apy > currentApyNum * 1.1); // At least 10% better
+  // Find better yields than current
+  const better = yields
+    .filter((y) => y.apy > currentApyNum && !y.protocol.toLowerCase().includes(currentProtocol.toLowerCase()))
+    .sort((a, b) => b.apy - a.apy);
 
-  all.sort((a, b) => b.apy - a.apy);
-
-  const improvement = all.length > 0
-    ? Math.round((all[0].apy - currentApyNum) * 100) / 100
-    : 0;
+  const improvement = better[0] ? ((better[0].apy - currentApyNum) / currentApyNum * 100).toFixed(1) : 0;
 
   return {
-    current: { protocol: currentProtocol, apy: currentApyNum },
-    recommendation: improvement > 0 ? {
-      shouldRebalance: true,
-      bestAlternative: all[0],
-      improvementPct: improvement > 0 ? Math.round((improvement / currentApyNum) * 100) : 0,
-      top3: all.slice(0, 3),
-    } : {
-      shouldRebalance: false,
-      message: "No significantly better yield found. Current position is competitive.",
+    timestamp: new Date().toISOString(),
+    current: {
+      protocol: currentProtocol,
+      apy: currentApyNum,
     },
-    timestamp: raw.fetchedAt,
+    recommendation: better.length > 0 ? {
+      action: "REBALANCE",
+      target: better[0],
+      improvement: `${improvement}% better APY`,
+      risk: better[0].apy > 20 ? "HIGH" : better[0].apy > 10 ? "MEDIUM" : "LOW",
+    } : {
+      action: "HOLD",
+      reason: "No significantly better yields available",
+    },
+    alternatives: better.slice(0, 5),
   };
+}
+
+function avgApy(yields) {
+  if (!yields.length) return 0;
+  const sum = yields.reduce((acc, y) => acc + (y.apy || 0), 0);
+  return Math.round((sum / yields.length) * 100) / 100;
 }
