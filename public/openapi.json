@@ -4,10 +4,11 @@
     "title": "RagRadar \u2014 Base Chain Intelligence",
     "version": "8.0.0",
     "description": "AI-powered on-chain analytics for Base chain. 25 REST endpoints covering wallet analytics, DeFi yields, token safety, smart money tracking, whale alerts, sniper detection, and protocol stats. All data from free sources (GeckoTerminal, Blockscout, DeFiLlama, GoPlus).",
-    "x-guidance": "Use GET endpoints to query Base chain analytics. Paid endpoints return HTTP 402 with x402 payment challenge. Wallet addresses are 0x-format EVM addresses. Token addresses are Base chain (8453) contract addresses. All responses are JSON.",
+    "x-guidance": "RagRadar provides AI-powered Base chain analytics. Use these endpoints to:\n- Check token safety before trading (/api/token-safety, /api/risk)\n- Track whale activity and smart money (/api/whale, /api/smart-money)\n- Get complete token/wallet intelligence (/api/intelligence)\n- Monitor DeFi yields and protocols (/api/yields, /api/defi/dashboard)\n- Find snipers and early buyers (/api/sniper)\nAll endpoints return JSON. Paid endpoints require x402 payment (USDC on Base). Wallet addresses are 0x-format EVM addresses. Token addresses are Base chain (8453) contract addresses.",
     "contact": {
       "name": "RagRadar",
-      "url": "https://ragradar.vercel.app"
+      "url": "https://ragradar.vercel.app",
+      "x-twitter": "@0xragna"
     }
   },
   "servers": [
