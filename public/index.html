@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>RagRadar — Base Chain Intelligence</title>
   <meta name="base:app_id" content="6a269dfdbac148992eb51dc4" />
-  <meta name="description" content="AI-powered on-chain analytics for Base. 25 REST endpoints + 18 MCP tools. Smart money tracking, whale alerts, DeFi yields, token safety, and more.">
+  <meta name="description" content="AI-powered on-chain analytics for Base. 28 REST endpoints + 18 MCP tools. Smart money tracking, whale alerts, token intelligence, DeFi yields, and more.">
   <style>
     /* === WINDOWS 95/98 THEME === */
     @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
@@ -677,7 +677,7 @@
   <!-- MARQUEE -->
   <div class="marquee">
     <span class="marquee-content">
-      ★ Welcome to RagRadar — Base Chain Intelligence ★ 25 REST Endpoints + 18 MCP Tools ★ Smart Money Tracking ★ Whale Alerts ★ DeFi Yields ★ Token Safety ★ x402 Payments ★
+      ★ Welcome to RagRadar — Base Chain Intelligence ★ 28 REST Endpoints + 18 MCP Tools ★ Smart Money Tracking ★ Whale Alerts ★ Token Intelligence ★ DeFi Yields ★ x402 Payments ★
     </span>
   </div>
 
@@ -703,7 +703,7 @@
           
           <div class="hero-stats">
             <div class="stat-box">
-              <div class="stat-num">25</div>
+              <div class="stat-num">28</div>
               <div class="stat-label">REST Endpoints</div>
             </div>
             <div class="stat-box">
@@ -766,6 +766,10 @@
       <div class="desktop-icon" onclick="scrollToCategory('protocols')">
         <div class="icon-img">📊</div>
         <div class="icon-label">Protocol Stats</div>
+      </div>
+      <div class="desktop-icon" onclick="scrollToCategory('intelligence')">
+        <div class="icon-img">🔮</div>
+        <div class="icon-label">Intelligence</div>
       </div>
       <div class="desktop-icon" onclick="scrollToCategory('playground')">
         <div class="icon-img">🎮</div>
@@ -1023,6 +1027,50 @@
         </div>
       </div>
 
+      <!-- INTELLIGENCE -->
+      <div class="window category-window" id="intelligence">
+        <div class="title-bar">
+          <div class="title-bar-text">
+            <span>🔮</span>
+            <span>Intelligence — 5 endpoints</span>
+          </div>
+          <div class="title-bar-controls">
+            <button>_</button>
+            <button>□</button>
+            <button>✕</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="endpoint-list">
+            <div class="endpoint-item" onclick="showDetail('intel-token')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/intelligence/token/:address</span>
+              <span class="endpoint-price">$0.05</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('intel-wallet')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/intelligence/wallet/:address</span>
+              <span class="endpoint-price">$0.05</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('market-pulse')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/market/pulse</span>
+              <span class="endpoint-price">$0.05</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('defi-dashboard')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/defi/dashboard</span>
+              <span class="endpoint-price">$0.03</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('risk-assessment')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/risk/:address</span>
+              <span class="endpoint-price">$0.03</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- PLAYGROUND -->
       <div class="window category-window" id="playground">
         <div class="title-bar">
@@ -1192,6 +1240,7 @@ await client.connect(transport);</div>
     <div class="start-menu-item" onclick="scrollToCategory('smartmoney')">🧠 Smart Money</div>
     <div class="start-menu-item" onclick="scrollToCategory('whale')">🐋 Whale Alerts</div>
     <div class="start-menu-item" onclick="scrollToCategory('protocols')">📊 Protocol Stats</div>
+    <div class="start-menu-item" onclick="scrollToCategory('intelligence')">🔮 Intelligence</div>
     <div class="start-menu-separator"></div>
     <div class="start-menu-item" onclick="scrollToCategory('playground')">🎮 Playground</div>
     <div class="start-menu-item" onclick="window.open('https://github.com/ragna999/x402-base-analytics')">📁 GitHub</div>
@@ -1335,6 +1384,31 @@ await client.connect(transport);</div>
         title: 'Base Movers',
         desc: 'Top gainers and losers on Base in 24h by TVL change.',
         code: 'curl -s https://ragradar.vercel.app/api/protocols/base/movers'
+      },
+      'intel-token': {
+        title: 'Token Intelligence',
+        desc: 'Full token analysis combining safety, whale activity, smart money, and snipers into a single intelligence report.',
+        code: 'curl -s https://ragradar.vercel.app/api/intelligence/token/0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+      },
+      'intel-wallet': {
+        title: 'Wallet Intelligence',
+        desc: 'Full wallet analysis combining portfolio, smart money score, sniper record, and risk assessment.',
+        code: 'curl -s https://ragradar.vercel.app/api/intelligence/wallet/0x8919fe5Aa2a18d69D1Ff869c2903B313F35e8061'
+      },
+      'market-pulse': {
+        title: 'Market Pulse',
+        desc: 'Real-time market overview combining whale picks, smart money activity, top movers, and yield opportunities.',
+        code: 'curl -s https://ragradar.vercel.app/api/market/pulse'
+      },
+      'defi-dashboard': {
+        title: 'DeFi Dashboard',
+        desc: 'Complete DeFi dashboard combining yields, protocol stats, TVL history, and top movers.',
+        code: 'curl -s https://ragradar.vercel.app/api/defi/dashboard'
+      },
+      'risk-assessment': {
+        title: 'Risk Assessment',
+        desc: 'Combined risk analysis using token safety, whale concentration, and smart money signals.',
+        code: 'curl -s https://ragradar.vercel.app/api/risk/0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
       }
     };
 
