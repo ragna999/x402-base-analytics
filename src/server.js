@@ -345,25 +345,25 @@ async function main() {
 
     // === GMX PERPS (ARBITRUM-SPECIFIC) ===
     "GET /api/arbitrum/gmx/stats": {
-      accepts: [{ scheme: "exact", price: "$0.02", network: ARB, payTo: PAY_TO }],
+      accepts: multiChainWithSol("$0.02"),
       description: "GMX V2 stats — open interest, volume, fees. Arbitrum-specific.",
       mimeType: "application/json",
       ...discover({}, { type: "object", properties: {} }),
     },
     "GET /api/arbitrum/gmx/funding": {
-      accepts: [{ scheme: "exact", price: "$0.01", network: ARB, payTo: PAY_TO }],
+      accepts: multiChainWithSol("$0.01"),
       description: "GMX funding rates — market sentiment indicator. Arbitrum-specific.",
       mimeType: "application/json",
       ...discover({}, { type: "object", properties: {} }),
     },
     "GET /api/arbitrum/gmx/glp": {
-      accepts: [{ scheme: "exact", price: "$0.01", network: ARB, payTo: PAY_TO }],
+      accepts: multiChainWithSol("$0.01"),
       description: "GLP/APR yield data from GMX. Arbitrum-specific.",
       mimeType: "application/json",
       ...discover({}, { type: "object", properties: {} }),
     },
     "GET /api/arbitrum/gmx/liquidations": {
-      accepts: [{ scheme: "exact", price: "$0.02", network: ARB, payTo: PAY_TO }],
+      accepts: multiChainWithSol("$0.02"),
       description: "Recent GMX liquidations feed. Arbitrum-specific.",
       mimeType: "application/json",
       ...discover({}, { type: "object", properties: {} }),
