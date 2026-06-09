@@ -33,6 +33,9 @@ import { scanAllPairs, scanSpecificPair, getSupportedTokens, getSupportedDexs } 
 // Whale alerts
 import { getWhaleAlerts, getTokenWhaleActivity, getWhaleMovements, getWhaleHeatmap, getAccumulationSignals } from "./whaleAlerts.js";
 
+// Aggregated endpoints
+import { getTokenIntelligence, getMarketPulse, getWalletIntelligence, getDefiDashboard, getRiskAssessment } from "./aggregated.js";
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PAY_TO = process.env.PAY_TO_ADDRESS;
@@ -250,6 +253,37 @@ async function main() {
   mimeType: "application/json",
   ...discover({}, { type: "object", properties: {} }),
 },
+// === AGGREGATED ENDPOINTS ===
+"GET /api/intelligence/token/:address": {
+  accepts: [{ scheme: "exact", price: "$0.05", network: N, payTo: PAY_TO }],
+  description: "Complete token intelligence — safety + whale + smart money + snipers combined",
+  mimeType: "application/json",
+  ...discover({ address: { description: "Token contract address (0x...)", type: "string", required: true } }, { type: "object", properties: { address: { type: "string" } }, required: ["address"] }),
+},
+"GET /api/intelligence/wallet/:address": {
+  accepts: [{ scheme: "exact", price: "$0.05", network: N, payTo: PAY_TO }],
+  description: "Complete wallet intelligence — portfolio + smart money + sniper + risk combined",
+  mimeType: "application/json",
+  ...discover({ address: { description: "Wallet address (0x...)", type: "string", required: true } }, { type: "object", properties: { address: { type: "string" } }, required: ["address"] }),
+},
+"GET /api/market/pulse": {
+  accepts: [{ scheme: "exact", price: "$0.05", network: N, payTo: PAY_TO }],
+  description: "Real-time market pulse — whale picks + smart money activity + top movers + yields",
+  mimeType: "application/json",
+  ...discover({}, { type: "object", properties: {} }),
+},
+"GET /api/defi/dashboard": {
+  accepts: [{ scheme: "exact", price: "$0.03", network: N, payTo: PAY_TO }],
+  description: "DeFi dashboard — yields + protocols + TVL + movers combined",
+  mimeType: "application/json",
+  ...discover({}, { type: "object", properties: {} }),
+},
+"GET /api/risk/:address": {
+  accepts: [{ scheme: "exact", price: "$0.03", network: N, payTo: PAY_TO }],
+  description: "Risk assessment — token safety + whale concentration + smart money signal",
+  mimeType: "application/json",
+  ...discover({ address: { description: "Token contract address (0x...)", type: "string", required: true } }, { type: "object", properties: { address: { type: "string" } }, required: ["address"] }),
+},
   };
 
   // --- Middleware ---
@@ -266,7 +300,7 @@ async function main() {
   });
 
   app.get("/health", (req, res) => {
-    res.json({ status: "ok", network: "base", payTo: PAY_TO, version: "7.0.0-paid", builderCode: BUILDER_CODE });
+    res.json({ status: "ok", network: "base", payTo: PAY_TO, version: "8.0.0-aggregator", builderCode: BUILDER_CODE });
   });
 
   // Builder Code info (ERC-8021)
@@ -291,6 +325,10 @@ async function main() {
       sniper: ["token/:address", "wallet/:address", "trending"],
       smartMoney: ["wallet/:address", "token/:address", "activity"],
       whale: ["alerts", "alerts/:token", "movements", "heatmap", "accumulation"],
+      intelligence: ["token/:address", "wallet/:address"],
+      market: ["pulse"],
+      defi: ["dashboard"],
+      risk: [":address"],
     });
   });
 
@@ -453,6 +491,32 @@ async function main() {
 
   app.get("/api/arb/tokens", (req, res) => {
     res.json({ tokens: getSupportedTokens(), dexs: getSupportedDexs() });
+  });
+
+  // === AGGREGATED ENDPOINTS ===
+  app.get("/api/intelligence/token/:address", async (req, res) => {
+    try { res.json(await getTokenIntelligence(req.params.address)); }
+    catch (err) { console.error("Token intelligence error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/intelligence/wallet/:address", async (req, res) => {
+    try { res.json(await getWalletIntelligence(req.params.address)); }
+    catch (err) { console.error("Wallet intelligence error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/market/pulse", async (req, res) => {
+    try { res.json(await getMarketPulse()); }
+    catch (err) { console.error("Market pulse error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/defi/dashboard", async (req, res) => {
+    try { res.json(await getDefiDashboard()); }
+    catch (err) { console.error("DeFi dashboard error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/risk/:address", async (req, res) => {
+    try { res.json(await getRiskAssessment(req.params.address)); }
+    catch (err) { console.error("Risk assessment error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
   // --- Start ---
