@@ -7,663 +7,1398 @@
   <meta name="base:app_id" content="6a269dfdbac148992eb51dc4" />
   <meta name="description" content="AI-powered on-chain analytics for Base. 25 REST endpoints + 18 MCP tools. Smart money tracking, whale alerts, DeFi yields, token safety, and more.">
   <style>
+    /* === WINDOWS 95/98 THEME === */
+    @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+    
     :root {
-      --bg: #0a0a0a;
-      --bg2: #111;
-      --bg3: #1a1a1a;
-      --border: #222;
-      --text: #fff;
-      --text2: #888;
-      --text3: #555;
-      --blue: #0052ff;
-      --blue2: #6a5cff;
-      --green: #4ade80;
-      --red: #f87171;
-      --yellow: #fbbf24;
-      --code-bg: #0d1117;
+      --win-bg: #c0c0c0;
+      --win-dark: #808080;
+      --win-darker: #404040;
+      --win-light: #ffffff;
+      --win-blue: #000080;
+      --win-teal: #008080;
+      --win-navy: #000080;
+      --win-text: #000000;
+      --win-highlight: #0000ff;
+      --title-active: linear-gradient(90deg, #000080, #1084d0);
+      --title-inactive: linear-gradient(90deg, #808080, #b0b0b0);
+      --border-raised: outset;
+      --border-sunken: inset;
+      --shadow-raised: 2px 2px 0px #000;
+      --shadow-sunken: inset 1px 1px 0px #808080;
+      --code-bg: #ffffcc;
+      --green: #008000;
+      --red: #ff0000;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
-    a { color: var(--blue); text-decoration: none; }
-    a:hover { text-decoration: underline; }
+    
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+    }
+    
+    body {
+      font-family: 'MS Sans Serif', 'VT323', 'Courier New', monospace;
+      font-size: 12px;
+      background: var(--win-teal);
+      color: var(--win-text);
+      line-height: 1.4;
+      min-height: 100vh;
+    }
 
-    /* NAV */
-    nav { position: fixed; top: 0; width: 100%; background: rgba(10,10,10,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); z-index: 100; }
-    .nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 56px; }
-    .nav-brand { font-size: 1.1rem; font-weight: 700; background: linear-gradient(135deg, var(--blue), var(--blue2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .nav-links { display: flex; gap: 1.5rem; }
-    .nav-links a { color: var(--text2); font-size: 0.85rem; transition: color 0.2s; }
-    .nav-links a:hover { color: var(--text); text-decoration: none; }
-    .nav-links a.active { color: var(--text); }
-    .hamburger { display: none; background: none; border: none; color: var(--text); cursor: pointer; }
+    /* === DESKTOP === */
+    .desktop {
+      min-height: 100vh;
+      padding: 20px;
+      background: linear-gradient(135deg, #008080, #006060);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
 
-    /* SECTIONS */
-    section { max-width: 1100px; margin: 0 auto; padding: 6rem 1.5rem 3rem; }
-    .section-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; }
-    .section-desc { color: var(--text2); margin-bottom: 2rem; max-width: 600px; }
+    /* === WINDOWS === */
+    .window {
+      background: var(--win-bg);
+      border: 2px outset #dfdfdf;
+      box-shadow: 2px 2px 0px #000;
+      max-width: 1000px;
+      margin: 0 auto;
+      width: 100%;
+    }
 
-    /* HERO */
-    #hero { text-align: center; padding-top: 8rem; }
-    #hero h1 { font-size: 3.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 1rem; background: linear-gradient(135deg, var(--blue), var(--blue2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    #hero p { color: var(--text2); font-size: 1.15rem; max-width: 550px; margin: 0 auto 2rem; }
-    .hero-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2.5rem; }
-    .hero-stat { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
-    .hero-stat .num { font-size: 2rem; font-weight: 700; color: var(--blue); }
-    .hero-stat .label { font-size: 0.75rem; color: var(--text2); margin-top: 0.25rem; }
-    .hero-btns { display: flex; gap: 1rem; justify-content: center; }
-    .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
-    .btn-primary { background: var(--blue); color: #fff; }
-    .btn-primary:hover { background: #0043cc; text-decoration: none; }
-    .btn-secondary { background: var(--bg2); color: var(--text); border: 1px solid var(--border); }
-    .btn-secondary:hover { background: var(--bg3); text-decoration: none; }
+    .title-bar {
+      background: var(--title-active);
+      color: white;
+      padding: 3px 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: bold;
+      font-size: 12px;
+      user-select: none;
+    }
 
-    /* CATEGORIES */
-    .categories { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 3rem; }
-    .cat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; transition: border-color 0.2s; }
-    .cat-card:hover { border-color: var(--blue); }
-    .cat-icon { font-size: 1.5rem; margin-bottom: 0.75rem; }
-    .cat-card h3 { font-size: 1rem; margin-bottom: 0.25rem; }
-    .cat-card p { font-size: 0.8rem; color: var(--text2); }
-    .cat-count { font-size: 0.7rem; color: var(--blue); margin-top: 0.5rem; }
+    .title-bar-text {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
 
-    /* DOCS */
-    .endpoint-group { margin-bottom: 2rem; }
-    .endpoint-group h3 { font-size: 1rem; margin-bottom: 1rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
-    .endpoint { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.5rem; overflow: hidden; }
-    .endpoint-header { display: flex; align-items: center; padding: 0.75rem 1rem; cursor: pointer; gap: 0.75rem; }
-    .endpoint-header:hover { background: var(--bg3); }
-    .method { font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; min-width: 40px; text-align: center; }
-    .method.get { background: #1a3a2a; color: var(--green); }
-    .endpoint-path { font-family: monospace; font-size: 0.85rem; flex: 1; }
-    .endpoint-price { font-size: 0.75rem; color: var(--green); font-weight: 600; }
-    .endpoint-desc { font-size: 0.8rem; color: var(--text2); }
-    .endpoint-detail { display: none; padding: 1rem; border-top: 1px solid var(--border); background: var(--code-bg); }
-    .endpoint-detail.open { display: block; }
-    pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; font-size: 0.8rem; line-height: 1.5; margin: 0.5rem 0; }
-    code { font-family: 'SF Mono', 'Fira Code', monospace; color: #e6e6e6; }
-    .code-label { font-size: 0.7rem; color: var(--text3); margin-top: 0.75rem; margin-bottom: 0.25rem; }
+    .title-bar-controls {
+      display: flex;
+      gap: 2px;
+    }
 
-    /* PLAYGROUND */
-    .playground { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-    .playground-input { display: flex; flex-direction: column; gap: 1rem; }
-    .input-group { display: flex; flex-direction: column; gap: 0.5rem; }
-    .input-group label { font-size: 0.8rem; color: var(--text2); font-weight: 600; }
-    select, input[type="text"] { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; color: var(--text); font-size: 0.9rem; font-family: monospace; outline: none; }
-    select:focus, input:focus { border-color: var(--blue); }
-    .playground-output { background: var(--code-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; min-height: 400px; overflow: auto; }
-    .playground-output pre { border: none; padding: 0; margin: 0; font-size: 0.8rem; }
-    .status-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; margin-bottom: 0.5rem; }
-    .status-free { background: #1a3a2a; color: var(--green); }
-    .status-paid { background: #3a2a1a; color: var(--yellow); }
-    .status-402 { background: #3a1a1a; color: var(--red); }
+    .title-bar-controls button {
+      width: 16px;
+      height: 14px;
+      border: 1px outset #dfdfdf;
+      background: var(--win-bg);
+      font-size: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+    }
 
-    /* MCP */
-    .mcp-features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-    .mcp-feature { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
-    .mcp-feature h3 { font-size: 1rem; margin-bottom: 0.5rem; }
-    .mcp-feature p { font-size: 0.85rem; color: var(--text2); }
-    .mcp-feature .icon { font-size: 1.5rem; margin-bottom: 0.75rem; }
+    .window-body {
+      padding: 10px;
+    }
 
-    /* PRICING */
-    .pricing-tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
-    .tier { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; text-align: center; }
-    .tier.popular { border-color: var(--blue); position: relative; }
-    .tier.popular::after { content: "POPULAR"; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--blue); color: #fff; font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 4px; }
-    .tier h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
-    .tier .price { font-size: 2rem; font-weight: 700; color: var(--blue); margin-bottom: 0.5rem; }
-    .tier .price span { font-size: 0.85rem; color: var(--text2); font-weight: 400; }
-    .tier ul { list-style: none; text-align: left; margin-top: 1.5rem; }
-    .tier li { font-size: 0.85rem; color: var(--text2); padding: 0.4rem 0; border-bottom: 1px solid var(--border); }
-    .tier li::before { content: "✓ "; color: var(--green); }
+    /* === WINDOW ICONS === */
+    .window-icon {
+      width: 16px;
+      height: 16px;
+      display: inline-block;
+      background-size: contain;
+    }
 
-    /* FOOTER */
-    footer { border-top: 1px solid var(--border); padding: 2rem 1.5rem; text-align: center; color: var(--text3); font-size: 0.8rem; margin-top: 3rem; }
-    footer a { color: var(--text2); }
+    /* === TASKBAR === */
+    .taskbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 28px;
+      background: var(--win-bg);
+      border-top: 2px outset #dfdfdf;
+      display: flex;
+      align-items: center;
+      padding: 2px 4px;
+      z-index: 1000;
+      gap: 4px;
+    }
 
-    /* RESPONSIVE */
+    .start-button {
+      background: var(--win-bg);
+      border: 2px outset #dfdfdf;
+      padding: 2px 6px;
+      font-weight: bold;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 22px;
+    }
+
+    .start-button:active {
+      border: 2px inset #dfdfdf;
+    }
+
+    .taskbar-items {
+      flex: 1;
+      display: flex;
+      gap: 2px;
+      overflow: hidden;
+    }
+
+    .taskbar-item {
+      background: var(--win-bg);
+      border: 2px outset #dfdfdf;
+      padding: 2px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 150px;
+    }
+
+    .taskbar-item.active {
+      border: 2px inset #dfdfdf;
+      background: #d0d0d0;
+    }
+
+    .clock {
+      background: var(--win-bg);
+      border: 2px inset #dfdfdf;
+      padding: 2px 8px;
+      font-size: 11px;
+      margin-left: auto;
+    }
+
+    /* === START MENU === */
+    .start-menu {
+      display: none;
+      position: fixed;
+      bottom: 28px;
+      left: 0;
+      background: var(--win-bg);
+      border: 2px outset #dfdfdf;
+      box-shadow: 2px 2px 0px #000;
+      z-index: 1001;
+      width: 200px;
+    }
+
+    .start-menu.open {
+      display: block;
+    }
+
+    .start-menu-header {
+      background: var(--title-active);
+      color: white;
+      padding: 4px 8px;
+      font-weight: bold;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .start-menu-item {
+      padding: 6px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .start-menu-item:hover {
+      background: var(--win-navy);
+      color: white;
+    }
+
+    .start-menu-separator {
+      height: 2px;
+      background: var(--win-dark);
+      margin: 2px 4px;
+      border-bottom: 1px solid var(--win-light);
+    }
+
+    /* === DESKTOP ICONS === */
+    .desktop-icons {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 80px);
+      gap: 20px;
+      padding: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .desktop-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 8px;
+      border: 1px solid transparent;
+    }
+
+    .desktop-icon:hover {
+      border: 1px dotted white;
+      background: rgba(0, 0, 128, 0.3);
+    }
+
+    .desktop-icon:active {
+      background: rgba(0, 0, 128, 0.5);
+    }
+
+    .icon-img {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .icon-label {
+      color: white;
+      text-align: center;
+      font-size: 11px;
+      text-shadow: 1px 1px 0px #000;
+      word-break: break-word;
+    }
+
+    /* === HERO WINDOW === */
+    .hero-window {
+      max-width: 800px;
+      margin: 40px auto;
+    }
+
+    .hero-content {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .hero-title {
+      font-family: 'VT323', monospace;
+      font-size: 48px;
+      color: var(--win-navy);
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 0px #808080;
+    }
+
+    .hero-subtitle {
+      font-size: 16px;
+      color: var(--win-dark);
+      margin-bottom: 20px;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .stat-box {
+      background: var(--win-bg);
+      border: 2px inset #dfdfdf;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: 'VT323', monospace;
+      font-size: 24px;
+      color: var(--win-navy);
+      font-weight: bold;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--win-dark);
+      margin-top: 4px;
+    }
+
+    /* === CATEGORY WINDOWS === */
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 15px;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .category-window {
+      width: 100%;
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .category-icon {
+      font-size: 14px;
+    }
+
+    /* === ENDPOINT LIST === */
+    .endpoint-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .endpoint-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 6px;
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    .endpoint-item:hover {
+      background: var(--win-navy);
+      color: white;
+    }
+
+    .endpoint-method {
+      background: #008000;
+      color: white;
+      padding: 1px 4px;
+      font-size: 9px;
+      font-weight: bold;
+      min-width: 30px;
+      text-align: center;
+    }
+
+    .endpoint-path {
+      font-family: 'Courier New', monospace;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .endpoint-price {
+      color: var(--green);
+      font-weight: bold;
+      font-size: 10px;
+    }
+
+    /* === DETAIL DIALOG === */
+    .detail-dialog {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--win-bg);
+      border: 2px outset #dfdfdf;
+      box-shadow: 4px 4px 0px #000;
+      z-index: 2000;
+      min-width: 400px;
+      max-width: 90vw;
+    }
+
+    .detail-dialog.open {
+      display: block;
+    }
+
+    .dialog-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 1999;
+    }
+
+    .dialog-overlay.open {
+      display: block;
+    }
+
+    .dialog-body {
+      padding: 10px;
+    }
+
+    .dialog-desc {
+      font-size: 12px;
+      margin-bottom: 10px;
+      color: var(--win-dark);
+    }
+
+    .code-block {
+      background: var(--code-bg);
+      border: 2px inset #dfdfdf;
+      padding: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .dialog-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    /* === BUTTONS === */
+    .btn {
+      background: var(--win-bg);
+      border: 2px outset #dfdfdf;
+      padding: 4px 16px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn:active {
+      border: 2px inset #dfdfdf;
+    }
+
+    .btn-primary {
+      background: var(--win-bg);
+      border: 2px outset #dfdfdf;
+      box-shadow: 1px 1px 0px #000;
+    }
+
+    /* === PLAYGROUND WINDOW === */
+    .playground-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .playground-input {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .input-group label {
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .input-field {
+      background: white;
+      border: 2px inset #dfdfdf;
+      padding: 4px 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+    }
+
+    .input-field:focus {
+      outline: 1px dotted var(--win-navy);
+    }
+
+    select.input-field {
+      cursor: pointer;
+    }
+
+    .playground-output {
+      background: #000;
+      color: #00ff00;
+      border: 2px inset #dfdfdf;
+      padding: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      min-height: 200px;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+
+    /* === STATUS BAR === */
+    .status-bar {
+      background: var(--win-bg);
+      border-top: 2px inset #dfdfdf;
+      padding: 2px 6px;
+      display: flex;
+      gap: 10px;
+      font-size: 11px;
+    }
+
+    .status-bar-section {
+      border: 1px inset #dfdfdf;
+      padding: 1px 6px;
+      flex: 1;
+    }
+
+    /* === MCP WINDOW === */
+    .mcp-config {
+      background: var(--code-bg);
+      border: 2px inset #dfdfdf;
+      padding: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    /* === PRICING TABLE === */
+    .pricing-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    .pricing-table th {
+      background: var(--win-bg);
+      border: 2px outset #dfdfdf;
+      padding: 4px 8px;
+      text-align: left;
+    }
+
+    .pricing-table td {
+      border: 1px solid var(--win-dark);
+      padding: 4px 8px;
+    }
+
+    .pricing-table tr:nth-child(even) {
+      background: #e0e0e0;
+    }
+
+    /* === FOOTER === */
+    .footer-window {
+      max-width: 1000px;
+      margin: 20px auto;
+    }
+
+    .footer-content {
+      text-align: center;
+      font-size: 11px;
+      color: var(--win-dark);
+      padding: 10px;
+    }
+
+    .footer-content a {
+      color: var(--win-highlight);
+    }
+
+    /* === RESPONSIVE === */
     @media (max-width: 768px) {
-      .nav-links { display: none; }
-      .hamburger { display: block; }
-      .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 56px; left: 0; right: 0; background: var(--bg); border-bottom: 1px solid var(--border); padding: 1rem 1.5rem; gap: 1rem; }
-      #hero h1 { font-size: 2.2rem; }
-      .hero-stats { grid-template-columns: repeat(2, 1fr); }
-      .categories { grid-template-columns: 1fr; }
-      .playground { grid-template-columns: 1fr; }
-      .mcp-features { grid-template-columns: 1fr; }
-      .pricing-tiers { grid-template-columns: 1fr; }
+      .hero-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .categories-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .playground-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .hero-title {
+        font-size: 36px;
+      }
+      
+      .detail-dialog {
+        min-width: 90vw;
+      }
+    }
+
+    /* === ANIMATIONS === */
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .blink {
+      animation: blink 1s infinite;
+    }
+
+    /* === LOADING === */
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--win-dark);
+      border-top: 2px solid var(--win-bg);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* === MARQUEE === */
+    .marquee {
+      background: var(--win-navy);
+      color: var(--win-light);
+      padding: 4px 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .marquee-content {
+      display: inline-block;
+      animation: marquee 20s linear infinite;
+      padding-left: 100%;
+    }
+
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
     }
   </style>
 </head>
 <body>
-
-<!-- NAV -->
-<nav>
-  <div class="nav-inner">
-    <a href="#hero" class="nav-brand">RagRadar</a>
-    <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>
-    <div class="nav-links">
-      <a href="#docs" class="active">API Docs</a>
-      <a href="#playground">Playground</a>
-      <a href="#mcp">MCP</a>
-      <a href="#pricing">Pricing</a>
-      <a href="https://github.com/ragna999/x402-base-analytics" target="_blank">GitHub</a>
-    </div>
-  </div>
-</nav>
-
-<!-- HERO -->
-<section id="hero">
-  <h1>RagRadar</h1>
-  <p>AI-powered on-chain intelligence for Base. Smart analytics for smart money. Pay per request with USDC.</p>
-  <div class="hero-stats">
-    <div class="hero-stat"><div class="num">20</div><div class="label">REST Endpoints</div></div>
-    <div class="hero-stat"><div class="num">13</div><div class="label">MCP Tools</div></div>
-    <div class="hero-stat"><div class="num">6</div><div class="label">Categories</div></div>
-    <div class="hero-stat"><div class="num">x402</div><div class="label">Protocol</div></div>
-  </div>
-  <div class="hero-btns">
-    <a href="#docs" class="btn btn-primary">Explore API →</a>
-    <a href="#playground" class="btn btn-secondary">Try Playground</a>
-  </div>
-  <div class="categories">
-    <div class="cat-card"><div class="cat-icon">💰</div><h3>Wallet Analytics</h3><p>Portfolio, history, activity stats for any EVM wallet</p><div class="cat-count">3 endpoints</div></div>
-    <div class="cat-card"><div class="cat-icon">📈</div><h3>DeFi Yields</h3><p>Morpho, Moonwell, Aerodrome — real-time APY data</p><div class="cat-count">4 endpoints</div></div>
-    <div class="cat-card"><div class="cat-icon">🛡️</div><h3>Token Safety</h3><p>Rug detection, honeypot check, holder analysis</p><div class="cat-count">2 endpoints</div></div>
-    <div class="cat-card"><div class="cat-icon">🎯</div><h3>Sniper Tracker</h3><p>Find early buyers, track sniper wallets, trending</p><div class="cat-count">3 endpoints</div></div>
-    <div class="cat-card"><div class="cat-icon">🧠</div><h3>Smart Money</h3><p>Wallet scoring, smart money buyers, activity tracking</p><div class="cat-count">3 endpoints</div></div>
-    <div class="cat-card"><div class="cat-icon">🐋</div><h3>Whale Alerts</h3><p>Large transfers, whale heatmap, accumulation signals</p><div class="cat-count">5 endpoints</div></div>
-    <div class="cat-card"><div class="cat-icon">📊</div><h3>Protocol Stats</h3><p>Base TVL, top protocols, 24h movers from DeFiLlama</p><div class="cat-count">3 endpoints</div></div>
-  </div>
-</section>
-
-<!-- DOCS -->
-<section id="docs">
-  <div class="section-title">API Documentation</div>
-  <div class="section-desc">All endpoints return JSON. Paid endpoints return HTTP 402 without payment. Click any endpoint to see details and code examples.</div>
-
-  <div class="endpoint-group">
-    <h3>💰 Wallet Analytics</h3>
-    <div class="endpoint">
-      <div class="endpoint-header" onclick="toggleDetail(this)">
-        <span class="method get">GET</span>
-        <span class="endpoint-path">/api/portfolio/:address</span>
-        <span class="endpoint-price">$0.005</span>
-        <span class="endpoint-desc">Token balances</span>
-      </div>
-      <div class="endpoint-detail">
-        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Get ETH and ERC-20 token balances for a wallet on Base.</p>
-        <div class="code-label">cURL</div>
-        <pre><code>curl -s https://ragradar.vercel.app/api/portfolio/0x8919fe5Aa2a18d69D1Ff869c2903B313F35e8061</code></pre>
-        <div class="code-label">JavaScript</div>
-        <pre><code>const res = await fetch('https://ragradar.vercel.app/api/portfolio/0x8919...8061');
-const data = await res.json();</code></pre>
-      </div>
-    </div>
-    <div class="endpoint">
-      <div class="endpoint-header" onclick="toggleDetail(this)">
-        <span class="method get">GET</span>
-        <span class="endpoint-path">/api/history/:address</span>
-        <span class="endpoint-price">$0.01</span>
-        <span class="endpoint-desc">Transaction history</span>
-      </div>
-      <div class="endpoint-detail">
-        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Recent transaction history for a wallet. Supports ?limit=N (max 100).</p>
-        <div class="code-label">cURL</div>
-        <pre><code>curl -s https://ragradar.vercel.app/api/history/0x8919...8061?limit=10</code></pre>
-      </div>
-    </div>
-    <div class="endpoint">
-      <div class="endpoint-header" onclick="toggleDetail(this)">
-        <span class="method get">GET</span>
-        <span class="endpoint-path">/api/summary/:address</span>
-        <span class="endpoint-price">$0.02</span>
-        <span class="endpoint-desc">Full wallet analytics</span>
-      </div>
-      <div class="endpoint-detail">
-        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Complete wallet analysis: portfolio + history + activity stats combined.</p>
-        <div class="code-label">cURL</div>
-        <pre><code>curl -s https://ragradar.vercel.app/api/summary/0x8919...8061</code></pre>
-      </div>
-    </div>
+  <!-- MARQUEE -->
+  <div class="marquee">
+    <span class="marquee-content">
+      ★ Welcome to RagRadar — Base Chain Intelligence ★ 25 REST Endpoints + 18 MCP Tools ★ Smart Money Tracking ★ Whale Alerts ★ DeFi Yields ★ Token Safety ★ x402 Payments ★
+    </span>
   </div>
 
-  <div class="endpoint-group">
-    <h3>🧠 Smart Money</h3>
-    <div class="endpoint">
-      <div class="endpoint-header" onclick="toggleDetail(this)">
-        <span class="method get">GET</span>
-        <span class="endpoint-path">/api/smart-money/wallet/:address</span>
-        <span class="endpoint-price">$0.02</span>
-        <span class="endpoint-desc">Wallet smart money score</span>
+  <!-- DESKTOP -->
+  <div class="desktop">
+    <!-- HERO WINDOW -->
+    <div class="window hero-window">
+      <div class="title-bar">
+        <div class="title-bar-text">
+          <span>📊</span>
+          <span>RagRadar.exe — Base Chain Intelligence</span>
+        </div>
+        <div class="title-bar-controls">
+          <button title="Minimize">_</button>
+          <button title="Maximize">□</button>
+          <button title="Close">✕</button>
+        </div>
       </div>
-      <div class="endpoint-detail">
-        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Score a wallet 0-100. Classifies as SMART MONEY / ACTIVE TRADER / CASUAL / INACTIVE. Shows buy/sell ratio, token diversity, activity patterns.</p>
-        <div class="code-label">cURL</div>
-        <pre><code>curl -s https://ragradar.vercel.app/api/smart-money/wallet/0x498581ff718922c3f8e6a244956af099b2652b2b</code></pre>
-      </div>
-    </div>
-    <div class="endpoint">
-      <div class="endpoint-header" onclick="toggleDetail(this)">
-        <span class="method get">GET</span>
-        <span class="endpoint-path">/api/smart-money/token/:address</span>
-        <span class="endpoint-price">$0.02</span>
-        <span class="endpoint-desc">Smart money buyers of token</span>
-      </div>
-      <div class="endpoint-detail">
-        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Find which smart money wallets bought a token. Shows signal strength (STRONG/MODERATE/WEAK), still-holding status.</p>
-        <div class="code-label">cURL</div>
-        <pre><code>curl -s https://ragradar.vercel.app/api/smart-money/token/0x940181a94A35A4569E4529A3CDfB74e38FD98631</code></pre>
-      </div>
-    </div>
-    <div class="endpoint">
-      <div class="endpoint-header" onclick="toggleDetail(this)">
-        <span class="method get">GET</span>
-        <span class="endpoint-path">/api/smart-money/activity</span>
-        <span class="endpoint-price">$0.02</span>
-        <span class="endpoint-desc">What smart money is buying now</span>
-      </div>
-      <div class="endpoint-detail">
-        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Scans trending Base tokens, finds wallets buying 2+ tokens early, shows their recent buys as potential signals.</p>
-        <div class="code-label">cURL</div>
-        <pre><code>curl -s https://ragradar.vercel.app/api/smart-money/activity</code></pre>
-      </div>
-    </div>
-  </div>
+      <div class="window-body">
+        <div class="hero-content">
+          <h1 class="hero-title">RagRadar</h1>
+          <p class="hero-subtitle">AI-powered on-chain analytics for Base chain.<br>25 endpoints. 18 MCP tools. All free data sources.</p>
+          
+          <div class="hero-stats">
+            <div class="stat-box">
+              <div class="stat-num">25</div>
+              <div class="stat-label">REST Endpoints</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num">18</div>
+              <div class="stat-label">MCP Tools</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num">$0</div>
+              <div class="stat-label">Data Cost</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num">8453</div>
+              <div class="stat-label">Chain ID</div>
+            </div>
+          </div>
 
-  <div class="endpoint-group">
-    <h3>🐋 Whale Alerts</h3>
-    <div class="endpoint">
-      <div class="endpoint-header" onclick="toggleDetail(this)">
-        <span class="method get">GET</span>
-        <span class="endpoint-path">/api/whale/alerts</span>
-        <span class="endpoint-price">$0.01</span>
-        <span class="endpoint-desc">Recent whale alerts</span>
+          <div style="display: flex; gap: 8px; justify-content: center; margin-top: 15px;">
+            <button class="btn btn-primary" onclick="document.getElementById('docs').scrollIntoView({behavior:'smooth'})">
+              📁 Explore API
+            </button>
+            <button class="btn" onclick="document.getElementById('playground').scrollIntoView({behavior:'smooth'})">
+              🎮 Try Playground
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="endpoint-detail">
-        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Large transfers from known whale wallets, trending pool activity with whale signals. Filter by min_amount.</p>
-        <div class="code-label">cURL</div>
-        <pre><code>curl -s https://ragradar.vercel.app/api/whale/alerts?min_amount=50000</code></pre>
-      </div>
-    </div>
-    <div class="endpoint">
-      <div class="endpoint-header" onclick="toggleDetail(this)">
-        <span class="method get">GET</span>
-        <span class="endpoint-path">/api/whale/alerts/:token</span>
-        <span class="endpoint-price">$0.02</span>
-        <span class="endpoint-desc">Token whale activity</span>
-      </div>
-      <div class="endpoint-detail">
-        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Holder concentration, top holders with labels, whale detection, risk score 0-100 for any token.</p>
-        <div class="code-label">cURL</div>
-        <pre><code>curl -s https://ragradar.vercel.app/api/whale/alerts/0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913</code></pre>
+      <div class="status-bar">
+        <div class="status-bar-section">Ready</div>
+        <div class="status-bar-section">Base Mainnet</div>
+        <div class="status-bar-section">v6.0.0</div>
       </div>
     </div>
-    <div class="endpoint">
-      <div class="endpoint-header" onclick="toggleDetail(this)">
-        <span class="method get">GET</span>
-        <span class="endpoint-path">/api/whale/movements</span>
-        <span class="endpoint-price">$0.01</span>
-        <span class="endpoint-desc">Cross-token whale activity</span>
-      </div>
-      <div class="endpoint-detail">
-        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">What whales are doing across all trending Base tokens — volume, buy/sell ratio, whale vs retail signal.</p>
-        <div class="code-label">cURL</div>
-        <pre><code>curl -s https://ragradar.vercel.app/api/whale/movements</code></pre>
-      </div>
-    </div>
-    <div class="endpoint">
-      <div class="endpoint-header" onclick="toggleDetail(this)">
-        <span class="method get">GET</span>
-        <span class="endpoint-path">/api/whale/heatmap</span>
-        <span class="endpoint-price">$0.01</span>
-        <span class="endpoint-desc">Whale activity heatmap</span>
-      </div>
-      <div class="endpoint-detail">
-        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Tokens ranked by whale activity score (0-100). Combines volume, avg tx size, buying pressure. Shows accumulation vs distribution signals.</p>
-        <div class="code-label">cURL</div>
-        <pre><code>curl -s https://ragradar.vercel.app/api/whale/heatmap</code></pre>
-      </div>
-    </div>
-    <div class="endpoint">
-      <div class="endpoint-header" onclick="toggleDetail(this)">
-        <span class="method get">GET</span>
-        <span class="endpoint-path">/api/whale/accumulation</span>
-        <span class="endpoint-price">$0.02</span>
-        <span class="endpoint-desc">Accumulation signals</span>
-      </div>
-      <div class="endpoint-detail">
-        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Detect tokens being accumulated by large buyers — high volume, buying pressure, large average transaction size.</p>
-        <div class="code-label">cURL</div>
-        <pre><code>curl -s https://ragradar.vercel.app/api/whale/accumulation</code></pre>
-      </div>
-    </div>
-  </div>
 
-  <div class="endpoint-group">
-    <h3>🎯 Sniper Tracker</h3>
-    <div class="endpoint">
-      <div class="endpoint-header" onclick="toggleDetail(this)">
-        <span class="method get">GET</span>
-        <span class="endpoint-path">/api/sniper/token/:address</span>
-        <span class="endpoint-price">$0.01</span>
-        <span class="endpoint-desc">Early buyers of token</span>
+    <!-- DESKTOP ICONS -->
+    <div class="desktop-icons" id="docs">
+      <div class="desktop-icon" onclick="scrollToCategory('wallet')">
+        <div class="icon-img">💰</div>
+        <div class="icon-label">Wallet Analytics</div>
       </div>
-      <div class="endpoint-detail">
-        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Find wallets that bought early on a token. Shows position, ROI, still-holding status.</p>
-        <div class="code-label">cURL</div>
-        <pre><code>curl -s https://ragradar.vercel.app/api/sniper/token/0x940181a94A35A4569E4529A3CDfB74e38FD98631</code></pre>
+      <div class="desktop-icon" onclick="scrollToCategory('yields')">
+        <div class="icon-img">📈</div>
+        <div class="icon-label">DeFi Yields</div>
       </div>
-    </div>
-    <div class="endpoint">
-      <div class="endpoint-header" onclick="toggleDetail(this)">
-        <span class="method get">GET</span>
-        <span class="endpoint-path">/api/sniper/wallet/:address</span>
-        <span class="endpoint-price">$0.01</span>
-        <span class="endpoint-desc">Sniper track record</span>
+      <div class="desktop-icon" onclick="scrollToCategory('safety')">
+        <div class="icon-img">🛡️</div>
+        <div class="icon-label">Token Safety</div>
       </div>
-      <div class="endpoint-detail">
-        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Check a wallet's sniper history — success rate, tokens sniped, overall score.</p>
-        <div class="code-label">cURL</div>
-        <pre><code>curl -s https://ragradar.vercel.app/api/sniper/wallet/0x8919...8061</code></pre>
+      <div class="desktop-icon" onclick="scrollToCategory('sniper')">
+        <div class="icon-img">🎯</div>
+        <div class="icon-label">Sniper Tracker</div>
       </div>
-    </div>
-    <div class="endpoint">
-      <div class="endpoint-header" onclick="toggleDetail(this)">
-        <span class="method get">GET</span>
-        <span class="endpoint-path">/api/sniper/trending</span>
-        <span class="endpoint-price">$0.01</span>
-        <span class="endpoint-desc">Top snipers from trending</span>
+      <div class="desktop-icon" onclick="scrollToCategory('smartmoney')">
+        <div class="icon-img">🧠</div>
+        <div class="icon-label">Smart Money</div>
       </div>
-      <div class="endpoint-detail">
-        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Finds snipers active across multiple trending tokens on Base.</p>
-        <div class="code-label">cURL</div>
-        <pre><code>curl -s https://ragradar.vercel.app/api/sniper/trending</code></pre>
+      <div class="desktop-icon" onclick="scrollToCategory('whale')">
+        <div class="icon-img">🐋</div>
+        <div class="icon-label">Whale Alerts</div>
+      </div>
+      <div class="desktop-icon" onclick="scrollToCategory('protocols')">
+        <div class="icon-img">📊</div>
+        <div class="icon-label">Protocol Stats</div>
+      </div>
+      <div class="desktop-icon" onclick="scrollToCategory('playground')">
+        <div class="icon-img">🎮</div>
+        <div class="icon-label">Playground</div>
       </div>
     </div>
-  </div>
 
-  <div class="endpoint-group">
-    <h3>📈 DeFi Yields</h3>
-    <div class="endpoint">
-      <div class="endpoint-header" onclick="toggleDetail(this)">
-        <span class="method get">GET</span>
-        <span class="endpoint-path">/api/yields</span>
-        <span class="endpoint-price">$0.02</span>
-        <span class="endpoint-desc">All Base DeFi yields</span>
+    <!-- CATEGORY WINDOWS -->
+    <div class="categories-grid">
+      <!-- WALLET ANALYTICS -->
+      <div class="window category-window" id="wallet">
+        <div class="title-bar">
+          <div class="title-bar-text">
+            <span>💰</span>
+            <span>Wallet Analytics — 3 endpoints</span>
+          </div>
+          <div class="title-bar-controls">
+            <button>_</button>
+            <button>□</button>
+            <button>✕</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="endpoint-list">
+            <div class="endpoint-item" onclick="showDetail('portfolio')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/portfolio/:address</span>
+              <span class="endpoint-price">$0.005</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('history')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/history/:address</span>
+              <span class="endpoint-price">$0.01</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('summary')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/summary/:address</span>
+              <span class="endpoint-price">$0.02</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="endpoint-detail">
-        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Real-time yields from Morpho, Moonwell, Aerodrome. Sorted by APY.</p>
-        <div class="code-label">cURL</div>
-        <pre><code>curl -s https://ragradar.vercel.app/api/yields</code></pre>
-      </div>
-    </div>
-    <div class="endpoint">
-      <div class="endpoint-header" onclick="toggleDetail(this)">
-        <span class="method get">GET</span>
-        <span class="endpoint-path">/api/yields/best/:asset</span>
-        <span class="endpoint-price">$0.01</span>
-        <span class="endpoint-desc">Best yield per asset</span>
-      </div>
-      <div class="endpoint-detail">
-        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Find the best yield for USDC, ETH, or other assets across all Base protocols.</p>
-        <div class="code-label">cURL</div>
-        <pre><code>curl -s https://ragradar.vercel.app/api/yields/best/USDC</code></pre>
-      </div>
-    </div>
-  </div>
 
-  <div class="endpoint-group">
-    <h3>🛡️ Safety & Stats</h3>
-    <div class="endpoint">
-      <div class="endpoint-header" onclick="toggleDetail(this)">
-        <span class="method get">GET</span>
-        <span class="endpoint-path">/api/token-safety/:address</span>
-        <span class="endpoint-price">$0.02</span>
-        <span class="endpoint-desc">Rug detection</span>
+      <!-- DEFI YIELDS -->
+      <div class="window category-window" id="yields">
+        <div class="title-bar">
+          <div class="title-bar-text">
+            <span>📈</span>
+            <span>DeFi Yields — 4 endpoints</span>
+          </div>
+          <div class="title-bar-controls">
+            <button>_</button>
+            <button>□</button>
+            <button>✕</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="endpoint-list">
+            <div class="endpoint-item" onclick="showDetail('yields')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/yields</span>
+              <span class="endpoint-price">$0.02</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('best-yield')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/yields/best/:asset</span>
+              <span class="endpoint-price">$0.01</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('risk-yield')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/yields/risk</span>
+              <span class="endpoint-price">$0.02</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('rebalance')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/yields/rebalance</span>
+              <span class="endpoint-price">$0.05</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="endpoint-detail">
-        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Token safety analysis — rug risk, honeypot check, holder distribution. Uses GoPlus data.</p>
-      </div>
-    </div>
-    <div class="endpoint">
-      <div class="endpoint-header" onclick="toggleDetail(this)">
-        <span class="method get">GET</span>
-        <span class="endpoint-path">/api/wallet-risk/:address</span>
-        <span class="endpoint-price">$0.03</span>
-        <span class="endpoint-desc">Wallet risk scoring</span>
-      </div>
-      <div class="endpoint-detail">
-        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">Wallet risk scoring — age, activity patterns, scam interaction, bot detection.</p>
-      </div>
-    </div>
-    <div class="endpoint">
-      <div class="endpoint-header" onclick="toggleDetail(this)">
-        <span class="method get">GET</span>
-        <span class="endpoint-path">/api/protocols/base</span>
-        <span class="endpoint-price">$0.01</span>
-        <span class="endpoint-desc">Base protocol stats</span>
-      </div>
-      <div class="endpoint-detail">
-        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem;">All Base protocol stats — TVL, categories, top protocols. Data from DeFiLlama.</p>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- PLAYGROUND -->
-<section id="playground">
-  <div class="section-title">Playground</div>
-  <div class="section-desc">Try our free endpoints live. Paid endpoints will show HTTP 402 (payment required).</div>
-
-  <div class="playground">
-    <div class="playground-input">
-      <div class="input-group">
-        <label>Endpoint</label>
-        <select id="pg-endpoint" onchange="updatePlayground()">
-          <option value="/health">GET /health (free)</option>
-          <option value="/api/protocols">GET /api/protocols (free)</option>
-          <option value="/api/portfolio/:address">GET /api/portfolio/:address ($0.005)</option>
-          <option value="/api/history/:address">GET /api/history/:address ($0.01)</option>
-          <option value="/api/summary/:address">GET /api/summary/:address ($0.02)</option>
-          <option value="/api/yields">GET /api/yields ($0.02)</option>
-          <option value="/api/token-safety/:address">GET /api/token-safety/:address ($0.02)</option>
-          <option value="/api/smart-money/wallet/:address">GET /api/smart-money/wallet/:address ($0.02)</option>
-          <option value="/api/smart-money/token/:address">GET /api/smart-money/token/:address ($0.02)</option>
-          <option value="/api/smart-money/activity">GET /api/smart-money/activity ($0.02)</option>
-          <option value="/api/sniper/token/:address">GET /api/sniper/token/:address ($0.01)</option>
-          <option value="/api/sniper/trending">GET /api/sniper/trending ($0.01)</option>
-        </select>
+      <!-- SAFETY -->
+      <div class="window category-window" id="safety">
+        <div class="title-bar">
+          <div class="title-bar-text">
+            <span>🛡️</span>
+            <span>Safety — 2 endpoints</span>
+          </div>
+          <div class="title-bar-controls">
+            <button>_</button>
+            <button>□</button>
+            <button>✕</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="endpoint-list">
+            <div class="endpoint-item" onclick="showDetail('token-safety')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/token-safety/:address</span>
+              <span class="endpoint-price">$0.02</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('wallet-risk')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/wallet-risk/:address</span>
+              <span class="endpoint-price">$0.03</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="input-group" id="pg-address-group">
-        <label>Address (0x...)</label>
-        <input type="text" id="pg-address" placeholder="0x8919fe5Aa2a18d69D1Ff869c2903B313F35e8061" value="0x8919fe5Aa2a18d69D1Ff869c2903B313F35e8061">
+
+      <!-- SNIPER TRACKER -->
+      <div class="window category-window" id="sniper">
+        <div class="title-bar">
+          <div class="title-bar-text">
+            <span>🎯</span>
+            <span>Sniper Tracker — 3 endpoints</span>
+          </div>
+          <div class="title-bar-controls">
+            <button>_</button>
+            <button>□</button>
+            <button>✕</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="endpoint-list">
+            <div class="endpoint-item" onclick="showDetail('sniper-token')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/sniper/token/:address</span>
+              <span class="endpoint-price">$0.01</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('sniper-wallet')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/sniper/wallet/:address</span>
+              <span class="endpoint-price">$0.01</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('sniper-trending')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/sniper/trending</span>
+              <span class="endpoint-price">$0.01</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <button class="btn btn-primary" onclick="runPlayground()" id="pg-btn">Send Request</button>
-      <div id="pg-info" style="font-size:0.8rem;color:var(--text2);"></div>
-    </div>
-    <div class="playground-output">
-      <div id="pg-status"></div>
-      <pre><code id="pg-result">// Response will appear here
-// Try clicking "Send Request" →</code></pre>
-    </div>
-  </div>
-</section>
 
-<!-- MCP -->
-<section id="mcp">
-  <div class="section-title">MCP Integration</div>
-  <div class="section-desc">Connect your AI agent to RagRadar via Model Context Protocol. Auto-discover tools, pay per request.</div>
+      <!-- SMART MONEY -->
+      <div class="window category-window" id="smartmoney">
+        <div class="title-bar">
+          <div class="title-bar-text">
+            <span>🧠</span>
+            <span>Smart Money — 3 endpoints</span>
+          </div>
+          <div class="title-bar-controls">
+            <button>_</button>
+            <button>□</button>
+            <button>✕</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="endpoint-list">
+            <div class="endpoint-item" onclick="showDetail('sm-wallet')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/smart-money/wallet/:address</span>
+              <span class="endpoint-price">$0.02</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('sm-token')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/smart-money/token/:address</span>
+              <span class="endpoint-price">$0.02</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('sm-activity')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/smart-money/activity</span>
+              <span class="endpoint-price">$0.02</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-  <div class="mcp-features">
-    <div class="mcp-feature">
-      <div class="icon">🔌</div>
-      <h3>Auto-Discovery</h3>
-      <p>AI agents automatically discover all 13 tools when connected. No manual configuration needed.</p>
-    </div>
-    <div class="mcp-feature">
-      <div class="icon">💳</div>
-      <h3>x402 Payments</h3>
-      <p>Each tool has its own price. Agents pay USDC on Base automatically when calling paid tools.</p>
-    </div>
-    <div class="mcp-feature">
-      <div class="icon">🔗</div>
-      <h3>SSE Transport</h3>
-      <p>Connect via Server-Sent Events. Compatible with Claude, Cursor, and any MCP client.</p>
-    </div>
-    <div class="mcp-feature">
-      <div class="icon">⚡</div>
-      <h3>Real-Time Data</h3>
-      <p>All tools return live on-chain data. No caching, no stale data.</p>
-    </div>
-  </div>
+      <!-- WHALE ALERTS -->
+      <div class="window category-window" id="whale">
+        <div class="title-bar">
+          <div class="title-bar-text">
+            <span>🐋</span>
+            <span>Whale Alerts — 5 endpoints</span>
+          </div>
+          <div class="title-bar-controls">
+            <button>_</button>
+            <button>□</button>
+            <button>✕</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="endpoint-list">
+            <div class="endpoint-item" onclick="showDetail('whale-alerts')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/whale/alerts</span>
+              <span class="endpoint-price">$0.01</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('whale-token')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/whale/alerts/:token</span>
+              <span class="endpoint-price">$0.02</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('whale-movements')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/whale/movements</span>
+              <span class="endpoint-price">$0.01</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('whale-heatmap')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/whale/heatmap</span>
+              <span class="endpoint-price">$0.01</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('whale-accumulation')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/whale/accumulation</span>
+              <span class="endpoint-price">$0.02</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-  <div style="margin-top:2rem;">
-    <div class="code-label">Connect with Claude Desktop</div>
-    <pre><code>{
+      <!-- PROTOCOL STATS -->
+      <div class="window category-window" id="protocols">
+        <div class="title-bar">
+          <div class="title-bar-text">
+            <span>📊</span>
+            <span>Protocol Stats — 3 endpoints</span>
+          </div>
+          <div class="title-bar-controls">
+            <button>_</button>
+            <button>□</button>
+            <button>✕</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="endpoint-list">
+            <div class="endpoint-item" onclick="showDetail('protocols')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/protocols/base</span>
+              <span class="endpoint-price">$0.01</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('tvl')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/protocols/base/tvl</span>
+              <span class="endpoint-price">$0.01</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('movers')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/protocols/base/movers</span>
+              <span class="endpoint-price">$0.01</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLAYGROUND -->
+      <div class="window category-window" id="playground">
+        <div class="title-bar">
+          <div class="title-bar-text">
+            <span>🎮</span>
+            <span>Playground — Try API Live</span>
+          </div>
+          <div class="title-bar-controls">
+            <button>_</button>
+            <button>□</button>
+            <button>✕</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="playground-grid">
+            <div class="playground-input">
+              <div class="input-group">
+                <label>Endpoint:</label>
+                <select class="input-field" id="endpoint-select">
+                  <option value="/health">GET /health (free)</option>
+                  <option value="/api/protocols">GET /api/protocols (free)</option>
+                  <option value="/api/yields">GET /api/yields ($0.02)</option>
+                  <option value="/api/sniper/trending">GET /api/sniper/trending ($0.01)</option>
+                  <option value="/api/smart-money/activity">GET /api/smart-money/activity ($0.02)</option>
+                  <option value="/api/whale/heatmap">GET /api/whale/heatmap ($0.01)</option>
+                  <option value="/api/whale/accumulation">GET /api/whale/accumulation ($0.02)</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" onclick="runPlayground()">
+                ▶ Run Request
+              </button>
+            </div>
+            <div class="playground-output" id="playground-output">
+Ready> waiting for input...
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MCP WINDOW -->
+    <div class="window" style="max-width: 1000px; margin: 20px auto;">
+      <div class="title-bar">
+        <div class="title-bar-text">
+          <span>🔌</span>
+          <span>MCP Integration — Connect AI Agents</span>
+        </div>
+        <div class="title-bar-controls">
+          <button>_</button>
+          <button>□</button>
+          <button>✕</button>
+        </div>
+      </div>
+      <div class="window-body">
+        <p style="margin-bottom: 10px; font-size: 12px;">
+          Connect your AI agent to RagRadar via Model Context Protocol. Auto-discover tools, pay per request.
+        </p>
+        
+        <div style="margin-bottom: 10px;">
+          <strong>Claude Desktop:</strong>
+          <div class="mcp-config">{
   "mcpServers": {
-    "ragna-analytics": {
+    "ragradar": {
       "url": "https://x402-mcp.onrender.com/sse"
     }
   }
-}</code></pre>
-    <div class="code-label">Connect with JavaScript</div>
-    <pre><code>import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+}</div>
+        </div>
+
+        <div>
+          <strong>JavaScript:</strong>
+          <div class="mcp-config">import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 
 const client = new Client({ name: "my-agent", version: "1.0.0" });
 const transport = new SSEClientTransport(new URL("https://x402-mcp.onrender.com/sse"));
-await client.connect(transport);
-
-// List available tools
-const { tools } = await client.listTools();
-console.log(tools.map(t => t.name));
-// → ["get_portfolio", "get_tx_history", "get_defi_yields", ...]</code></pre>
-  </div>
-</section>
-
-<!-- PRICING -->
-<section id="pricing">
-  <div class="section-title">Pricing</div>
-  <div class="section-desc">Pay per request with USDC on Base. Zero protocol fees. No subscriptions, no minimums.</div>
-
-  <div class="pricing-tiers">
-    <div class="tier">
-      <h3>Micro</h3>
-      <div class="price">$0.005 <span>/request</span></div>
-      <ul>
-        <li>Token portfolio lookup</li>
-        <li>Basic data queries</li>
-        <li>High volume friendly</li>
-      </ul>
+await client.connect(transport);</div>
+        </div>
+      </div>
     </div>
-    <div class="tier popular">
-      <h3>Standard</h3>
-      <div class="price">$0.01 <span>/request</span></div>
-      <ul>
-        <li>Transaction history</li>
-        <li>Sniper tracking</li>
-        <li>DeFi yields</li>
-        <li>Protocol stats</li>
-      </ul>
+
+    <!-- PRICING WINDOW -->
+    <div class="window" style="max-width: 1000px; margin: 0 auto;">
+      <div class="title-bar">
+        <div class="title-bar-text">
+          <span>💳</span>
+          <span>Pricing — Pay per request with USDC on Base</span>
+        </div>
+        <div class="title-bar-controls">
+          <button>_</button>
+          <button>□</button>
+          <button>✕</button>
+        </div>
+      </div>
+      <div class="window-body">
+        <table class="pricing-table">
+          <tr>
+            <th>Tier</th>
+            <th>Price Range</th>
+            <th>Endpoints</th>
+          </tr>
+          <tr>
+            <td><strong>Micro</strong></td>
+            <td>$0.005 — $0.01</td>
+            <td>Portfolio, best yield, snipers, whale alerts, protocols</td>
+          </tr>
+          <tr>
+            <td><strong>Standard</strong></td>
+            <td>$0.01 — $0.02</td>
+            <td>History, yields, token safety, smart money, whale activity</td>
+          </tr>
+          <tr>
+            <td><strong>Premium</strong></td>
+            <td>$0.02 — $0.05</td>
+            <td>Summary, wallet risk, rebalance recommendation</td>
+          </tr>
+        </table>
+      </div>
     </div>
-    <div class="tier">
-      <h3>Premium</h3>
-      <div class="price">$0.02 <span>/request</span></div>
-      <ul>
-        <li>Full wallet summary</li>
-        <li>Smart money analysis</li>
-        <li>Token safety checks</li>
-        <li>Wallet risk scoring</li>
-      </ul>
+
+    <!-- FOOTER -->
+    <div class="window footer-window">
+      <div class="title-bar">
+        <div class="title-bar-text">
+          <span>ℹ️</span>
+          <span>About RagRadar</span>
+        </div>
+        <div class="title-bar-controls">
+          <button>_</button>
+          <button>□</button>
+          <button>✕</button>
+        </div>
+      </div>
+      <div class="window-body">
+        <div class="footer-content">
+          <p>RagRadar &copy; 2026 · Built on <a href="https://base.org" target="_blank">Base</a> · Powered by <a href="https://x402.org" target="_blank">x402 Protocol</a></p>
+          <p style="margin-top: 5px;">Builder Code: <strong>bc_7isseb6n</strong> (ERC-8021) · GitHub: <a href="https://github.com/ragna999/x402-base-analytics" target="_blank">ragna999/x402-base-analytics</a></p>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div style="margin-top:2rem;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.5rem;">
-    <h3 style="margin-bottom:0.5rem;">How x402 Payments Work</h3>
-    <ol style="color:var(--text2);font-size:0.85rem;padding-left:1.5rem;">
-      <li style="margin-bottom:0.5rem;">Your agent hits an endpoint without payment</li>
-      <li style="margin-bottom:0.5rem;">Server returns HTTP 402 + payment requirements</li>
-      <li style="margin-bottom:0.5rem;">Agent signs USDC payment with wallet</li>
-      <li style="margin-bottom:0.5rem;">Agent retries with payment signature</li>
-      <li>Server verifies → returns data → USDC settled on-chain</li>
-    </ol>
+  <!-- TASKBAR -->
+  <div class="taskbar">
+    <button class="start-button" onclick="toggleStartMenu()">
+      <span>🪟</span>
+      <span>Start</span>
+    </button>
+    <div class="taskbar-items">
+      <div class="taskbar-item active">RagRadar.exe</div>
+      <div class="taskbar-item">Notepad</div>
+      <div class="taskbar-item">Calculator</div>
+    </div>
+    <div class="clock" id="clock">12:00 PM</div>
   </div>
-</section>
 
-<!-- FOOTER -->
-<footer>
-  <p>RagRadar &copy; 2026 · Built on <a href="https://base.org" target="_blank">Base</a> · Powered by <a href="https://x402.org" target="_blank">x402 Protocol</a></p>
-  <p style="margin-top:0.5rem;">
-    <a href="https://github.com/ragna999/x402-base-analytics" target="_blank">GitHub</a> ·
-    <a href="https://ragradar.vercel.app/health" target="_blank">Health</a> ·
-    <a href="https://ragradar.vercel.app/api/protocols" target="_blank">API Index</a> ·
-    <a href="https://ragradar.vercel.app/builder-code" target="_blank">Builder Code</a>
-  </p>
-  <p style="margin-top:0.5rem;color:var(--text3);">Builder Code: <code style="color:var(--blue)">bc_7isseb6n</code> · <a href="https://docs.base.org/apps/builder-codes/builder-codes" target="_blank">ERC-8021</a></p>
-</footer>
+  <!-- START MENU -->
+  <div class="start-menu" id="start-menu">
+    <div class="start-menu-header">
+      <span>🪟</span>
+      <span>RagRadar v6.0.0</span>
+    </div>
+    <div class="start-menu-item" onclick="scrollToCategory('wallet')">💰 Wallet Analytics</div>
+    <div class="start-menu-item" onclick="scrollToCategory('yields')">📈 DeFi Yields</div>
+    <div class="start-menu-item" onclick="scrollToCategory('safety')">🛡️ Token Safety</div>
+    <div class="start-menu-item" onclick="scrollToCategory('sniper')">🎯 Sniper Tracker</div>
+    <div class="start-menu-item" onclick="scrollToCategory('smartmoney')">🧠 Smart Money</div>
+    <div class="start-menu-item" onclick="scrollToCategory('whale')">🐋 Whale Alerts</div>
+    <div class="start-menu-item" onclick="scrollToCategory('protocols')">📊 Protocol Stats</div>
+    <div class="start-menu-separator"></div>
+    <div class="start-menu-item" onclick="scrollToCategory('playground')">🎮 Playground</div>
+    <div class="start-menu-item" onclick="window.open('https://github.com/ragna999/x402-base-analytics')">📁 GitHub</div>
+  </div>
 
-<script>
-const API = 'https://ragradar.vercel.app';
+  <!-- DETAIL DIALOG -->
+  <div class="dialog-overlay" id="dialog-overlay" onclick="closeDetail()"></div>
+  <div class="detail-dialog" id="detail-dialog">
+    <div class="title-bar">
+      <div class="title-bar-text" id="dialog-title">
+        <span>📄</span>
+        <span>Endpoint Details</span>
+      </div>
+      <div class="title-bar-controls">
+        <button onclick="closeDetail()">✕</button>
+      </div>
+    </div>
+    <div class="dialog-body">
+      <p class="dialog-desc" id="dialog-desc"></p>
+      <div class="code-block" id="dialog-code"></div>
+      <div class="dialog-buttons">
+        <button class="btn" onclick="closeDetail()">OK</button>
+      </div>
+    </div>
+  </div>
 
-function toggleDetail(el) {
-  const detail = el.nextElementSibling;
-  detail.classList.toggle('open');
-}
+  <script>
+    // === ENDPOINT DETAILS ===
+    const endpointDetails = {
+      'portfolio': {
+        title: 'Wallet Portfolio',
+        desc: 'Get ETH and ERC-20 token balances for any wallet on Base chain.',
+        code: 'curl -s https://ragradar.vercel.app/api/portfolio/0x8919fe5Aa2a18d69D1Ff869c2903B313F35e8061'
+      },
+      'history': {
+        title: 'Transaction History',
+        desc: 'Get recent transaction history for a wallet on Base.',
+        code: 'curl -s https://ragradar.vercel.app/api/history/0x8919fe5Aa2a18d69D1Ff869c2903B313F35e8061'
+      },
+      'summary': {
+        title: 'Wallet Summary',
+        desc: 'Complete wallet analytics: portfolio, history, activity stats.',
+        code: 'curl -s https://ragradar.vercel.app/api/summary/0x8919fe5Aa2a18d69D1Ff869c2903B313F35e8061'
+      },
+      'yields': {
+        title: 'DeFi Yields',
+        desc: 'Real-time yields from Morpho, Moonwell, Aerodrome. Sorted by APY.',
+        code: 'curl -s https://ragradar.vercel.app/api/yields'
+      },
+      'best-yield': {
+        title: 'Best Yield',
+        desc: 'Find the best yield for USDC, ETH, or other assets.',
+        code: 'curl -s https://ragradar.vercel.app/api/yields/best/USDC'
+      },
+      'risk-yield': {
+        title: 'Yields by Risk',
+        desc: 'DeFi yields categorized by risk level (low/medium/high).',
+        code: 'curl -s https://ragradar.vercel.app/api/yields/risk'
+      },
+      'rebalance': {
+        title: 'Rebalance Recommendation',
+        desc: 'Compare your current yield vs best available.',
+        code: 'curl -s "https://ragradar.vercel.app/api/yields/rebalance?protocol=morpho&apy=3.5"'
+      },
+      'token-safety': {
+        title: 'Token Safety',
+        desc: 'Token safety analysis using GoPlus Security data. Honeypot check, holder analysis.',
+        code: 'curl -s https://ragradar.vercel.app/api/token-safety/0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+      },
+      'wallet-risk': {
+        title: 'Wallet Risk',
+        desc: 'Wallet risk scoring — age, activity patterns, scam interaction, bot detection.',
+        code: 'curl -s https://ragradar.vercel.app/api/wallet-risk/0x8919fe5Aa2a18d69D1Ff869c2903B313F35e8061'
+      },
+      'sniper-token': {
+        title: 'Token Snipers',
+        desc: 'Find wallets that bought early on a token. Shows position, ROI, still-holding status.',
+        code: 'curl -s https://ragradar.vercel.app/api/sniper/token/0x940181a94A35A4569E4529A3CDfB74e38FD98631'
+      },
+      'sniper-wallet': {
+        title: 'Wallet Sniper Record',
+        desc: 'Check a wallet\'s sniper history — success rate, tokens sniped.',
+        code: 'curl -s https://ragradar.vercel.app/api/sniper/wallet/0x8919fe5Aa2a18d69D1Ff869c2903B313F35e8061'
+      },
+      'sniper-trending': {
+        title: 'Trending Snipers',
+        desc: 'Finds snipers active across multiple trending tokens on Base.',
+        code: 'curl -s https://ragradar.vercel.app/api/sniper/trending'
+      },
+      'sm-wallet': {
+        title: 'Smart Money Wallet',
+        desc: 'Score a wallet 0-100. Classifies as SMART MONEY / ACTIVE TRADER / CASUAL / INACTIVE.',
+        code: 'curl -s https://ragradar.vercel.app/api/smart-money/wallet/0x498581ff718922c3f8e6a244956af099b2652b2b'
+      },
+      'sm-token': {
+        title: 'Smart Money Token',
+        desc: 'Find smart money wallets that bought a token. Signal strength, still-holding status.',
+        code: 'curl -s https://ragradar.vercel.app/api/smart-money/token/0x940181a94A35A4569E4529A3CDfB74e38FD98631'
+      },
+      'sm-activity': {
+        title: 'Smart Money Activity',
+        desc: 'Scans trending Base tokens, finds wallets buying 2+ tokens early.',
+        code: 'curl -s https://ragradar.vercel.app/api/smart-money/activity'
+      },
+      'whale-alerts': {
+        title: 'Whale Alerts',
+        desc: 'Recent whale alerts — large transfers from known whale wallets.',
+        code: 'curl -s "https://ragradar.vercel.app/api/whale/alerts?min_amount=50000"'
+      },
+      'whale-token': {
+        title: 'Token Whale Activity',
+        desc: 'Holder concentration, top holders with labels, risk score 0-100.',
+        code: 'curl -s https://ragradar.vercel.app/api/whale/alerts/0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+      },
+      'whale-movements': {
+        title: 'Whale Movements',
+        desc: 'What whales are doing across all trending Base tokens.',
+        code: 'curl -s https://ragradar.vercel.app/api/whale/movements'
+      },
+      'whale-heatmap': {
+        title: 'Whale Heatmap',
+        desc: 'Tokens ranked by whale activity score (0-100). Accumulation vs distribution signals.',
+        code: 'curl -s https://ragradar.vercel.app/api/whale/heatmap'
+      },
+      'whale-accumulation': {
+        title: 'Accumulation Signals',
+        desc: 'Detect tokens being accumulated by large buyers.',
+        code: 'curl -s https://ragradar.vercel.app/api/whale/accumulation'
+      },
+      'protocols': {
+        title: 'Base Protocols',
+        desc: 'All Base protocol stats — TVL, categories, top protocols from DeFiLlama.',
+        code: 'curl -s https://ragradar.vercel.app/api/protocols/base'
+      },
+      'tvl': {
+        title: 'Base TVL History',
+        desc: 'Base chain TVL history — 30 day trend, 7d/30d change.',
+        code: 'curl -s https://ragradar.vercel.app/api/protocols/base/tvl'
+      },
+      'movers': {
+        title: 'Base Movers',
+        desc: 'Top gainers and losers on Base in 24h by TVL change.',
+        code: 'curl -s https://ragradar.vercel.app/api/protocols/base/movers'
+      }
+    };
 
-function updatePlayground() {
-  const ep = document.getElementById('pg-endpoint').value;
-  const addrGroup = document.getElementById('pg-address-group');
-  const needsAddr = ep.includes(':address') || ep.includes('/portfolio') || ep.includes('/history') || ep.includes('/summary') || ep.includes('/token-safety') || ep.includes('/wallet-risk') || ep.includes('/sniper/') || ep.includes('/smart-money/wallet') || ep.includes('/smart-money/token');
-  addrGroup.style.display = needsAddr ? 'flex' : 'none';
-}
-
-async function runPlayground() {
-  const ep = document.getElementById('pg-endpoint').value;
-  const addr = document.getElementById('pg-address').value.trim();
-  const btn = document.getElementById('pg-btn');
-  const result = document.getElementById('pg-result');
-  const status = document.getElementById('pg-status');
-
-  let url = API + ep;
-  if (ep.includes(':address')) {
-    if (!addr || !addr.startsWith('0x')) {
-      result.textContent = 'Error: Please enter a valid 0x address';
-      return;
+    function showDetail(id) {
+      const detail = endpointDetails[id];
+      if (!detail) return;
+      
+      document.getElementById('dialog-title').innerHTML = `<span>📄</span><span>${detail.title}</span>`;
+      document.getElementById('dialog-desc').textContent = detail.desc;
+      document.getElementById('dialog-code').textContent = detail.code;
+      document.getElementById('detail-dialog').classList.add('open');
+      document.getElementById('dialog-overlay').classList.add('open');
     }
-    url = url.replace(':address', addr);
-  }
 
-  btn.textContent = 'Loading...';
-  btn.disabled = true;
-  result.textContent = 'Fetching...';
-  status.innerHTML = '';
-
-  try {
-    const res = await fetch(url);
-    const statusText = `${res.status} ${res.statusText}`;
-    const isPaid = res.status === 402;
-
-    if (isPaid) {
-      status.innerHTML = `<span class="status-badge status-402">${statusText} — Payment Required</span><br><span style="font-size:0.75rem;color:var(--text2);">This endpoint requires x402 payment. Use a payment-enabled client to access it.</span>`;
-      const data = await res.json();
-      result.textContent = JSON.stringify(data, null, 2);
-    } else {
-      status.innerHTML = `<span class="status-badge status-free">${statusText} — Success</span>`;
-      const data = await res.json();
-      result.textContent = JSON.stringify(data, null, 2);
+    function closeDetail() {
+      document.getElementById('detail-dialog').classList.remove('open');
+      document.getElementById('dialog-overlay').classList.remove('open');
     }
-  } catch (err) {
-    status.innerHTML = `<span class="status-badge status-402">Error</span>`;
-    result.textContent = `Error: ${err.message}`;
-  } finally {
-    btn.textContent = 'Send Request';
-    btn.disabled = false;
-  }
-}
 
-updatePlayground();
-</script>
+    // === PLAYGROUND ===
+    async function runPlayground() {
+      const endpoint = document.getElementById('endpoint-select').value;
+      const output = document.getElementById('playground-output');
+      output.textContent = `> GET ${endpoint}\n> Fetching...`;
+      
+      try {
+        const res = await fetch(`https://ragradar.vercel.app${endpoint}`);
+        const data = await res.json();
+        output.textContent = `> GET ${endpoint}\n> Status: ${res.status}\n\n${JSON.stringify(data, null, 2)}`;
+      } catch (err) {
+        output.textContent = `> GET ${endpoint}\n> Error: ${err.message}`;
+      }
+    }
 
+    // === START MENU ===
+    function toggleStartMenu() {
+      document.getElementById('start-menu').classList.toggle('open');
+    }
+
+    // Close start menu on click outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.start-button') && !e.target.closest('.start-menu')) {
+        document.getElementById('start-menu').classList.remove('open');
+      }
+    });
+
+    // === SCROLL TO CATEGORY ===
+    function scrollToCategory(id) {
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('start-menu').classList.remove('open');
+    }
+
+    // === CLOCK ===
+    function updateClock() {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const displayHours = hours % 12 || 12;
+      document.getElementById('clock').textContent = `${displayHours}:${minutes} ${ampm}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // === KEYBOARD SHORTCUTS ===
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeDetail();
+        document.getElementById('start-menu').classList.remove('open');
+      }
+    });
+  </script>
 </body>
 </html>
