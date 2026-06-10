@@ -84,27 +84,24 @@ async function main() {
     process.exit(1);
   }
 
-  // Register Base, Arbitrum, and Solana
+  // Register Base and Solana (x402scan supported networks)
   const resourceServer = new x402ResourceServer(facilitatorClient)
     .register("eip155:8453", new ExactEvmScheme())
-    .register("eip155:42161", new ExactEvmScheme())
     .register(SOLANA_NETWORK, new ExactSvmScheme());
 
   const BASE = "eip155:8453";
-  const ARB = "eip155:42161";
   const SOL = SOLANA_NETWORK;
 
   const discover = (input, inputSchema) => ({
     extensions: { ...declareDiscoveryExtension({ input, inputSchema }) },
   });
 
-  // Multi-chain accepts helper (EVM only)
+  // Multi-chain accepts helper (Base + Solana only for x402scan)
   const multiChain = (price, payTo = PAY_TO) => [
     { scheme: "exact", price, network: BASE, payTo },
-    { scheme: "exact", price, network: ARB, payTo },
   ];
 
-  // Multi-chain accepts with Solana (for discoverable endpoints)
+  // Add Solana if available
   const multiChainWithSol = (price) => {
     const accepts = multiChain(price);
     if (SOLANA_PAY_TO) {
