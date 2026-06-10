@@ -6,7 +6,6 @@ import { dirname, join } from "path";
 import { paymentMiddleware, x402ResourceServer } from "@x402/express";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
 import { ExactSvmScheme } from "@x402/svm/exact/server";
-import { createKeyPairSignerFromBytes } from "@solana/kit";
 import { HTTPFacilitatorClient } from "@x402/core/server";
 import { declareDiscoveryExtension } from "@x402/extensions/bazaar";
 
@@ -48,7 +47,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const PAY_TO = process.env.PAY_TO_ADDRESS;
 const BUILDER_CODE = process.env.BUILDER_CODE || "bc_7isseb6n";
-const SOLANA_KEY_HEX = process.env.SOLANA_PRIVATE_KEY;
+const SOLANA_PAY_TO = process.env.SOLANA_PAY_TO_ADDRESS || null;
 const SOLANA_NETWORK = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
 
 if (!PAY_TO) {
@@ -56,17 +55,8 @@ if (!PAY_TO) {
   process.exit(1);
 }
 
-// Derive Solana address from private key
-let SOLANA_PAY_TO = null;
-if (SOLANA_KEY_HEX) {
-  try {
-    const keypairBytes = Buffer.from(SOLANA_KEY_HEX, "hex");
-    const svmSigner = await createKeyPairSignerFromBytes(keypairBytes);
-    SOLANA_PAY_TO = svmSigner.address;
-    console.log(`Solana wallet: ${SOLANA_PAY_TO}`);
-  } catch (e) {
-    console.warn("Failed to load Solana key:", e.message);
-  }
+if (SOLANA_PAY_TO) {
+  console.log(`Solana wallet: ${SOLANA_PAY_TO}`);
 }
 
 async function createFacilitator() {
