@@ -1,10 +1,10 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "RagRadar — Multi-Chain Intelligence",
-    "version": "9.2.0",
+    "title": "RagRadar \u2014 Multi-Chain Intelligence",
+    "version": "9.3.0",
     "description": "AI-powered on-chain analytics across Base, Arbitrum, and Solana. 44 REST endpoints covering wallet analytics, DeFi yields, token safety, smart money tracking, whale alerts, sniper detection, GMX perps, Solana degen tools, and protocol stats. All data from free sources (GeckoTerminal, Blockscout, DeFiLlama, GoPlus).",
-    "x-guidance": "RagRadar provides AI-powered multi-chain analytics. Use these endpoints to:\n- Check token safety before trading (/api/token-safety/{chain}/{address}, /api/solana/token-safety/{mint})\n- Track whale activity and smart money (/api/whale, /api/smart-money)\n- Get complete token/wallet intelligence (/api/intelligence)\n- Monitor DeFi yields and protocols (/api/yields, /api/defi/dashboard)\n- Find snipers and early buyers (/api/sniper, /api/solana/snipers/{mint})\n- GMX perps data on Arbitrum (/api/arbitrum/gmx)\n- Solana degen tools (/api/solana/*)\nSupported chains: base, arbitrum, polygon, avalanche, celo, solana\nPayments accepted: USDC on Base or Solana",
+    "x-guidance": "RagRadar: 49 paid REST endpoints across Base, Arbitrum, and Solana. Covers wallet analytics, DeFi yields, token safety, sniper tracking, smart money, whale alerts, protocol stats, intelligence, GMX perps, Solana degen tools, and social signals (Farcaster, KOL tracking, sentiment). Pay USDC via x402 protocol on Base or Solana. AI agents discover via Bazaar.",
     "contact": {
       "name": "RagRadar",
       "url": "https://ragradar.vercel.app",
@@ -21,775 +21,1902 @@
     "/api/portfolio/{chain}/{address}": {
       "get": {
         "operationId": "getPortfolio",
-        "summary": "Wallet Portfolio — token balances on any chain",
+        "summary": "Wallet Portfolio \u2014 token balances on any chain",
         "description": "Get native + ERC-20 token balances for any wallet. Supports: base, arbitrum, polygon, avalanche, celo.",
-        "tags": ["Wallet Analytics"],
+        "tags": [
+          "Wallet Analytics"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.005000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.005000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "parameters": [
           {
             "name": "chain",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "enum": ["base", "arbitrum", "polygon", "avalanche", "celo"] },
+            "schema": {
+              "type": "string",
+              "enum": [
+                "base",
+                "arbitrum",
+                "polygon",
+                "avalanche",
+                "celo"
+              ]
+            },
             "description": "Chain identifier"
           },
           {
             "name": "address",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{40}$"
+            },
             "description": "EVM wallet address (0x...)"
           }
         ],
         "responses": {
           "200": {
             "description": "Wallet portfolio with token balances",
-            "content": { "application/json": { "schema": { "type": "object" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           },
-          "402": { "description": "Payment Required" }
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/history/{chain}/{address}": {
       "get": {
         "operationId": "getTxHistory",
-        "summary": "Transaction History — recent wallet activity",
+        "summary": "Transaction History \u2014 recent wallet activity",
         "description": "Get recent transaction history for a wallet. Supports Blockscout chains: base, arbitrum, celo.",
-        "tags": ["Wallet Analytics"],
+        "tags": [
+          "Wallet Analytics"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.010000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "parameters": [
           {
             "name": "chain",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "enum": ["base", "arbitrum", "celo"] },
+            "schema": {
+              "type": "string",
+              "enum": [
+                "base",
+                "arbitrum",
+                "celo"
+              ]
+            },
             "description": "Chain identifier (must have Blockscout)"
           },
           {
             "name": "address",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{40}$"
+            },
             "description": "EVM wallet address (0x...)"
           },
           {
             "name": "limit",
             "in": "query",
-            "schema": { "type": "integer", "default": 20, "maximum": 100 },
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "maximum": 100
+            },
             "description": "Number of transactions to return"
           }
         ],
         "responses": {
           "200": {
             "description": "Transaction history",
-            "content": { "application/json": { "schema": { "type": "object" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           },
-          "402": { "description": "Payment Required" }
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/summary/{chain}/{address}": {
       "get": {
         "operationId": "getWalletSummary",
-        "summary": "Wallet Summary — full analytics package",
+        "summary": "Wallet Summary \u2014 full analytics package",
         "description": "Complete wallet analytics: portfolio, history, activity stats. Supports Blockscout chains: base, arbitrum, celo.",
-        "tags": ["Wallet Analytics"],
+        "tags": [
+          "Wallet Analytics"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.020000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.020000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "parameters": [
           {
             "name": "chain",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "enum": ["base", "arbitrum", "celo"] },
+            "schema": {
+              "type": "string",
+              "enum": [
+                "base",
+                "arbitrum",
+                "celo"
+              ]
+            },
             "description": "Chain identifier"
           },
           {
             "name": "address",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{40}$"
+            },
             "description": "EVM wallet address (0x...)"
           }
         ],
         "responses": {
           "200": {
             "description": "Full wallet summary",
-            "content": { "application/json": { "schema": { "type": "object" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           },
-          "402": { "description": "Payment Required" }
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/token-safety/{chain}/{address}": {
       "get": {
         "operationId": "checkTokenSafety",
-        "summary": "Token Safety — rug risk analysis",
+        "summary": "Token Safety \u2014 rug risk analysis",
         "description": "Token safety analysis using GoPlus Security data. Honeypot check, holder analysis, tax info. Supports all chains: base, arbitrum, polygon, avalanche, celo.",
-        "tags": ["Safety"],
+        "tags": [
+          "Safety"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.020000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.020000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "parameters": [
           {
             "name": "chain",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "enum": ["base", "arbitrum", "polygon", "avalanche", "celo"] },
+            "schema": {
+              "type": "string",
+              "enum": [
+                "base",
+                "arbitrum",
+                "polygon",
+                "avalanche",
+                "celo"
+              ]
+            },
             "description": "Chain identifier"
           },
           {
             "name": "address",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{40}$"
+            },
             "description": "Token contract address (0x...)"
           }
         ],
         "responses": {
           "200": {
             "description": "Token safety analysis",
-            "content": { "application/json": { "schema": { "type": "object" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           },
-          "402": { "description": "Payment Required" }
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/yields": {
       "get": {
         "operationId": "getDefiYields",
-        "summary": "DeFi Yields — all Base yield opportunities",
+        "summary": "DeFi Yields \u2014 all Base yield opportunities",
         "description": "Real-time DeFi yields from DeFiLlama (1,700+ pools on Base). Sorted by APY.",
-        "tags": ["DeFi Yields"],
+        "tags": [
+          "DeFi Yields"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.020000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.020000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "responses": {
-          "200": { "description": "DeFi yield data", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "DeFi yield data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/yields/best/{asset}": {
       "get": {
         "operationId": "getBestYield",
-        "summary": "Best Yield — top yield for a specific asset",
+        "summary": "Best Yield \u2014 top yield for a specific asset",
         "description": "Find the best yield for USDC, ETH, or other assets across all Base DeFi protocols.",
-        "tags": ["DeFi Yields"],
+        "tags": [
+          "DeFi Yields"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.010000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "parameters": [
           {
             "name": "asset",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "description": "Asset symbol (e.g. USDC, ETH)"
           }
         ],
         "responses": {
-          "200": { "description": "Best yield for asset", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Best yield for asset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/yields/risk": {
       "get": {
         "operationId": "getYieldsByRisk",
-        "summary": "Yields by Risk — yields categorized by risk level",
+        "summary": "Yields by Risk \u2014 yields categorized by risk level",
         "description": "DeFi yields categorized by risk level (low/medium/high).",
-        "tags": ["DeFi Yields"],
+        "tags": [
+          "DeFi Yields"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.020000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.020000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "responses": {
-          "200": { "description": "Yields by risk category", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Yields by risk category",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/yields/rebalance": {
       "get": {
         "operationId": "getRebalanceRecommendation",
-        "summary": "Rebalance Recommendation — compare current vs best yield",
+        "summary": "Rebalance Recommendation \u2014 compare current vs best yield",
         "description": "Compare your current yield vs best available. Suggests rebalancing options.",
-        "tags": ["DeFi Yields"],
+        "tags": [
+          "DeFi Yields"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.050000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.050000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "parameters": [
           {
             "name": "protocol",
             "in": "query",
             "required": true,
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "description": "Current protocol name"
           },
           {
             "name": "apy",
             "in": "query",
             "required": true,
-            "schema": { "type": "number" },
+            "schema": {
+              "type": "number"
+            },
             "description": "Current APY (e.g. 3.5)"
           }
         ],
         "responses": {
-          "200": { "description": "Rebalance recommendation", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Rebalance recommendation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/wallet-risk/{address}": {
       "get": {
         "operationId": "checkWalletRisk",
-        "summary": "Wallet Risk — age, activity, scam detection",
-        "description": "Wallet risk scoring — age, activity patterns, scam interaction, bot detection.",
-        "tags": ["Safety"],
+        "summary": "Wallet Risk \u2014 age, activity, scam detection",
+        "description": "Wallet risk scoring \u2014 age, activity patterns, scam interaction, bot detection.",
+        "tags": [
+          "Safety"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.030000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.030000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "parameters": [
           {
             "name": "address",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{40}$"
+            },
             "description": "Wallet address (0x...)"
           }
         ],
         "responses": {
-          "200": { "description": "Wallet risk analysis", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Wallet risk analysis",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/sniper/token/{address}": {
       "get": {
         "operationId": "findTokenSnipers",
-        "summary": "Token Snipers — early buyers of a token",
+        "summary": "Token Snipers \u2014 early buyers of a token",
         "description": "Find wallets that bought early on a token. Shows position, ROI, still-holding status.",
-        "tags": ["Sniper Tracker"],
+        "tags": [
+          "Sniper Tracker"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.010000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "parameters": [
           {
             "name": "address",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{40}$"
+            },
             "description": "Token contract address (0x...)"
           }
         ],
         "responses": {
-          "200": { "description": "Token snipers data", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Token snipers data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/sniper/wallet/{address}": {
       "get": {
         "operationId": "getWalletSniperRecord",
-        "summary": "Wallet Sniper Record — track record for a wallet",
-        "description": "Sniper track record for a wallet — score, success rate, tokens traded.",
-        "tags": ["Sniper Tracker"],
+        "summary": "Wallet Sniper Record \u2014 track record for a wallet",
+        "description": "Sniper track record for a wallet \u2014 score, success rate, tokens traded.",
+        "tags": [
+          "Sniper Tracker"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.010000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "parameters": [
           {
             "name": "address",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{40}$"
+            },
             "description": "Wallet address (0x...)"
           }
         ],
         "responses": {
-          "200": { "description": "Wallet sniper record", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Wallet sniper record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/sniper/trending": {
       "get": {
         "operationId": "getTrendingSnipers",
-        "summary": "Trending Snipers — top snipers from trending tokens",
-        "description": "Top snipers from trending tokens on Base — wallets that buy early on multiple tokens.",
-        "tags": ["Sniper Tracker"],
+        "summary": "Trending Snipers \u2014 top snipers from trending tokens",
+        "description": "Top snipers from trending tokens on Base \u2014 wallets that buy early on multiple tokens.",
+        "tags": [
+          "Sniper Tracker"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.010000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "responses": {
-          "200": { "description": "Trending snipers", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Trending snipers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/smart-money/wallet/{address}": {
       "get": {
         "operationId": "analyzeSmartMoneyWallet",
-        "summary": "Smart Money Wallet — analysis for a wallet",
-        "description": "Smart money analysis for a wallet — score, classification, trading patterns.",
-        "tags": ["Smart Money"],
+        "summary": "Smart Money Wallet \u2014 analysis for a wallet",
+        "description": "Smart money analysis for a wallet \u2014 score, classification, trading patterns.",
+        "tags": [
+          "Smart Money"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.020000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.020000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "parameters": [
           {
             "name": "address",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{40}$"
+            },
             "description": "Wallet address (0x...)"
           }
         ],
         "responses": {
-          "200": { "description": "Smart money analysis", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Smart money analysis",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/smart-money/token/{address}": {
       "get": {
         "operationId": "findSmartMoneyBuyers",
-        "summary": "Smart Money Token — find smart money buyers",
-        "description": "Find smart money buyers of a token — who's buying, are they still holding.",
-        "tags": ["Smart Money"],
+        "summary": "Smart Money Token \u2014 find smart money buyers",
+        "description": "Find smart money buyers of a token \u2014 who's buying, are they still holding.",
+        "tags": [
+          "Smart Money"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.020000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.020000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "parameters": [
           {
             "name": "address",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{40}$"
+            },
             "description": "Token contract address (0x...)"
           }
         ],
         "responses": {
-          "200": { "description": "Smart money buyers", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Smart money buyers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/smart-money/activity": {
       "get": {
         "operationId": "getSmartMoneyActivity",
-        "summary": "Smart Money Activity — what smart money is buying",
+        "summary": "Smart Money Activity \u2014 what smart money is buying",
         "description": "What smart money wallets are buying right now on Base.",
-        "tags": ["Smart Money"],
+        "tags": [
+          "Smart Money"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.020000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.020000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "responses": {
-          "200": { "description": "Smart money activity", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Smart money activity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/whale/alerts": {
       "get": {
         "operationId": "getWhaleAlerts",
-        "summary": "Whale Alerts — large transfers",
-        "description": "Recent whale alerts — large transfers from known whale wallets.",
-        "tags": ["Whale Alerts"],
+        "summary": "Whale Alerts \u2014 large transfers",
+        "description": "Recent whale alerts \u2014 large transfers from known whale wallets.",
+        "tags": [
+          "Whale Alerts"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.010000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "responses": {
-          "200": { "description": "Whale alerts", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Whale alerts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/whale/alerts/{token}": {
       "get": {
         "operationId": "getTokenWhaleActivity",
-        "summary": "Token Whale Activity — holder concentration",
-        "description": "Token whale activity — holder concentration, risk score.",
-        "tags": ["Whale Alerts"],
+        "summary": "Token Whale Activity \u2014 holder concentration",
+        "description": "Token whale activity \u2014 holder concentration, risk score.",
+        "tags": [
+          "Whale Alerts"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.020000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.020000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "parameters": [
           {
             "name": "token",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{40}$"
+            },
             "description": "Token contract address"
           }
         ],
         "responses": {
-          "200": { "description": "Token whale activity", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Token whale activity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/whale/movements": {
       "get": {
         "operationId": "getWhaleMovements",
-        "summary": "Whale Movements — cross-token activity",
-        "description": "Cross-token whale activity — volume, buy/sell ratio.",
-        "tags": ["Whale Alerts"],
+        "summary": "Whale Movements \u2014 cross-token activity",
+        "description": "Cross-token whale activity \u2014 volume, buy/sell ratio.",
+        "tags": [
+          "Whale Alerts"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.010000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "responses": {
-          "200": { "description": "Whale movements", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Whale movements",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/whale/heatmap": {
       "get": {
         "operationId": "getWhaleHeatmap",
-        "summary": "Whale Heatmap — tokens ranked by whale activity",
-        "description": "Whale heatmap — tokens ranked by whale activity score.",
-        "tags": ["Whale Alerts"],
+        "summary": "Whale Heatmap \u2014 tokens ranked by whale activity",
+        "description": "Whale heatmap \u2014 tokens ranked by whale activity score.",
+        "tags": [
+          "Whale Alerts"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.010000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "responses": {
-          "200": { "description": "Whale heatmap", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Whale heatmap",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/whale/accumulation": {
       "get": {
         "operationId": "getAccumulationSignals",
-        "summary": "Accumulation Signals — tokens being accumulated",
-        "description": "Accumulation signals — tokens being accumulated by large buyers.",
-        "tags": ["Whale Alerts"],
+        "summary": "Accumulation Signals \u2014 tokens being accumulated",
+        "description": "Accumulation signals \u2014 tokens being accumulated by large buyers.",
+        "tags": [
+          "Whale Alerts"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.020000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.020000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "responses": {
-          "200": { "description": "Accumulation signals", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Accumulation signals",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/intelligence/token/{address}": {
       "get": {
         "operationId": "getTokenIntelligence",
-        "summary": "Token Intelligence — complete token analysis",
-        "description": "Complete token intelligence — safety + whale + smart money + snipers combined.",
-        "tags": ["Intelligence"],
+        "summary": "Token Intelligence \u2014 complete token analysis",
+        "description": "Complete token intelligence \u2014 safety + whale + smart money + snipers combined.",
+        "tags": [
+          "Intelligence"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.050000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.050000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "parameters": [
           {
             "name": "address",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{40}$"
+            },
             "description": "Token contract address (0x...)"
           }
         ],
         "responses": {
-          "200": { "description": "Token intelligence", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Token intelligence",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/intelligence/wallet/{address}": {
       "get": {
         "operationId": "getWalletIntelligence",
-        "summary": "Wallet Intelligence — complete wallet analysis",
-        "description": "Complete wallet intelligence — portfolio + smart money + sniper + risk combined.",
-        "tags": ["Intelligence"],
+        "summary": "Wallet Intelligence \u2014 complete wallet analysis",
+        "description": "Complete wallet intelligence \u2014 portfolio + smart money + sniper + risk combined.",
+        "tags": [
+          "Intelligence"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.050000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.050000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "parameters": [
           {
             "name": "address",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{40}$"
+            },
             "description": "Wallet address (0x...)"
           }
         ],
         "responses": {
-          "200": { "description": "Wallet intelligence", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Wallet intelligence",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/market/pulse": {
       "get": {
         "operationId": "getMarketPulse",
-        "summary": "Market Pulse — real-time market overview",
-        "description": "Real-time market pulse — whale picks + smart money activity + top movers + yields.",
-        "tags": ["Intelligence"],
+        "summary": "Market Pulse \u2014 real-time market overview",
+        "description": "Real-time market pulse \u2014 whale picks + smart money activity + top movers + yields.",
+        "tags": [
+          "Intelligence"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.050000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.050000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "responses": {
-          "200": { "description": "Market pulse", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Market pulse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/defi/dashboard": {
       "get": {
         "operationId": "getDefiDashboard",
-        "summary": "DeFi Dashboard — yields + protocols + TVL",
-        "description": "DeFi dashboard — yields + protocols + TVL + movers combined.",
-        "tags": ["Intelligence"],
+        "summary": "DeFi Dashboard \u2014 yields + protocols + TVL",
+        "description": "DeFi dashboard \u2014 yields + protocols + TVL + movers combined.",
+        "tags": [
+          "Intelligence"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.030000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.030000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "responses": {
-          "200": { "description": "DeFi dashboard", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "DeFi dashboard",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/risk/{address}": {
       "get": {
         "operationId": "getRiskAssessment",
-        "summary": "Risk Assessment — token safety + whale + signals",
-        "description": "Risk assessment — token safety + whale concentration + smart money signal.",
-        "tags": ["Intelligence"],
+        "summary": "Risk Assessment \u2014 token safety + whale + signals",
+        "description": "Risk assessment \u2014 token safety + whale concentration + smart money signal.",
+        "tags": [
+          "Intelligence"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.030000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.030000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "parameters": [
           {
             "name": "address",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{40}$"
+            },
             "description": "Token contract address (0x...)"
           }
         ],
         "responses": {
-          "200": { "description": "Risk assessment", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Risk assessment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/arbitrum/gmx/stats": {
       "get": {
         "operationId": "getGmxStats",
-        "summary": "GMX Stats — TVL, volume, fees on Arbitrum",
-        "description": "GMX V2 stats — TVL $152M+, 127 tokens, protocol data. Arbitrum-specific.",
-        "tags": ["GMX Perps"],
+        "summary": "GMX Stats \u2014 TVL, volume, fees on Arbitrum",
+        "description": "GMX V2 stats \u2014 TVL $152M+, 127 tokens, protocol data. Arbitrum-specific.",
+        "tags": [
+          "GMX Perps"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.020000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.020000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "responses": {
-          "200": { "description": "GMX stats", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "GMX stats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/arbitrum/gmx/funding": {
       "get": {
         "operationId": "getGmxFundingRates",
-        "summary": "GMX Funding Rates — yield pools",
-        "description": "GMX yield pools — 20+ pools with APY, TVL data. Arbitrum-specific.",
-        "tags": ["GMX Perps"],
+        "summary": "GMX Funding Rates \u2014 yield pools",
+        "description": "GMX yield pools \u2014 20+ pools with APY, TVL data. Arbitrum-specific.",
+        "tags": [
+          "GMX Perps"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.010000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "responses": {
-          "200": { "description": "GMX funding rates", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "GMX funding rates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/arbitrum/gmx/glp": {
       "get": {
         "operationId": "getGlpYield",
-        "summary": "GLP Yield — GMX/GLP staking yields",
+        "summary": "GLP Yield \u2014 GMX/GLP staking yields",
         "description": "GLP and GMX staking yield data. Arbitrum-specific.",
-        "tags": ["GMX Perps"],
+        "tags": [
+          "GMX Perps"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.010000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "responses": {
-          "200": { "description": "GLP yield data", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "GLP yield data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/arbitrum/gmx/liquidations": {
       "get": {
         "operationId": "getGmxLiquidations",
-        "summary": "GMX Liquidations — liquidation feed",
+        "summary": "GMX Liquidations \u2014 liquidation feed",
         "description": "Recent GMX liquidations feed. Arbitrum-specific.",
-        "tags": ["GMX Perps"],
+        "tags": [
+          "GMX Perps"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.020000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.020000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "responses": {
-          "200": { "description": "GMX liquidations", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "GMX liquidations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/solana/token-safety/{mint}": {
       "get": {
         "operationId": "checkSolanaTokenSafety",
-        "summary": "Solana Token Safety — rug check",
+        "summary": "Solana Token Safety \u2014 rug check",
         "description": "Solana token safety analysis using GoPlus Security data. Honeypot, mint authority, freeze, holder analysis.",
-        "tags": ["Solana"],
+        "tags": [
+          "Solana"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.020000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.020000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "parameters": [
           {
             "name": "mint",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "description": "Solana token mint address"
           }
         ],
         "responses": {
-          "200": { "description": "Token safety analysis", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Token safety analysis",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/solana/snipers/{mint}": {
       "get": {
         "operationId": "findSolanaSnipers",
-        "summary": "Solana Snipers — early buyers detection",
+        "summary": "Solana Snipers \u2014 early buyers detection",
         "description": "Find early buyers (snipers) for a Solana token. Shows who bought in first 5 minutes.",
-        "tags": ["Solana"],
+        "tags": [
+          "Solana"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.010000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "parameters": [
           {
             "name": "mint",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "description": "Solana token mint address"
           }
         ],
         "responses": {
-          "200": { "description": "Sniper data", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Sniper data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/solana/snipers/{mint}/score": {
       "get": {
         "operationId": "getSolanaSniperScore",
-        "summary": "Solana Sniper Score — sniping activity",
+        "summary": "Solana Sniper Score \u2014 sniping activity",
         "description": "Sniper score for a Solana token (0-100). Higher = more sniping activity.",
-        "tags": ["Solana"],
+        "tags": [
+          "Solana"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.010000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "parameters": [
           {
             "name": "mint",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "description": "Solana token mint address"
           }
         ],
         "responses": {
-          "200": { "description": "Sniper score", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Sniper score",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/solana/trending": {
       "get": {
         "operationId": "getSolanaTrending",
-        "summary": "Solana Trending — top tokens by activity",
-        "description": "Trending Solana pools — top tokens by activity on Solana DEXes.",
-        "tags": ["Solana"],
+        "summary": "Solana Trending \u2014 top tokens by activity",
+        "description": "Trending Solana pools \u2014 top tokens by activity on Solana DEXes.",
+        "tags": [
+          "Solana"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.010000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "responses": {
-          "200": { "description": "Trending pools", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Trending pools",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/solana/new-tokens": {
       "get": {
         "operationId": "getSolanaNewTokens",
-        "summary": "Solana New Tokens — degen alpha signal",
-        "description": "New Solana tokens — recently created pools (degen alpha signal).",
-        "tags": ["Solana"],
+        "summary": "Solana New Tokens \u2014 degen alpha signal",
+        "description": "New Solana tokens \u2014 recently created pools (degen alpha signal).",
+        "tags": [
+          "Solana"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.010000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "responses": {
-          "200": { "description": "New tokens", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "New tokens",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     },
     "/api/solana/top-volume": {
       "get": {
         "operationId": "getSolanaTopVolume",
-        "summary": "Solana Top Volume — highest volume pools",
+        "summary": "Solana Top Volume \u2014 highest volume pools",
         "description": "Top Solana pools by 24h volume.",
-        "tags": ["Solana"],
+        "tags": [
+          "Solana"
+        ],
         "x-payment-info": {
-          "price": { "mode": "fixed", "currency": "USD", "amount": "0.010000" },
-          "protocols": [{ "x402": {} }]
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         },
         "responses": {
-          "200": { "description": "Top volume pools", "content": { "application/json": { "schema": { "type": "object" } } } },
-          "402": { "description": "Payment Required" }
+          "200": {
+            "description": "Top volume pools",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        }
+      }
+    },
+    "/api/social/token/{chain}/{address}": {
+      "get": {
+        "operationId": "getTokenSocial",
+        "summary": "Token social presence \u2014 aggregated from DexScreener + GeckoTerminal",
+        "tags": [
+          "Social Signals"
+        ],
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.030000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
+        },
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Blockchain (base, arbitrum, solana)"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token contract address"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Social data with links, trust score, market data"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        }
+      }
+    },
+    "/api/social/trending": {
+      "get": {
+        "operationId": "getSocialTrending",
+        "summary": "Trending tokens with social data \u2014 volume, links, trust score",
+        "tags": [
+          "Social Signals"
+        ],
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.020000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
+        },
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "base"
+            },
+            "description": "Chain name"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Max results (1-50)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Trending pools with social enrichment"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        }
+      }
+    },
+    "/api/social/farcaster/crypto": {
+      "get": {
+        "operationId": "getFarcasterCrypto",
+        "summary": "Farcaster crypto signals \u2014 top casts, channels, engagement",
+        "tags": [
+          "Social Signals"
+        ],
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.020000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Max casts to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Crypto Farcaster data with engagement metrics"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        }
+      }
+    },
+    "/api/social/kol/activity": {
+      "get": {
+        "operationId": "getKolActivity",
+        "summary": "KOL activity \u2014 what influencers are buying, cluster signals",
+        "tags": [
+          "Social Signals"
+        ],
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.030000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
+        },
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "sol"
+            },
+            "description": "Chain (sol, base, eth, bsc)"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Max trades"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "KOL trades with cluster detection"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        }
+      }
+    },
+    "/api/social/sentiment/{keyword}": {
+      "get": {
+        "operationId": "getSocialSentiment",
+        "summary": "Multi-source social sentiment \u2014 Farcaster, GeckoTerminal, DexScreener",
+        "tags": [
+          "Social Signals"
+        ],
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.030000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
+        },
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search keyword (token name, ticker, or topic)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sentiment score with multi-platform signals"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        }
+      }
+    },
+    "/api/protocols/base": {
+      "get": {
+        "operationId": "getBaseProtocols",
+        "summary": "Base protocol stats \u2014 TVL, categories, top protocols",
+        "tags": [
+          "Protocol Stats"
+        ],
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
+        },
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Protocol data from DeFiLlama"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        }
+      }
+    },
+    "/api/protocols/base/tvl": {
+      "get": {
+        "operationId": "getBaseTvl",
+        "summary": "Base chain TVL history \u2014 30 day trend",
+        "tags": [
+          "Protocol Stats"
+        ],
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
+        },
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "TVL history data"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        }
+      }
+    },
+    "/api/protocols/base/movers": {
+      "get": {
+        "operationId": "getBaseMovers",
+        "summary": "Top gainers and losers on Base by TVL change",
+        "tags": [
+          "Protocol Stats"
+        ],
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
+        },
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Top movers data"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
         }
       }
     }
