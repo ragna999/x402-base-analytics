@@ -2,9 +2,9 @@
   "openapi": "3.1.0",
   "info": {
     "title": "RagRadar — Multi-Chain Intelligence",
-    "version": "9.1.0",
-    "description": "AI-powered on-chain analytics across Base, Arbitrum, and Solana. 32+ REST endpoints covering wallet analytics, DeFi yields, token safety, smart money tracking, whale alerts, sniper detection, GMX perps, and protocol stats. All data from free sources (GeckoTerminal, Blockscout, DeFiLlama, GoPlus).",
-    "x-guidance": "RagRadar provides AI-powered multi-chain analytics. Use these endpoints to:\n- Check token safety before trading (/api/token-safety/{chain}/{address})\n- Track whale activity and smart money (/api/whale, /api/smart-money)\n- Get complete token/wallet intelligence (/api/intelligence)\n- Monitor DeFi yields and protocols (/api/yields, /api/defi/dashboard)\n- Find snipers and early buyers (/api/sniper)\n- GMX perps data on Arbitrum (/api/arbitrum/gmx)\nSupported chains: base, arbitrum, polygon, avalanche, celo\nPayments accepted: USDC on Base, Arbitrum, or Solana",
+    "version": "9.2.0",
+    "description": "AI-powered on-chain analytics across Base, Arbitrum, and Solana. 44 REST endpoints covering wallet analytics, DeFi yields, token safety, smart money tracking, whale alerts, sniper detection, GMX perps, Solana degen tools, and protocol stats. All data from free sources (GeckoTerminal, Blockscout, DeFiLlama, GoPlus).",
+    "x-guidance": "RagRadar provides AI-powered multi-chain analytics. Use these endpoints to:\n- Check token safety before trading (/api/token-safety/{chain}/{address}, /api/solana/token-safety/{mint})\n- Track whale activity and smart money (/api/whale, /api/smart-money)\n- Get complete token/wallet intelligence (/api/intelligence)\n- Monitor DeFi yields and protocols (/api/yields, /api/defi/dashboard)\n- Find snipers and early buyers (/api/sniper, /api/solana/snipers/{mint})\n- GMX perps data on Arbitrum (/api/arbitrum/gmx)\n- Solana degen tools (/api/solana/*)\nSupported chains: base, arbitrum, polygon, avalanche, celo, solana\nPayments accepted: USDC on Base or Solana",
     "contact": {
       "name": "RagRadar",
       "url": "https://ragradar.vercel.app",
@@ -666,6 +666,129 @@
         },
         "responses": {
           "200": { "description": "GMX liquidations", "content": { "application/json": { "schema": { "type": "object" } } } },
+          "402": { "description": "Payment Required" }
+        }
+      }
+    },
+    "/api/solana/token-safety/{mint}": {
+      "get": {
+        "operationId": "checkSolanaTokenSafety",
+        "summary": "Solana Token Safety — rug check",
+        "description": "Solana token safety analysis using GoPlus Security data. Honeypot, mint authority, freeze, holder analysis.",
+        "tags": ["Solana"],
+        "x-payment-info": {
+          "price": { "mode": "fixed", "currency": "USD", "amount": "0.020000" },
+          "protocols": [{ "x402": {} }]
+        },
+        "parameters": [
+          {
+            "name": "mint",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Solana token mint address"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Token safety analysis", "content": { "application/json": { "schema": { "type": "object" } } } },
+          "402": { "description": "Payment Required" }
+        }
+      }
+    },
+    "/api/solana/snipers/{mint}": {
+      "get": {
+        "operationId": "findSolanaSnipers",
+        "summary": "Solana Snipers — early buyers detection",
+        "description": "Find early buyers (snipers) for a Solana token. Shows who bought in first 5 minutes.",
+        "tags": ["Solana"],
+        "x-payment-info": {
+          "price": { "mode": "fixed", "currency": "USD", "amount": "0.010000" },
+          "protocols": [{ "x402": {} }]
+        },
+        "parameters": [
+          {
+            "name": "mint",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Solana token mint address"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Sniper data", "content": { "application/json": { "schema": { "type": "object" } } } },
+          "402": { "description": "Payment Required" }
+        }
+      }
+    },
+    "/api/solana/snipers/{mint}/score": {
+      "get": {
+        "operationId": "getSolanaSniperScore",
+        "summary": "Solana Sniper Score — sniping activity",
+        "description": "Sniper score for a Solana token (0-100). Higher = more sniping activity.",
+        "tags": ["Solana"],
+        "x-payment-info": {
+          "price": { "mode": "fixed", "currency": "USD", "amount": "0.010000" },
+          "protocols": [{ "x402": {} }]
+        },
+        "parameters": [
+          {
+            "name": "mint",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Solana token mint address"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Sniper score", "content": { "application/json": { "schema": { "type": "object" } } } },
+          "402": { "description": "Payment Required" }
+        }
+      }
+    },
+    "/api/solana/trending": {
+      "get": {
+        "operationId": "getSolanaTrending",
+        "summary": "Solana Trending — top tokens by activity",
+        "description": "Trending Solana pools — top tokens by activity on Solana DEXes.",
+        "tags": ["Solana"],
+        "x-payment-info": {
+          "price": { "mode": "fixed", "currency": "USD", "amount": "0.010000" },
+          "protocols": [{ "x402": {} }]
+        },
+        "responses": {
+          "200": { "description": "Trending pools", "content": { "application/json": { "schema": { "type": "object" } } } },
+          "402": { "description": "Payment Required" }
+        }
+      }
+    },
+    "/api/solana/new-tokens": {
+      "get": {
+        "operationId": "getSolanaNewTokens",
+        "summary": "Solana New Tokens — degen alpha signal",
+        "description": "New Solana tokens — recently created pools (degen alpha signal).",
+        "tags": ["Solana"],
+        "x-payment-info": {
+          "price": { "mode": "fixed", "currency": "USD", "amount": "0.010000" },
+          "protocols": [{ "x402": {} }]
+        },
+        "responses": {
+          "200": { "description": "New tokens", "content": { "application/json": { "schema": { "type": "object" } } } },
+          "402": { "description": "Payment Required" }
+        }
+      }
+    },
+    "/api/solana/top-volume": {
+      "get": {
+        "operationId": "getSolanaTopVolume",
+        "summary": "Solana Top Volume — highest volume pools",
+        "description": "Top Solana pools by 24h volume.",
+        "tags": ["Solana"],
+        "x-payment-info": {
+          "price": { "mode": "fixed", "currency": "USD", "amount": "0.010000" },
+          "protocols": [{ "x402": {} }]
+        },
+        "responses": {
+          "200": { "description": "Top volume pools", "content": { "application/json": { "schema": { "type": "object" } } } },
           "402": { "description": "Payment Required" }
         }
       }
