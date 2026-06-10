@@ -48,6 +48,9 @@ import { analyzeSolanaTokenSafety } from "./solanaSafety.js";
 import { findSolanaSnipers, getSolanaSniperScore } from "./solanaSnipers.js";
 import { getSolanaTrending, getSolanaNewTokens, getSolanaTopVolume } from "./solanaTrending.js";
 
+// Social signals
+import { getTokenSocial, getSocialTrending, getFarcasterCrypto, getKolActivity, getSocialSentiment } from "./socialSignals.js";
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PAY_TO = process.env.PAY_TO_ADDRESS;
@@ -368,6 +371,38 @@ async function main() {
       mimeType: "application/json",
       ...discover({}, { type: "object", properties: {} }),
     },
+
+    // === SOCIAL SIGNALS ===
+    "GET /api/social/token/:chain/:address": {
+      accepts: multiChainWithSol("$0.03"),
+      description: "Aggregated social presence for a token — Twitter, Telegram, Discord, Farcaster, trust score.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+    "GET /api/social/trending": {
+      accepts: multiChainWithSol("$0.02"),
+      description: "Trending tokens with social data — volume, social links, trust score.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+    "GET /api/social/farcaster/crypto": {
+      accepts: multiChainWithSol("$0.02"),
+      description: "Trending crypto discussions on Farcaster — engagement metrics, channels.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+    "GET /api/social/kol/activity": {
+      accepts: multiChainWithSol("$0.03"),
+      description: "What KOLs are buying — cluster signals, Twitter usernames.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+    "GET /api/social/sentiment/:keyword": {
+      accepts: multiChainWithSol("$0.03"),
+      description: "Multi-source social sentiment — Farcaster, GeckoTerminal, DexScreener.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
   };
 
   // --- Middleware ---
@@ -391,7 +426,7 @@ async function main() {
       networks,
       payTo: PAY_TO,
       solanaPayTo: SOLANA_PAY_TO || "not configured",
-      version: "9.2.0-solana-degen",
+      version: "9.3.0-social-signals",
       builderCode: BUILDER_CODE,
     });
   });
@@ -422,6 +457,7 @@ async function main() {
       defi: ["dashboard"],
       risk: [":address"],
       arbitrum: ["gmx/stats", "gmx/funding", "gmx/glp", "gmx/liquidations"],
+      social: ["token/:chain/:address", "trending", "farcaster/crypto", "kol/activity", "sentiment/:keyword"],
     });
   });
 
@@ -682,6 +718,40 @@ async function main() {
       const limit = Math.min(parseInt(req.query.limit) || 20, 50);
       res.json(await getSolanaTopVolume(limit));
     } catch (err) { console.error("Solana top volume error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  // === SOCIAL SIGNALS ===
+  app.get("/api/social/token/:chain/:address", async (req, res) => {
+    try { res.json(await getTokenSocial(req.params.chain, req.params.address)); }
+    catch (err) { console.error("Social token error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/social/trending", async (req, res) => {
+    try {
+      const chain = req.query.chain || "base";
+      const limit = Math.min(parseInt(req.query.limit) || 20, 50);
+      res.json(await getSocialTrending(chain, limit));
+    } catch (err) { console.error("Social trending error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/social/farcaster/crypto", async (req, res) => {
+    try {
+      const limit = Math.min(parseInt(req.query.limit) || 20, 50);
+      res.json(await getFarcasterCrypto(limit));
+    } catch (err) { console.error("Farcaster crypto error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/social/kol/activity", async (req, res) => {
+    try {
+      const chain = req.query.chain || "sol";
+      const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+      res.json(await getKolActivity(chain, limit));
+    } catch (err) { console.error("KOL activity error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/social/sentiment/:keyword", async (req, res) => {
+    try { res.json(await getSocialSentiment(req.params.keyword)); }
+    catch (err) { console.error("Social sentiment error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
   // --- Start ---

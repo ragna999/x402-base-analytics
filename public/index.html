@@ -7,15 +7,15 @@
   <link rel="icon" type="image/jpeg" href="/favicon.jpg">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <meta name="base:app_id" content="6a269dfdbac148992eb51dc4" />
-  <meta name="description" content="AI-powered on-chain analytics across Base, Arbitrum, and Solana. 44 REST endpoints + 18 MCP tools. Smart money tracking, whale alerts, token intelligence, DeFi yields, Solana degen tools, and more.">
+  <meta name="description" content="AI-powered on-chain analytics across Base, Arbitrum, and Solana. 49 REST endpoints + 18 MCP tools. Smart money tracking, whale alerts, token intelligence, DeFi yields, Solana degen tools, social signals, and more.">
   <meta name="author" content="RagRadar">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@0xragna">
   <meta name="twitter:creator" content="@0xragna">
   <meta name="twitter:title" content="RagRadar — Multi-Chain Intelligence">
-  <meta name="twitter:description" content="AI-powered on-chain analytics across Base, Arbitrum, Solana. 44 endpoints, x402 payments.">
+  <meta name="twitter:description" content="AI-powered on-chain analytics across Base, Arbitrum, Solana. 49 endpoints, social signals, x402 payments.">
   <meta property="og:title" content="RagRadar — Multi-Chain Intelligence">
-  <meta property="og:description" content="AI-powered on-chain analytics across Base, Arbitrum, Solana. 44 endpoints, x402 payments.">
+  <meta property="og:description" content="AI-powered on-chain analytics across Base, Arbitrum, Solana. 49 endpoints, social signals, x402 payments.">
   <meta property="og:type" content="website">
   <style>
     /* === WINDOWS 95/98 THEME === */
@@ -710,11 +710,11 @@
       <div class="window-body">
         <div class="hero-content">
           <h1 class="hero-title">RagRadar</h1>
-          <p class="hero-subtitle">AI-powered on-chain analytics across Base, Arbitrum & Solana.<br>44 REST endpoints. 18 MCP tools. Smart money, whales, degen tools.</p>
+          <p class="hero-subtitle">AI-powered on-chain analytics across Base, Arbitrum & Solana.<br>49 REST endpoints. 18 MCP tools. Smart money, whales, degen tools, social signals.</p>
           
           <div class="hero-stats">
             <div class="stat-box">
-              <div class="stat-num">44</div>
+              <div class="stat-num">49</div>
               <div class="stat-label">REST Endpoints</div>
             </div>
             <div class="stat-box">
@@ -726,7 +726,7 @@
               <div class="stat-label">Chains</div>
             </div>
             <div class="stat-box">
-              <div class="stat-num">v9.2</div>
+              <div class="stat-num">v9.3</div>
               <div class="stat-label">Version</div>
             </div>
           </div>
@@ -744,7 +744,7 @@
       <div class="status-bar">
         <div class="status-bar-section">Ready</div>
         <div class="status-bar-section">Base + Arbitrum + Solana</div>
-        <div class="status-bar-section">v9.2.0</div>
+        <div class="status-bar-section">v9.3.0</div>
       </div>
     </div>
 
@@ -789,6 +789,10 @@
       <div class="desktop-icon" onclick="scrollToCategory('solana')">
         <div class="icon-img">☀️</div>
         <div class="icon-label">Solana Degen</div>
+      </div>
+      <div class="desktop-icon" onclick="scrollToCategory('social')">
+        <div class="icon-img">📡</div>
+        <div class="icon-label">Social Signals</div>
       </div>
       <div class="desktop-icon" onclick="scrollToCategory('playground')">
         <div class="icon-img">🎮</div>
@@ -1178,6 +1182,50 @@
         </div>
       </div>
 
+      <!-- SOCIAL SIGNALS -->
+      <div class="window category-window" id="social">
+        <div class="title-bar">
+          <div class="title-bar-text">
+            <span>📡</span>
+            <span>Social Signals — Multi-Platform (5 endpoints)</span>
+          </div>
+          <div class="title-bar-controls">
+            <button>_</button>
+            <button>□</button>
+            <button>✕</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="endpoint-list">
+            <div class="endpoint-item" onclick="showDetail('social-token')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/social/token/:chain/:address</span>
+              <span class="endpoint-price">$0.03</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('social-trending')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/social/trending</span>
+              <span class="endpoint-price">$0.02</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('social-farcaster')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/social/farcaster/crypto</span>
+              <span class="endpoint-price">$0.02</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('social-kol')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/social/kol/activity</span>
+              <span class="endpoint-price">$0.03</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('social-sentiment')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/social/sentiment/:keyword</span>
+              <span class="endpoint-price">$0.03</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- PLAYGROUND -->
       <div class="window category-window" id="playground">
         <div class="title-bar">
@@ -1209,6 +1257,8 @@
                   <option value="/api/solana/trending">GET /api/solana/trending ($0.01)</option>
                   <option value="/api/solana/new-tokens">GET /api/solana/new-tokens ($0.01)</option>
                   <option value="/api/solana/top-volume">GET /api/solana/top-volume ($0.01)</option>
+                  <option value="/api/social/farcaster/crypto">GET /api/social/farcaster/crypto ($0.02)</option>
+                  <option value="/api/social/trending">GET /api/social/trending ($0.02)</option>
                 </select>
               </div>
               <button class="btn btn-primary" onclick="runPlayground()">
@@ -1343,7 +1393,7 @@ await client.connect(transport);</div>
   <div class="start-menu" id="start-menu">
     <div class="start-menu-header">
       <span>🪟</span>
-      <span>RagRadar v9.2.0</span>
+      <span>RagRadar v9.3.0</span>
     </div>
     <div class="start-menu-item" onclick="scrollToCategory('wallet')">💰 Wallet Analytics</div>
     <div class="start-menu-item" onclick="scrollToCategory('yields')">📈 DeFi Yields</div>
@@ -1355,6 +1405,7 @@ await client.connect(transport);</div>
     <div class="start-menu-item" onclick="scrollToCategory('intelligence')">🔮 Intelligence</div>
     <div class="start-menu-item" onclick="scrollToCategory('gmx')">⚡ GMX Perps</div>
     <div class="start-menu-item" onclick="scrollToCategory('solana')">☀️ Solana Degen</div>
+    <div class="start-menu-item" onclick="scrollToCategory('social')">📡 Social Signals</div>
     <div class="start-menu-separator"></div>
     <div class="start-menu-item" onclick="scrollToCategory('playground')">🎮 Playground</div>
     <div class="start-menu-item" onclick="window.open('https://github.com/ragna999/x402-base-analytics')">📁 GitHub</div>
@@ -1575,6 +1626,32 @@ await client.connect(transport);</div>
         title: 'Solana Top Volume',
         desc: 'Top volume tokens on Solana in the last 24h.',
         code: 'curl -s https://ragradar.vercel.app/api/solana/top-volume'
+      },
+      // Social Signals
+      'social-token': {
+        title: 'Token Social Presence',
+        desc: 'Aggregated social data for a token — Twitter, Telegram, Discord, website, GeckoTerminal trust score. Sources: DexScreener + GeckoTerminal.',
+        code: 'curl -s https://ragradar.vercel.app/api/social/token/base/0x940181a94A35A4569E4529A3CDfB74e38FD98631'
+      },
+      'social-trending': {
+        title: 'Social Trending',
+        desc: 'Trending tokens with social data attached — volume, social links, trust score.',
+        code: 'curl -s https://ragradar.vercel.app/api/social/trending?chain=base&limit=10'
+      },
+      'social-farcaster': {
+        title: 'Farcaster Crypto Signals',
+        desc: 'Trending crypto discussions on Farcaster — engagement metrics, channels, top casts from key crypto figures.',
+        code: 'curl -s https://ragradar.vercel.app/api/social/farcaster/crypto'
+      },
+      'social-kol': {
+        title: 'KOL Activity',
+        desc: 'What KOLs are buying right now — cluster signals, Twitter usernames, trade data.',
+        code: 'curl -s https://ragradar.vercel.app/api/social/kol/activity?chain=sol&limit=10'
+      },
+      'social-sentiment': {
+        title: 'Social Sentiment',
+        desc: 'Multi-source sentiment analysis — Farcaster mentions, GeckoTerminal trending, DexScreener tokens. Returns bullish/bearish score.',
+        code: 'curl -s https://ragradar.vercel.app/api/social/sentiment/ethereum'
       }
     };
 
