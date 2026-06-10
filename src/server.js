@@ -43,6 +43,11 @@ import { getTokenIntelligence, getMarketPulse, getWalletIntelligence, getDefiDas
 // GMX Perps (Arbitrum-specific)
 import { getGmxStats, getGmxFundingRates, getGlpYield, getGmxLiquidations } from "./gmxPerps.js";
 
+// Solana-specific endpoints
+import { analyzeSolanaTokenSafety } from "./solanaSafety.js";
+import { findSolanaSnipers, getSolanaSniperScore } from "./solanaSnipers.js";
+import { getSolanaTrending, getSolanaNewTokens, getSolanaTopVolume } from "./solanaTrending.js";
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PAY_TO = process.env.PAY_TO_ADDRESS;
@@ -355,6 +360,53 @@ async function main() {
       mimeType: "application/json",
       ...discover({}, { type: "object", properties: {} }),
     },
+
+    // === SOLANA-SPECIFIC ENDPOINTS ===
+    "GET /api/solana/token-safety/:mint": {
+      accepts: multiChainWithSol("$0.02"),
+      description: "Solana token safety — rug check, honeypot, holder analysis. GoPlus + GeckoTerminal data.",
+      mimeType: "application/json",
+      ...discover(
+        { mint: { description: "Solana token mint address", type: "string", required: true } },
+        { type: "object", properties: { mint: { type: "string" } }, required: ["mint"] }
+      ),
+    },
+    "GET /api/solana/snipers/:mint": {
+      accepts: multiChainWithSol("$0.01"),
+      description: "Solana sniper tracker — early buyers detection for a token. Shows who bought in first 5 minutes.",
+      mimeType: "application/json",
+      ...discover(
+        { mint: { description: "Solana token mint address", type: "string", required: true } },
+        { type: "object", properties: { mint: { type: "string" } }, required: ["mint"] }
+      ),
+    },
+    "GET /api/solana/snipers/:mint/score": {
+      accepts: multiChainWithSol("$0.01"),
+      description: "Solana sniper score — how much sniping activity on this token (0-100).",
+      mimeType: "application/json",
+      ...discover(
+        { mint: { description: "Solana token mint address", type: "string", required: true } },
+        { type: "object", properties: { mint: { type: "string" } }, required: ["mint"] }
+      ),
+    },
+    "GET /api/solana/trending": {
+      accepts: multiChainWithSol("$0.01"),
+      description: "Trending Solana pools — top tokens by activity on Solana DEXes.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+    "GET /api/solana/new-tokens": {
+      accepts: multiChainWithSol("$0.01"),
+      description: "New Solana tokens — recently created pools (degen alpha signal).",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
+    "GET /api/solana/top-volume": {
+      accepts: multiChainWithSol("$0.01"),
+      description: "Top Solana pools by 24h volume.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }),
+    },
   };
 
   // --- Middleware ---
@@ -630,6 +682,45 @@ async function main() {
   app.get("/api/arbitrum/gmx/liquidations", async (req, res) => {
     try { res.json(await getGmxLiquidations()); }
     catch (err) { console.error("GMX liquidations error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  // === SOLANA-SPECIFIC ENDPOINTS ===
+  app.get("/api/solana/token-safety/:mint", async (req, res) => {
+    try { res.json(await analyzeSolanaTokenSafety(req.params.mint)); }
+    catch (err) { console.error("Solana safety error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/solana/snipers/:mint", async (req, res) => {
+    try {
+      const maxBuyers = Math.min(parseInt(req.query.limit) || 20, 50);
+      res.json(await findSolanaSnipers(req.params.mint, { maxBuyers }));
+    } catch (err) { console.error("Solana snipers error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/solana/snipers/:mint/score", async (req, res) => {
+    try { res.json(await getSolanaSniperScore(req.params.mint)); }
+    catch (err) { console.error("Solana sniper score error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/solana/trending", async (req, res) => {
+    try {
+      const limit = Math.min(parseInt(req.query.limit) || 20, 50);
+      res.json(await getSolanaTrending(limit));
+    } catch (err) { console.error("Solana trending error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/solana/new-tokens", async (req, res) => {
+    try {
+      const limit = Math.min(parseInt(req.query.limit) || 20, 50);
+      res.json(await getSolanaNewTokens(limit));
+    } catch (err) { console.error("Solana new tokens error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/solana/top-volume", async (req, res) => {
+    try {
+      const limit = Math.min(parseInt(req.query.limit) || 20, 50);
+      res.json(await getSolanaTopVolume(limit));
+    } catch (err) { console.error("Solana top volume error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
   // --- Start ---
