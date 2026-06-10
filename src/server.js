@@ -100,8 +100,8 @@ async function main() {
   const BASE = "eip155:8453";
   const SOL = SOLANA_NETWORK;
 
-  const discover = (input, inputSchema) => ({
-    extensions: { ...declareDiscoveryExtension({ input, inputSchema }) },
+  const discover = (input, inputSchema, outputExample) => ({
+    extensions: { ...declareDiscoveryExtension({ input, inputSchema, output: outputExample ? { example: outputExample } : undefined }) },
   });
 
   // Multi-chain accepts helper (Base + Solana only for x402scan)
@@ -124,19 +124,19 @@ async function main() {
       accepts: multiChainWithSol("$0.005"),
       description: "Wallet token portfolio — supports Base + Arbitrum",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/history/:chain/:address": {
       accepts: multiChainWithSol("$0.01"),
       description: "Recent transaction history — supports Base + Arbitrum",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/summary/:chain/:address": {
       accepts: multiChainWithSol("$0.02"),
       description: "Full wallet analytics: portfolio, history, activity — supports Base + Arbitrum",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
 
     // === TOKEN SAFETY (MULTI-CHAIN) ===
@@ -144,7 +144,7 @@ async function main() {
       accepts: multiChainWithSol("$0.02"),
       description: "Token safety analysis — rug risk, honeypot, holder analysis. Supports all chains.",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { chain: "base", riskScore: 85, verdict: "LOW_RISK" }),
     },
 
     // === DEFI YIELDS ===
@@ -152,19 +152,19 @@ async function main() {
       accepts: [{ scheme: "exact", price: "$0.02", network: BASE, payTo: PAY_TO }],
       description: "Real-time DeFi yields on Base — Morpho, Moonwell, Aerodrome. Sorted by APY.",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/yields/best/:asset": {
       accepts: [{ scheme: "exact", price: "$0.01", network: BASE, payTo: PAY_TO }],
       description: "Best yield for a specific asset (USDC, ETH, etc.) across all Base DeFi protocols",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/yields/risk": {
       accepts: [{ scheme: "exact", price: "$0.02", network: BASE, payTo: PAY_TO }],
       description: "DeFi yields categorized by risk level (low/medium/high)",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/yields/rebalance": {
       accepts: [{ scheme: "exact", price: "$0.05", network: BASE, payTo: PAY_TO }],
@@ -181,7 +181,7 @@ async function main() {
       accepts: [{ scheme: "exact", price: "$0.03", network: BASE, payTo: PAY_TO }],
       description: "Wallet risk scoring — age, activity patterns, scam interaction, bot detection",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
 
     // === PROTOCOL STATS ===
@@ -189,19 +189,19 @@ async function main() {
       accepts: [{ scheme: "exact", price: "$0.01", network: BASE, payTo: PAY_TO }],
       description: "All Base protocol stats — TVL, categories, top protocols. Data from DeFiLlama.",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/protocols/base/tvl": {
       accepts: [{ scheme: "exact", price: "$0.01", network: BASE, payTo: PAY_TO }],
       description: "Base chain TVL history — 30 day trend, 7d/30d change",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/protocols/base/movers": {
       accepts: [{ scheme: "exact", price: "$0.01", network: BASE, payTo: PAY_TO }],
       description: "Top gainers and losers on Base in 24h by TVL change",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
 
     // === SNIPER TRACKER ===
@@ -209,19 +209,19 @@ async function main() {
       accepts: [{ scheme: "exact", price: "$0.01", network: BASE, payTo: PAY_TO }],
       description: "Early buyers (snipers) analysis for a token",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/sniper/wallet/:address": {
       accepts: [{ scheme: "exact", price: "$0.01", network: BASE, payTo: PAY_TO }],
       description: "Sniper track record for a wallet",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/sniper/trending": {
       accepts: [{ scheme: "exact", price: "$0.01", network: BASE, payTo: PAY_TO }],
       description: "Top snipers from trending tokens on Base",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
 
     // === SMART MONEY ===
@@ -229,19 +229,19 @@ async function main() {
       accepts: [{ scheme: "exact", price: "$0.02", network: BASE, payTo: PAY_TO }],
       description: "Smart money analysis for a wallet",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/smart-money/token/:address": {
       accepts: [{ scheme: "exact", price: "$0.02", network: BASE, payTo: PAY_TO }],
       description: "Find smart money buyers of a token",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/smart-money/activity": {
       accepts: [{ scheme: "exact", price: "$0.02", network: BASE, payTo: PAY_TO }],
       description: "What smart money wallets are buying right now on Base",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
 
     // === WHALE ALERTS ===
@@ -249,31 +249,31 @@ async function main() {
       accepts: [{ scheme: "exact", price: "$0.01", network: BASE, payTo: PAY_TO }],
       description: "Recent whale alerts — large transfers from known whale wallets",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/whale/alerts/:token": {
       accepts: [{ scheme: "exact", price: "$0.02", network: BASE, payTo: PAY_TO }],
       description: "Token whale activity — holder concentration, risk score",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/whale/movements": {
       accepts: [{ scheme: "exact", price: "$0.01", network: BASE, payTo: PAY_TO }],
       description: "Cross-token whale activity — volume, buy/sell ratio",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/whale/heatmap": {
       accepts: [{ scheme: "exact", price: "$0.01", network: BASE, payTo: PAY_TO }],
       description: "Whale heatmap — tokens ranked by whale activity score",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/whale/accumulation": {
       accepts: [{ scheme: "exact", price: "$0.02", network: BASE, payTo: PAY_TO }],
       description: "Accumulation signals — tokens being accumulated by large buyers",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
 
     // === AGGREGATED ENDPOINTS ===
@@ -281,31 +281,31 @@ async function main() {
       accepts: [{ scheme: "exact", price: "$0.05", network: BASE, payTo: PAY_TO }],
       description: "Complete token intelligence — safety + whale + smart money + snipers combined",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/intelligence/wallet/:address": {
       accepts: [{ scheme: "exact", price: "$0.05", network: BASE, payTo: PAY_TO }],
       description: "Complete wallet intelligence — portfolio + smart money + sniper + risk combined",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/market/pulse": {
       accepts: [{ scheme: "exact", price: "$0.05", network: BASE, payTo: PAY_TO }],
       description: "Real-time market pulse — whale picks + smart money activity + top movers + yields",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/defi/dashboard": {
       accepts: [{ scheme: "exact", price: "$0.03", network: BASE, payTo: PAY_TO }],
       description: "DeFi dashboard — yields + protocols + TVL + movers combined",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/risk/:address": {
       accepts: [{ scheme: "exact", price: "$0.03", network: BASE, payTo: PAY_TO }],
       description: "Risk assessment — token safety + whale concentration + smart money signal",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
 
     // === GMX PERPS (ARBITRUM-SPECIFIC) ===
@@ -313,25 +313,25 @@ async function main() {
       accepts: multiChainWithSol("$0.02"),
       description: "GMX V2 stats — open interest, volume, fees. Arbitrum-specific.",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/arbitrum/gmx/funding": {
       accepts: multiChainWithSol("$0.01"),
       description: "GMX funding rates — market sentiment indicator. Arbitrum-specific.",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/arbitrum/gmx/glp": {
       accepts: multiChainWithSol("$0.01"),
       description: "GLP/APR yield data from GMX. Arbitrum-specific.",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/arbitrum/gmx/liquidations": {
       accepts: multiChainWithSol("$0.02"),
       description: "Recent GMX liquidations feed. Arbitrum-specific.",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
 
     // === SOLANA-SPECIFIC ENDPOINTS ===
@@ -339,37 +339,37 @@ async function main() {
       accepts: multiChainWithSol("$0.02"),
       description: "Solana token safety — rug check, honeypot, holder analysis. GoPlus + GeckoTerminal data.",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/solana/snipers/:mint": {
       accepts: multiChainWithSol("$0.01"),
       description: "Solana sniper tracker — early buyers detection for a token. Shows who bought in first 5 minutes.",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/solana/snipers/:mint/score": {
       accepts: multiChainWithSol("$0.01"),
       description: "Solana sniper score — how much sniping activity on this token (0-100).",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/solana/trending": {
       accepts: multiChainWithSol("$0.01"),
       description: "Trending Solana pools — top tokens by activity on Solana DEXes.",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/solana/new-tokens": {
       accepts: multiChainWithSol("$0.01"),
       description: "New Solana tokens — recently created pools (degen alpha signal).",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/solana/top-volume": {
       accepts: multiChainWithSol("$0.01"),
       description: "Top Solana pools by 24h volume.",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
 
     // === SOCIAL SIGNALS ===
@@ -377,31 +377,31 @@ async function main() {
       accepts: multiChainWithSol("$0.03"),
       description: "Aggregated social presence for a token — Twitter, Telegram, Discord, Farcaster, trust score.",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/social/trending": {
       accepts: multiChainWithSol("$0.02"),
       description: "Trending tokens with social data — volume, social links, trust score.",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/social/farcaster/crypto": {
       accepts: multiChainWithSol("$0.02"),
       description: "Trending crypto discussions on Farcaster — engagement metrics, channels.",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/social/kol/activity": {
       accepts: multiChainWithSol("$0.03"),
       description: "What KOLs are buying — cluster signals, Twitter usernames.",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
     "GET /api/social/sentiment/:keyword": {
       accepts: multiChainWithSol("$0.03"),
       description: "Multi-source social sentiment — Farcaster, GeckoTerminal, DexScreener.",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }),
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
   };
 
