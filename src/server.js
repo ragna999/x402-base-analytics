@@ -430,7 +430,7 @@ async function main() {
       networks,
       payTo: PAY_TO,
       solanaPayTo: SOLANA_PAY_TO || "not configured",
-      version: "9.1.0-solana",
+      version: "9.2.0-solana-degen",
       builderCode: BUILDER_CODE,
     });
   });
