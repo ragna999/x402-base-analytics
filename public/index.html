@@ -710,11 +710,11 @@
       <div class="window-body">
         <div class="hero-content">
           <h1 class="hero-title">RagRadar</h1>
-          <p class="hero-subtitle">AI-powered on-chain analytics for Base chain.<br>25 endpoints. 18 MCP tools. All free data sources.</p>
+          <p class="hero-subtitle">AI-powered on-chain analytics across Base, Arbitrum & Solana.<br>44 REST endpoints. 18 MCP tools. Smart money, whales, degen tools.</p>
           
           <div class="hero-stats">
             <div class="stat-box">
-              <div class="stat-num">28</div>
+              <div class="stat-num">44</div>
               <div class="stat-label">REST Endpoints</div>
             </div>
             <div class="stat-box">
@@ -722,12 +722,12 @@
               <div class="stat-label">MCP Tools</div>
             </div>
             <div class="stat-box">
-              <div class="stat-num">$0</div>
-              <div class="stat-label">Data Cost</div>
+              <div class="stat-num">3</div>
+              <div class="stat-label">Chains</div>
             </div>
             <div class="stat-box">
-              <div class="stat-num">8453</div>
-              <div class="stat-label">Chain ID</div>
+              <div class="stat-num">v9.2</div>
+              <div class="stat-label">Version</div>
             </div>
           </div>
 
@@ -743,8 +743,8 @@
       </div>
       <div class="status-bar">
         <div class="status-bar-section">Ready</div>
-        <div class="status-bar-section">Base Mainnet</div>
-        <div class="status-bar-section">v6.0.0</div>
+        <div class="status-bar-section">Base + Arbitrum + Solana</div>
+        <div class="status-bar-section">v9.2.0</div>
       </div>
     </div>
 
@@ -781,6 +781,14 @@
       <div class="desktop-icon" onclick="scrollToCategory('intelligence')">
         <div class="icon-img">🔮</div>
         <div class="icon-label">Intelligence</div>
+      </div>
+      <div class="desktop-icon" onclick="scrollToCategory('gmx')">
+        <div class="icon-img">⚡</div>
+        <div class="icon-label">GMX Perps</div>
+      </div>
+      <div class="desktop-icon" onclick="scrollToCategory('solana')">
+        <div class="icon-img">☀️</div>
+        <div class="icon-label">Solana Degen</div>
       </div>
       <div class="desktop-icon" onclick="scrollToCategory('playground')">
         <div class="icon-img">🎮</div>
@@ -1082,6 +1090,94 @@
         </div>
       </div>
 
+      <!-- GMX PERPS (ARBITRUM) -->
+      <div class="window category-window" id="gmx">
+        <div class="title-bar">
+          <div class="title-bar-text">
+            <span>⚡</span>
+            <span>GMX Perps — Arbitrum (4 endpoints)</span>
+          </div>
+          <div class="title-bar-controls">
+            <button>_</button>
+            <button>□</button>
+            <button>✕</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="endpoint-list">
+            <div class="endpoint-item" onclick="showDetail('gmx-stats')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/arbitrum/gmx/stats</span>
+              <span class="endpoint-price">$0.02</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('gmx-funding')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/arbitrum/gmx/funding</span>
+              <span class="endpoint-price">$0.01</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('gmx-glp')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/arbitrum/gmx/glp</span>
+              <span class="endpoint-price">$0.01</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('gmx-liquidations')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/arbitrum/gmx/liquidations</span>
+              <span class="endpoint-price">$0.02</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SOLANA DEGEN TOOLS -->
+      <div class="window category-window" id="solana">
+        <div class="title-bar">
+          <div class="title-bar-text">
+            <span>☀️</span>
+            <span>Solana Degen Tools (6 endpoints)</span>
+          </div>
+          <div class="title-bar-controls">
+            <button>_</button>
+            <button>□</button>
+            <button>✕</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="endpoint-list">
+            <div class="endpoint-item" onclick="showDetail('sol-safety')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/solana/token-safety/:mint</span>
+              <span class="endpoint-price">$0.01</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('sol-snipers')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/solana/snipers/:mint</span>
+              <span class="endpoint-price">$0.01</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('sol-sniper-score')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/solana/snipers/:mint/score</span>
+              <span class="endpoint-price">$0.01</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('sol-trending')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/solana/trending</span>
+              <span class="endpoint-price">$0.01</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('sol-new')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/solana/new-tokens</span>
+              <span class="endpoint-price">$0.01</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('sol-volume')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/solana/top-volume</span>
+              <span class="endpoint-price">$0.01</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- PLAYGROUND -->
       <div class="window category-window" id="playground">
         <div class="title-bar">
@@ -1108,6 +1204,11 @@
                   <option value="/api/smart-money/activity">GET /api/smart-money/activity ($0.02)</option>
                   <option value="/api/whale/heatmap">GET /api/whale/heatmap ($0.01)</option>
                   <option value="/api/whale/accumulation">GET /api/whale/accumulation ($0.02)</option>
+                  <option value="/api/arbitrum/gmx/stats">GET /api/arbitrum/gmx/stats ($0.02)</option>
+                  <option value="/api/arbitrum/gmx/funding">GET /api/arbitrum/gmx/funding ($0.01)</option>
+                  <option value="/api/solana/trending">GET /api/solana/trending ($0.01)</option>
+                  <option value="/api/solana/new-tokens">GET /api/solana/new-tokens ($0.01)</option>
+                  <option value="/api/solana/top-volume">GET /api/solana/top-volume ($0.01)</option>
                 </select>
               </div>
               <button class="btn btn-primary" onclick="runPlayground()">
@@ -1168,7 +1269,7 @@ await client.connect(transport);</div>
       <div class="title-bar">
         <div class="title-bar-text">
           <span>💳</span>
-          <span>Pricing — Pay per request with USDC on Base</span>
+          <span>Pricing — Pay per request with USDC on Base & Solana</span>
         </div>
         <div class="title-bar-controls">
           <button>_</button>
@@ -1217,7 +1318,7 @@ await client.connect(transport);</div>
       </div>
       <div class="window-body">
         <div class="footer-content">
-          <p>RagRadar &copy; 2026 · Built on <a href="https://base.org" target="_blank">Base</a> · Powered by <a href="https://x402.org" target="_blank">x402 Protocol</a></p>
+          <p>RagRadar &copy; 2026 · Built on <a href="https://base.org" target="_blank">Base</a> + <a href="https://arbitrum.io" target="_blank">Arbitrum</a> + <a href="https://solana.com" target="_blank">Solana</a> · Powered by <a href="https://x402.org" target="_blank">x402 Protocol</a></p>
           <p style="margin-top: 5px;">Builder Code: <strong>bc_7isseb6n</strong> (ERC-8021) · GitHub: <a href="https://github.com/ragna999/x402-base-analytics" target="_blank">ragna999/x402-base-analytics</a> · Twitter: <a href="https://x.com/0xragna" target="_blank">@0xragna</a></p>
         </div>
       </div>
@@ -1242,7 +1343,7 @@ await client.connect(transport);</div>
   <div class="start-menu" id="start-menu">
     <div class="start-menu-header">
       <span>🪟</span>
-      <span>RagRadar v6.0.0</span>
+      <span>RagRadar v9.2.0</span>
     </div>
     <div class="start-menu-item" onclick="scrollToCategory('wallet')">💰 Wallet Analytics</div>
     <div class="start-menu-item" onclick="scrollToCategory('yields')">📈 DeFi Yields</div>
@@ -1252,6 +1353,8 @@ await client.connect(transport);</div>
     <div class="start-menu-item" onclick="scrollToCategory('whale')">🐋 Whale Alerts</div>
     <div class="start-menu-item" onclick="scrollToCategory('protocols')">📊 Protocol Stats</div>
     <div class="start-menu-item" onclick="scrollToCategory('intelligence')">🔮 Intelligence</div>
+    <div class="start-menu-item" onclick="scrollToCategory('gmx')">⚡ GMX Perps</div>
+    <div class="start-menu-item" onclick="scrollToCategory('solana')">☀️ Solana Degen</div>
     <div class="start-menu-separator"></div>
     <div class="start-menu-item" onclick="scrollToCategory('playground')">🎮 Playground</div>
     <div class="start-menu-item" onclick="window.open('https://github.com/ragna999/x402-base-analytics')">📁 GitHub</div>
@@ -1420,6 +1523,58 @@ await client.connect(transport);</div>
         title: 'Risk Assessment',
         desc: 'Combined risk analysis using token safety, whale concentration, and smart money signals.',
         code: 'curl -s https://ragradar.vercel.app/api/risk/0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+      },
+      // GMX Perps (Arbitrum)
+      'gmx-stats': {
+        title: 'GMX Stats',
+        desc: 'GMX protocol stats on Arbitrum — TVL, available tokens, trading volume.',
+        code: 'curl -s https://ragradar.vercel.app/api/arbitrum/gmx/stats'
+      },
+      'gmx-funding': {
+        title: 'GMX Funding Rates',
+        desc: 'GMX funding rates and yield pools on Arbitrum.',
+        code: 'curl -s https://ragradar.vercel.app/api/arbitrum/gmx/funding'
+      },
+      'gmx-glp': {
+        title: 'GLP/GMX Staking',
+        desc: 'GLP and GMX staking yields on Arbitrum.',
+        code: 'curl -s https://ragradar.vercel.app/api/arbitrum/gmx/glp'
+      },
+      'gmx-liquidations': {
+        title: 'GMX Liquidations',
+        desc: 'Recent liquidation events on GMX perpetuals.',
+        code: 'curl -s https://ragradar.vercel.app/api/arbitrum/gmx/liquidations'
+      },
+      // Solana Degen Tools
+      'sol-safety': {
+        title: 'Solana Token Safety',
+        desc: 'Token safety check on Solana — rug risk, mint authority, freeze status.',
+        code: 'curl -s https://ragradar.vercel.app/api/solana/token-safety/So11111111111111111111111111111111111111112'
+      },
+      'sol-snipers': {
+        title: 'Solana Snipers',
+        desc: 'Find sniper wallets on a Solana token — early buyers, position size.',
+        code: 'curl -s https://ragradar.vercel.app/api/solana/snipers/So11111111111111111111111111111111111111112'
+      },
+      'sol-sniper-score': {
+        title: 'Solana Sniper Score',
+        desc: 'Sniper activity score for a Solana token (0-100). Higher = more snipers.',
+        code: 'curl -s https://ragradar.vercel.app/api/solana/snipers/So11111111111111111111111111111111111111112/score'
+      },
+      'sol-trending': {
+        title: 'Solana Trending',
+        desc: 'Trending tokens on Solana — volume, price change, liquidity.',
+        code: 'curl -s https://ragradar.vercel.app/api/solana/trending'
+      },
+      'sol-new': {
+        title: 'Solana New Tokens',
+        desc: 'Newly launched tokens on Solana with initial liquidity and volume.',
+        code: 'curl -s https://ragradar.vercel.app/api/solana/new-tokens'
+      },
+      'sol-volume': {
+        title: 'Solana Top Volume',
+        desc: 'Top volume tokens on Solana in the last 24h.',
+        code: 'curl -s https://ragradar.vercel.app/api/solana/top-volume'
       }
     };
 
