@@ -51,6 +51,14 @@ import { getSolanaTrending, getSolanaNewTokens, getSolanaTopVolume } from "./sol
 // Social signals
 import { getTokenSocial, getSocialTrending, getFarcasterCrypto, getKolActivity, getSocialSentiment } from "./socialSignals.js";
 
+// Gas tracker
+import { getGasPrices, getGasForChain } from "./gasTracker.js";
+
+// Token approvals scanner
+import { scanApprovals } from "./approvalsScanner.js";
+
+// Multi-chain balance
+import { getMultichainBalance } from "./multichainBalance.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PAY_TO = process.env.PAY_TO_ADDRESS;
@@ -401,6 +409,35 @@ async function main() {
       accepts: multiChainWithSol("$0.03"),
       description: "Multi-source social sentiment — Farcaster, GeckoTerminal, DexScreener.",
       mimeType: "application/json",
+    // === GAS TRACKER ===
+    "GET /api/gas": {
+      accepts: multiChainWithSol("$0.001"),
+      description: "Real-time gas prices across all chains — Base, ETH, Arbitrum, Optimism, Polygon, Solana",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+    "GET /api/gas/:chain": {
+      accepts: multiChainWithSol("$0.001"),
+      description: "Gas price for specific chain",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+
+    // === TOKEN APPROVALS SCANNER ===
+    "GET /api/approvals/:chain/:address": {
+      accepts: multiChainWithSol("$0.02"),
+      description: "Scan wallet token approvals — detect unlimited approvals, security risks. Shows revoke recommendations.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+
+    // === MULTI-CHAIN BALANCE ===
+    "GET /api/balance/:address": {
+      accepts: multiChainWithSol("$0.01"),
+      description: "Multi-chain balance — native + stablecoins across Base, ETH, Arbitrum, Optimism, Polygon in one call",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
       ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
   };
@@ -426,7 +463,7 @@ async function main() {
       networks,
       payTo: PAY_TO,
       solanaPayTo: SOLANA_PAY_TO || "not configured",
-      version: "9.3.0-social-signals",
+      version: "10.0.0-gas-approvals-balance",
       builderCode: BUILDER_CODE,
     });
   });
@@ -458,6 +495,9 @@ async function main() {
       risk: [":address"],
       arbitrum: ["gmx/stats", "gmx/funding", "gmx/glp", "gmx/liquidations"],
       social: ["token/:chain/:address", "trending", "farcaster/crypto", "kol/activity", "sentiment/:keyword"],
+      gas: ["", ":chain"],
+      approvals: [":chain/:address"],
+      balance: [":address"],
     });
   });
 
@@ -754,10 +794,50 @@ async function main() {
     catch (err) { console.error("Social sentiment error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
+  // === GAS TRACKER ===
+  app.get("/api/gas", async (req, res) => {
+    try {
+      res.json(await getGasPrices());
+    } catch (err) {
+      console.error("Gas prices error:", err.message);
+      res.status(500).json({ error: "Failed" });
+    }
+  });
+
+  app.get("/api/gas/:chain", async (req, res) => {
+    try {
+      res.json(await getGasForChain(req.params.chain));
+    } catch (err) {
+      console.error("Gas chain error:", err.message);
+      res.status(400).json({ error: err.message });
+    }
+  });
+
+  // === TOKEN APPROVALS SCANNER ===
+  app.get("/api/approvals/:chain/:address", async (req, res) => {
+    try {
+      const { chain, address } = req.params;
+      res.json(await scanApprovals(chain, address));
+    } catch (err) {
+      console.error("Approvals error:", err.message);
+      res.status(500).json({ error: "Failed" });
+    }
+  });
+
+  // === MULTI-CHAIN BALANCE ===
+  app.get("/api/balance/:address", async (req, res) => {
+    try {
+      res.json(await getMultichainBalance(req.params.address));
+    } catch (err) {
+      console.error("Balance error:", err.message);
+      res.status(500).json({ error: "Failed" });
+    }
+  });
+
   // --- Start ---
   app.listen(PORT, () => {
     console.log(`
-RagRadar v9.0.0-multichain on port ${PORT}
+RagRadar v10.0.0-gas-approvals-balance on port ${PORT}
 Payments -> ${PAY_TO}
 Networks -> ${SUPPORTED_CHAINS.join(", ")}
 
@@ -774,9 +854,18 @@ ARBITRUM-SPECIFIC (GMX):
   GET /api/arbitrum/gmx/liquidations
 
 BASE-SPECIFIC:
+nGAS TRACKER:
+  GET /api/gas
+  GET /api/gas/:chain
+
+TOKEN APPROVALS:
+  GET /api/approvals/:chain/:address
+
+MULTI-CHAIN BALANCE:
+  GET /api/balance/:address
   GET /api/yields, /api/protocols/base, /api/sniper/*, /api/smart-money/*, /api/whale/*, /api/intelligence/*
 
-Total: 32 endpoints | 2 chains
+Total: 52 endpoints | 6 chains
 `);
   });
 }

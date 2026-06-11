@@ -7,7 +7,7 @@
   <link rel="icon" type="image/jpeg" href="/favicon.jpg">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <meta name="base:app_id" content="6a269dfdbac148992eb51dc4" />
-  <meta name="description" content="AI-powered on-chain analytics across Base, Arbitrum, and Solana. 49 REST endpoints + 18 MCP tools. Smart money tracking, whale alerts, token intelligence, DeFi yields, Solana degen tools, social signals, and more.">
+  <meta name="description" content="AI-powered on-chain analytics across Base, Arbitrum, and Solana. 52 REST endpoints + 18 MCP tools. Smart money tracking, whale alerts, token intelligence, DeFi yields, Solana degen tools, social signals, gas tracker, approvals scanner, and more.">
   <meta name="author" content="RagRadar">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@0xragna">
@@ -1226,6 +1226,82 @@
         </div>
       </div>
 
+      <!-- GAS TRACKER -->
+      <div class="window category-window" id="gas">
+        <div class="title-bar">
+          <div class="title-bar-text">
+            <span>⛽</span>
+            <span>Gas Tracker — Multi-Chain (2 endpoints)</span>
+          </div>
+          <div class="title-bar-controls">
+            <button>_</button>
+            <button>□</button>
+            <button>✕</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="endpoint-list">
+            <div class="endpoint-item" onclick="showDetail('gas-all')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/gas</span>
+              <span class="endpoint-price">$0.001</span>
+            </div>
+            <div class="endpoint-item" onclick="showDetail('gas-chain')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/gas/:chain</span>
+              <span class="endpoint-price">$0.001</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOKEN APPROVALS SCANNER -->
+      <div class="window category-window" id="approvals">
+        <div class="title-bar">
+          <div class="title-bar-text">
+            <span>🔐</span>
+            <span>Token Approvals Scanner (1 endpoint)</span>
+          </div>
+          <div class="title-bar-controls">
+            <button>_</button>
+            <button>□</button>
+            <button>✕</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="endpoint-list">
+            <div class="endpoint-item" onclick="showDetail('approvals')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/approvals/:chain/:address</span>
+              <span class="endpoint-price">$0.02</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MULTI-CHAIN BALANCE -->
+      <div class="window category-window" id="balance">
+        <div class="title-bar">
+          <div class="title-bar-text">
+            <span>💰</span>
+            <span>Multi-chain Balance (1 endpoint)</span>
+          </div>
+          <div class="title-bar-controls">
+            <button>_</button>
+            <button>□</button>
+            <button>✕</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="endpoint-list">
+            <div class="endpoint-item" onclick="showDetail('balance')">
+              <span class="endpoint-method">GET</span>
+              <span class="endpoint-path">/api/balance/:address</span>
+              <span class="endpoint-price">$0.01</span>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- PLAYGROUND -->
       <div class="window category-window" id="playground">
         <div class="title-bar">
@@ -1652,6 +1728,29 @@ await client.connect(transport);</div>
         title: 'Social Sentiment',
         desc: 'Multi-source sentiment analysis — Farcaster mentions, GeckoTerminal trending, DexScreener tokens. Returns bullish/bearish score.',
         code: 'curl -s https://ragradar.vercel.app/api/social/sentiment/ethereum'
+      // Gas Tracker
+      'gas-all': {
+        title: 'Gas Prices (All Chains)',
+        desc: 'Real-time gas prices across Base, Ethereum, Arbitrum, Optimism, Polygon, Solana. Shows gas price, max fee, priority fee.',
+        code: 'curl -s https://ragradar.vercel.app/api/gas'
+      },
+      'gas-chain': {
+        title: 'Gas Price (Single Chain)',
+        desc: 'Gas price for a specific chain. Use: base, ethereum, arbitrum, optimism, polygon, solana.',
+        code: 'curl -s https://ragradar.vercel.app/api/gas/base'
+      },
+      // Token Approvals
+      'approvals': {
+        title: 'Token Approvals Scanner',
+        desc: 'Scan wallet token approvals — detect unlimited approvals, security risks. Shows revoke recommendations via revoke.cash.',
+        code: 'curl -s https://ragradar.vercel.app/api/approvals/base/0x8919fe5Aa2a18d69D1Ff869c2903B313F35e8061'
+      },
+      // Multi-chain Balance
+      'balance': {
+        title: 'Multi-chain Balance',
+        desc: 'Single call — get native + stablecoin balance across Base, ETH, Arbitrum, Optimism, Polygon. Returns total stablecoin value.',
+        code: 'curl -s https://ragradar.vercel.app/api/balance/0x8919fe5Aa2a18d69D1Ff869c2903B313F35e8061'
+      },
       }
     };
 
