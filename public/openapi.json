@@ -2,9 +2,9 @@
   "openapi": "3.1.0",
   "info": {
     "title": "RagRadar \u2014 Multi-Chain Intelligence",
-    "version": "9.3.0",
-    "description": "AI-powered on-chain analytics across Base, Arbitrum, and Solana. 44 REST endpoints covering wallet analytics, DeFi yields, token safety, smart money tracking, whale alerts, sniper detection, GMX perps, Solana degen tools, and protocol stats. All data from free sources (GeckoTerminal, Blockscout, DeFiLlama, GoPlus).",
-    "x-guidance": "RagRadar: 49 paid REST endpoints across Base, Arbitrum, and Solana. Covers wallet analytics, DeFi yields, token safety, sniper tracking, smart money, whale alerts, protocol stats, intelligence, GMX perps, Solana degen tools, and social signals (Farcaster, KOL tracking, sentiment). Pay USDC via x402 protocol on Base or Solana. AI agents discover via Bazaar.",
+    "version": "10.0.0",
+    "description": "AI-powered on-chain analytics across Base, Arbitrum, and Solana. 52 REST endpoints covering wallet analytics, DeFi yields, token safety, smart money tracking, whale alerts, sniper detection, GMX perps, Solana degen tools, protocol stats, gas tracking, token approvals, and multi-chain balance.",
+    "x-guidance": "RagRadar: 52 paid REST endpoints across Base, Arbitrum, Solana, Ethereum, Optimism, Polygon. Covers wallet analytics, DeFi yields, token safety, sniper tracking, smart money, whale alerts, protocol stats, intelligence, GMX perps, Solana degen tools, social signals, gas tracker, approvals scanner, multi-chain balance. Pay USDC via x402 protocol on Base or Solana.",
     "contact": {
       "name": "RagRadar",
       "url": "https://ragradar.vercel.app",
@@ -1913,6 +1913,212 @@
         "responses": {
           "200": {
             "description": "Top movers data"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        }
+      }
+    },
+    "/api/gas": {
+      "get": {
+        "operationId": "getGasPrices",
+        "summary": "Gas Tracker \u2014 real-time gas prices across all chains",
+        "description": "Get current gas prices on Base, Ethereum, Arbitrum, Optimism, Polygon, and Solana. Returns gasPrice, maxFeePerGas, maxPriorityFeePerGas in gwei (EVM) or microLamports (Solana).",
+        "tags": [
+          "Gas Tracker"
+        ],
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.001000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
+        },
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Gas prices for all supported chains",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        }
+      }
+    },
+    "/api/gas/{chain}": {
+      "get": {
+        "operationId": "getGasForChain",
+        "summary": "Gas Price \u2014 single chain",
+        "description": "Get gas price for a specific chain. Supported: base, ethereum, arbitrum, optimism, polygon, solana.",
+        "tags": [
+          "Gas Tracker"
+        ],
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.001000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
+        },
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "base",
+                "ethereum",
+                "arbitrum",
+                "optimism",
+                "polygon",
+                "solana"
+              ]
+            },
+            "description": "Chain name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Gas price for specified chain",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        }
+      }
+    },
+    "/api/approvals/{chain}/{address}": {
+      "get": {
+        "operationId": "scanApprovals",
+        "summary": "Token Approvals Scanner \u2014 detect unlimited approvals",
+        "description": "Scan a wallet's token approvals. Detects unlimited approvals, maps known spenders (Uniswap, 1inch, Aerodrome, Morpho), and provides revoke recommendations via revoke.cash. Supports: base, ethereum, arbitrum.",
+        "tags": [
+          "Security"
+        ],
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.020000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
+        },
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "base",
+                "ethereum",
+                "arbitrum"
+              ]
+            },
+            "description": "Chain identifier"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{40}$"
+            },
+            "description": "EVM wallet address (0x...)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Token approvals scan results with risk assessment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        }
+      }
+    },
+    "/api/balance/{address}": {
+      "get": {
+        "operationId": "getMultichainBalance",
+        "summary": "Multi-chain Balance \u2014 all chains in one call",
+        "description": "Get native + stablecoin (USDC, USDT, DAI) balance across 5 chains (Ethereum, Base, Arbitrum, Optimism, Polygon) in a single call. Returns total stablecoin value.",
+        "tags": [
+          "Wallet Analytics"
+        ],
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
+        },
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{40}$"
+            },
+            "description": "EVM wallet address (0x...)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Multi-chain balance with native + stablecoins",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           },
           "402": {
             "description": "Payment Required"
