@@ -409,6 +409,9 @@ async function main() {
       accepts: multiChainWithSol("$0.03"),
       description: "Multi-source social sentiment — Farcaster, GeckoTerminal, DexScreener.",
       mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+
     // === GAS TRACKER ===
     "GET /api/gas": {
       accepts: multiChainWithSol("$0.001"),
@@ -436,8 +439,6 @@ async function main() {
       accepts: multiChainWithSol("$0.01"),
       description: "Multi-chain balance — native + stablecoins across Base, ETH, Arbitrum, Optimism, Polygon in one call",
       mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
-    },
       ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
   };
