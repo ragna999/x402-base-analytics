@@ -1,5 +1,5 @@
 // Gas Tracker — real-time gas prices across chains
-import { ethers } from "ethers";
+// Uses native fetch + JSON-RPC (no ethers dependency)
 
 const RPCS = {
   base: "https://mainnet.base.org",
@@ -9,23 +9,45 @@ const RPCS = {
   polygon: "https://polygon-bor-rpc.publicnode.com",
 };
 
+async function rpcCall(url, method, params = []) {
+  const resp = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
+  });
+  const data = await resp.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.result;
+}
+
+function hexToGwei(hex) {
+  if (!hex || hex === "0x0") return 0;
+  return Math.round(parseInt(hex, 16) / 1e9 * 100) / 100;
+}
+
 export async function getGasPrices() {
   const results = {};
-  
-  // EVM chains — parallel fetch
+
   const evmPromises = Object.entries(RPCS).map(async ([chain, rpc]) => {
     try {
-      const provider = new ethers.JsonRpcProvider(rpc);
-      const feeData = await provider.getFeeData();
-      
-      const gwei = Number(feeData.gasPrice) / 1e9;
-      const maxFeeGwei = feeData.maxFeePerGas ? Number(feeData.maxFeePerGas) / 1e9 : null;
-      const maxPriorityGwei = feeData.maxPriorityFeePerGas ? Number(feeData.maxPriorityFeePerGas) / 1e9 : null;
-      
+      const [gasPrice, feeHistory] = await Promise.all([
+        rpcCall(rpc, "eth_gasPrice"),
+        rpcCall(rpc, "eth_feeHistory", ["0x4", "latest", [25, 75]]).catch(() => null),
+      ]);
+
+      const baseFee = hexToGwei(gasPrice);
+      let maxFee = baseFee;
+      let priority = 0;
+
+      if (feeHistory && feeHistory.baseFeePerGas) {
+        const latestBase = hexToGwei(feeHistory.baseFeePerGas[feeHistory.baseFeePerGas.length - 1]);
+        maxFee = Math.round((latestBase + priority) * 100) / 100;
+      }
+
       return [chain, {
-        gasPrice: Math.round(gwei * 100) / 100,
-        maxFeePerGas: maxFeeGwei ? Math.round(maxFeeGwei * 100) / 100 : null,
-        maxPriorityFeePerGas: maxPriorityGwei ? Math.round(maxPriorityGwei * 100) / 100 : null,
+        gasPrice: baseFee,
+        maxFeePerGas: maxFee,
+        maxPriorityFeePerGas: priority,
         unit: "gwei",
         status: "ok",
       }];
@@ -35,30 +57,19 @@ export async function getGasPrices() {
   });
 
   const evmResults = await Promise.all(evmPromises);
-  for (const [chain, data] of evmResults) {
-    results[chain] = data;
-  }
+  for (const [chain, data] of evmResults) results[chain] = data;
 
-  // Solana — use public RPC
+  // Solana
   try {
     const resp = await fetch("https://api.mainnet-beta.solana.com", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getRecentPrioritizationFees",
-        params: [],
-      }),
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "getRecentPrioritizationFees", params: [] }),
     });
     const data = await resp.json();
     if (data.result && data.result.length > 0) {
-      const avgFee = data.result.reduce((sum, f) => sum + f.prioritizationFee, 0) / data.result.length;
-      results.solana = {
-        gasPrice: Math.round(avgFee * 100) / 100,
-        unit: "microLamports",
-        status: "ok",
-      };
+      const avg = data.result.reduce((s, f) => s + f.prioritizationFee, 0) / data.result.length;
+      results.solana = { gasPrice: Math.round(avg * 100) / 100, unit: "microLamports", status: "ok" };
     } else {
       results.solana = { status: "unavailable" };
     }
@@ -66,33 +77,18 @@ export async function getGasPrices() {
     results.solana = { status: "error", error: err.message };
   }
 
-  return {
-    gasPrices: results,
-    timestamp: new Date().toISOString(),
-    note: "Prices in gwei (EVM) or microLamports (Solana)",
-  };
+  return { gasPrices: results, timestamp: new Date().toISOString(), note: "gwei (EVM) / microLamports (Solana)" };
 }
 
 export async function getGasForChain(chain) {
   if (!RPCS[chain] && chain !== "solana") {
-    throw new Error(`Unsupported chain: ${chain}. Use: ${Object.keys(RPCS).join(", ")}, solana`);
+    throw new Error(`Unsupported chain: ${chain}`);
   }
-  
   if (chain === "solana") {
     const all = await getGasPrices();
     return { chain, ...all.gasPrices.solana, timestamp: all.timestamp };
   }
-  
-  const provider = new ethers.JsonRpcProvider(RPCS[chain]);
-  const feeData = await provider.getFeeData();
-  const gwei = Number(feeData.gasPrice) / 1e9;
-  
-  return {
-    chain,
-    gasPrice: Math.round(gwei * 100) / 100,
-    maxFeePerGas: feeData.maxFeePerGas ? Math.round(Number(feeData.maxFeePerGas) / 1e9 * 100) / 100 : null,
-    maxPriorityFeePerGas: feeData.maxPriorityFeePerGas ? Math.round(Number(feeData.maxPriorityFeePerGas) / 1e9 * 100) / 100 : null,
-    unit: "gwei",
-    timestamp: new Date().toISOString(),
-  };
+  const hex = await rpcCall(RPCS[chain], "eth_gasPrice");
+  const gwei = hexToGwei(hex);
+  return { chain, gasPrice: gwei, unit: "gwei", timestamp: new Date().toISOString() };
 }
