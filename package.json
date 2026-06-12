@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node src/server.js",
     "start:mcp": "node src/mcp-server.js",
+    "start:monetized": "npx tsx src/monetized-mcp-server.ts",
     "dev": "node --watch src/server.js"
   },
   "dependencies": {
