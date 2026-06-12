@@ -2237,7 +2237,7 @@
         "summary": "Arbitrage Scanner — cross-DEX price differences",
         "description": "Scan all token pairs for arbitrage opportunities across DEXes on Base.",
         "tags": ["Arbitrage"],
-        "x-free": true,
+        "security": [],
         "parameters": [
           { "name": "amount", "in": "query", "schema": { "type": "integer", "default": 1000 }, "description": "Trade amount in USD" }
         ],
@@ -2252,7 +2252,7 @@
         "summary": "Arbitrage Pair — price diff for specific pair",
         "description": "Check arbitrage opportunity between two specific tokens.",
         "tags": ["Arbitrage"],
-        "x-free": true,
+        "security": [],
         "parameters": [
           { "name": "from", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Source token symbol" },
           { "name": "to", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Target token symbol" },
@@ -2269,7 +2269,7 @@
         "summary": "Supported Arb Tokens — tokens and DEXes for arbitrage",
         "description": "List supported tokens and DEXes for arbitrage scanning.",
         "tags": ["Arbitrage"],
-        "x-free": true,
+        "security": [],
         "responses": {
           "200": { "description": "Supported tokens and DEXes", "content": { "application/json": { "schema": { "type": "object" } } } }
         }
@@ -2281,7 +2281,7 @@
         "summary": "API Index — all available endpoints",
         "description": "Free endpoint listing all available API routes organized by category.",
         "tags": ["Meta"],
-        "x-free": true,
+        "security": [],
         "responses": {
           "200": { "description": "API endpoint listing", "content": { "application/json": { "schema": { "type": "object" } } } }
         }
@@ -2293,7 +2293,7 @@
         "summary": "Health Check — server status",
         "description": "Free endpoint returning server status, version, supported networks.",
         "tags": ["Meta"],
-        "x-free": true,
+        "security": [],
         "responses": {
           "200": { "description": "Health status", "content": { "application/json": { "schema": { "type": "object" } } } }
         }
