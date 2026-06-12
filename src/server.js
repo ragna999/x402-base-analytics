@@ -62,6 +62,9 @@ import { getMultichainBalance } from "./multichainBalance.js";
 
 // DEX Aggregator Quotes
 import { getQuote, getPoolInfo, getSupportedDexes } from "./dexQuotes.js";
+
+// Portfolio P&L Tracker
+import { analyzePnL, getPnLSummary } from "./analytics/pnlTracker.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PAY_TO = process.env.PAY_TO_ADDRESS;
@@ -445,6 +448,20 @@ async function main() {
       ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
 
+    // === PORTFOLIO P&L TRACKER ===
+    "GET /api/pnl/:chain/:address": {
+      accepts: multiChainWithSol("$0.05"),
+      description: "Full portfolio P&L — realized + unrealized, cost basis, win/loss ratio, per-token breakdown. Supports Base, Arbitrum, Celo.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+    "GET /api/pnl/:chain/:address/summary": {
+      accepts: multiChainWithSol("$0.02"),
+      description: "P&L summary — total realized/unrealized, win rate, best/worst trades. Lightweight version.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+
     // === DEX AGGREGATOR QUOTES ===
     "GET /api/quote/:chain/:from/:to": {
       accepts: multiChainWithSol("$0.005"),
@@ -490,7 +507,7 @@ async function main() {
       networks,
       payTo: PAY_TO,
       solanaPayTo: SOLANA_PAY_TO || "not configured",
-      version: "10.1.0-dex-aggregator",
+      version: "10.2.0-pnl-tracker",
       builderCode: BUILDER_CODE,
     });
   });
@@ -525,6 +542,7 @@ async function main() {
       gas: ["", ":chain"],
       approvals: [":chain/:address"],
       balance: [":address"],
+      pnl: [":chain/:address", ":chain/:address/summary"],
       quote: [":chain/:from/:to", "pools/:chain/:from/:to", "dexes/:chain"],
     });
   });
@@ -862,6 +880,23 @@ async function main() {
     }
   });
 
+  // === PORTFOLIO P&L TRACKER ===
+  app.get("/api/pnl/:chain/:address", async (req, res) => {
+    try {
+      const { chain, address } = req.params;
+      const limit = Math.min(parseInt(req.query.limit) || 100, 200);
+      const includeUnrealized = req.query.realized_only !== "true";
+      res.json(await analyzePnL(chain, address, { limit, includeUnrealized }));
+    } catch (err) { console.error("P&L error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/pnl/:chain/:address/summary", async (req, res) => {
+    try {
+      const { chain, address } = req.params;
+      res.json(await getPnLSummary(chain, address));
+    } catch (err) { console.error("P&L summary error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
   // === DEX AGGREGATOR QUOTES ===
   app.get("/api/quote/:chain/:from/:to", async (req, res) => {
     try {
@@ -896,7 +931,7 @@ async function main() {
   // --- Start ---
   app.listen(PORT, () => {
     console.log(`
-RagRadar v10.1.0-dex-aggregator on port ${PORT}
+RagRadar v10.2.0-pnl-tracker on port ${PORT}
 Payments -> ${PAY_TO}
 Networks -> ${SUPPORTED_CHAINS.join(", ")}
 
@@ -906,14 +941,17 @@ MULTI-CHAIN ENDPOINTS:
   GET /api/summary/:chain/:address     (base, arbitrum)
   GET /api/token-safety/:chain/:address (base, arbitrum, polygon, avalanche, celo)
 
+P&L TRACKER (NEW):
+  GET /api/pnl/:chain/:address          (full P&L breakdown)
+  GET /api/pnl/:chain/:address/summary  (summary only)
+
 ARBITRUM-SPECIFIC (GMX):
   GET /api/arbitrum/gmx/stats
   GET /api/arbitrum/gmx/funding
   GET /api/arbitrum/gmx/glp
   GET /api/arbitrum/gmx/liquidations
 
-BASE-SPECIFIC:
-nGAS TRACKER:
+GAS TRACKER:
   GET /api/gas
   GET /api/gas/:chain
 
@@ -929,7 +967,7 @@ DEX AGGREGATOR QUOTES:
   GET /api/quote/dexes/:chain         (supported DEXes)
   GET /api/yields, /api/protocols/base, /api/sniper/*, /api/smart-money/*, /api/whale/*, /api/intelligence/*
 
-Total: 55 endpoints | 6 chains
+Total: 57 endpoints | 6 chains
 `);
   });
 }

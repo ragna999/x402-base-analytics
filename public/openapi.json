@@ -2,9 +2,9 @@
   "openapi": "3.1.0",
   "info": {
     "title": "RagRadar \u2014 Multi-Chain Intelligence",
-    "version": "10.1.0",
-    "description": "AI-powered on-chain analytics across Base, Arbitrum, and Solana. 55 REST endpoints covering wallet analytics, DeFi yields, token safety, smart money tracking, whale alerts, sniper detection, GMX perps, Solana degen tools, protocol stats, gas tracking, token approvals, multi-chain balance, DEX aggregator quotes, and arbitrage scanning.",
-    "x-guidance": "RagRadar: 55 paid REST endpoints across Base, Arbitrum, Solana, Ethereum, Optimism, Polygon. Covers wallet analytics, DeFi yields, token safety, sniper tracking, smart money, whale alerts, protocol stats, intelligence, GMX perps, Solana degen tools, social signals, gas tracker, approvals scanner, multi-chain balance, DEX aggregator quotes, arbitrage scanning. Pay USDC via x402 protocol on Base or Solana.",
+    "version": "10.2.0",
+    "description": "AI-powered on-chain analytics across Base, Arbitrum, and Solana. 57 REST endpoints covering wallet analytics, Portfolio P&L tracker, DeFi yields, token safety, smart money tracking, whale alerts, sniper detection, GMX perps, Solana degen tools, protocol stats, gas tracking, token approvals, multi-chain balance, DEX aggregator quotes, and arbitrage scanning.",
+    "x-guidance": "RagRadar: 57 paid REST endpoints across Base, Arbitrum, Solana, Ethereum, Optimism, Polygon. Covers wallet analytics, Portfolio P&L tracker (realized + unrealized, cost basis, win/loss), DeFi yields, token safety, sniper tracking, smart money, whale alerts, protocol stats, intelligence, GMX perps, Solana degen tools, social signals, gas tracker, approvals scanner, multi-chain balance, DEX aggregator quotes, arbitrage scanning. Pay USDC via x402 protocol on Base or Solana.",
     "contact": {
       "name": "RagRadar",
       "url": "https://ragradar.vercel.app",
@@ -2112,6 +2112,143 @@
         "responses": {
           "200": {
             "description": "Multi-chain balance with native + stablecoins",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        }
+      }
+    },
+    "/api/pnl/{chain}/{address}": {
+      "get": {
+        "operationId": "getPortfolioPnL",
+        "summary": "Portfolio P&L Tracker — realized + unrealized profit/loss",
+        "description": "Full portfolio P&L analysis for any wallet. Tracks cost basis (average cost method), realized P&L from closed positions, unrealized P&L from open positions using real-time GeckoTerminal prices. Includes win/loss ratio, best/worst trades, and per-token breakdown. Supports Base, Arbitrum, Celo (Blockscout chains).",
+        "tags": [
+          "P&L Tracker"
+        ],
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.050000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
+        },
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["base", "arbitrum", "celo"]
+            },
+            "description": "Chain identifier (must have Blockscout)"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{40}$"
+            },
+            "description": "EVM wallet address (0x...)"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "maximum": 200
+            },
+            "description": "Max token transfers to analyze"
+          },
+          {
+            "name": "realized_only",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "If true, skip unrealized P&L calculation (faster)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Full P&L breakdown with summary + per-token positions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        }
+      }
+    },
+    "/api/pnl/{chain}/{address}/summary": {
+      "get": {
+        "operationId": "getPnLSummary",
+        "summary": "P&L Summary — lightweight total P&L stats",
+        "description": "Quick P&L summary for a wallet: total realized/unrealized P&L, win rate, best/worst trades. Faster than full P&L endpoint.",
+        "tags": [
+          "P&L Tracker"
+        ],
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.020000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
+        },
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["base", "arbitrum", "celo"]
+            },
+            "description": "Chain identifier"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{40}$"
+            },
+            "description": "EVM wallet address (0x...)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "P&L summary",
             "content": {
               "application/json": {
                 "schema": {

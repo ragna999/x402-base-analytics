@@ -1,0 +1,8 @@
+{
+  "experimentalServices": {
+    "x402-mcp": {
+      "type": "web",
+      "routePrefix": "/"
+    }
+  }
+}
