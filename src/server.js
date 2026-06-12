@@ -59,6 +59,9 @@ import { scanApprovals } from "./approvalsScanner.js";
 
 // Multi-chain balance
 import { getMultichainBalance } from "./multichainBalance.js";
+
+// DEX Aggregator Quotes
+import { getQuote, getPoolInfo, getSupportedDexes } from "./dexQuotes.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PAY_TO = process.env.PAY_TO_ADDRESS;
@@ -441,6 +444,29 @@ async function main() {
       mimeType: "application/json",
       ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
+
+    // === DEX AGGREGATOR QUOTES ===
+    "GET /api/quote/:chain/:from/:to": {
+      accepts: multiChainWithSol("$0.005"),
+      description: "Best DEX swap quote — compares Aerodrome, Uniswap V3, SushiSwap, PancakeSwap, BaseSwap. Returns best route + alternatives.",
+      mimeType: "application/json",
+      ...discover(
+        { amount: { description: "Amount of fromToken to swap", type: "number" } },
+        { type: "object", properties: { amount: { type: "number" } } }
+      ),
+    },
+    "GET /api/quote/pools/:chain/:from/:to": {
+      accepts: multiChainWithSol("$0.003"),
+      description: "All pools for a token pair — shows liquidity, volume, fees across DEXes",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+    "GET /api/quote/dexes/:chain": {
+      accepts: multiChainWithSol("$0.001"),
+      description: "Supported DEXes for a chain — names, types, fee tiers",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
   };
 
   // --- Middleware ---
@@ -464,7 +490,7 @@ async function main() {
       networks,
       payTo: PAY_TO,
       solanaPayTo: SOLANA_PAY_TO || "not configured",
-      version: "10.0.0-gas-approvals-balance",
+      version: "10.1.0-dex-aggregator",
       builderCode: BUILDER_CODE,
     });
   });
@@ -499,6 +525,7 @@ async function main() {
       gas: ["", ":chain"],
       approvals: [":chain/:address"],
       balance: [":address"],
+      quote: [":chain/:from/:to", "pools/:chain/:from/:to", "dexes/:chain"],
     });
   });
 
@@ -835,10 +862,41 @@ async function main() {
     }
   });
 
+  // === DEX AGGREGATOR QUOTES ===
+  app.get("/api/quote/:chain/:from/:to", async (req, res) => {
+    try {
+      const { chain, from, to } = req.params;
+      const amount = parseFloat(req.query.amount) || 1;
+      res.json(await getQuote(chain, from, to, amount));
+    } catch (err) {
+      console.error("DEX quote error:", err.message);
+      res.status(500).json({ error: "Failed" });
+    }
+  });
+
+  app.get("/api/quote/pools/:chain/:from/:to", async (req, res) => {
+    try {
+      const { chain, from, to } = req.params;
+      res.json(await getPoolInfo(chain, from, to));
+    } catch (err) {
+      console.error("Pool info error:", err.message);
+      res.status(500).json({ error: "Failed" });
+    }
+  });
+
+  app.get("/api/quote/dexes/:chain", async (req, res) => {
+    try {
+      res.json(await getSupportedDexes(req.params.chain));
+    } catch (err) {
+      console.error("Dexes error:", err.message);
+      res.status(500).json({ error: "Failed" });
+    }
+  });
+
   // --- Start ---
   app.listen(PORT, () => {
     console.log(`
-RagRadar v10.0.0-gas-approvals-balance on port ${PORT}
+RagRadar v10.1.0-dex-aggregator on port ${PORT}
 Payments -> ${PAY_TO}
 Networks -> ${SUPPORTED_CHAINS.join(", ")}
 
@@ -864,9 +922,14 @@ TOKEN APPROVALS:
 
 MULTI-CHAIN BALANCE:
   GET /api/balance/:address
+
+DEX AGGREGATOR QUOTES:
+  GET /api/quote/:chain/:from/:to     (best swap route)
+  GET /api/quote/pools/:chain/:from/:to (all pools)
+  GET /api/quote/dexes/:chain         (supported DEXes)
   GET /api/yields, /api/protocols/base, /api/sniper/*, /api/smart-money/*, /api/whale/*, /api/intelligence/*
 
-Total: 52 endpoints | 6 chains
+Total: 55 endpoints | 6 chains
 `);
   });
 }

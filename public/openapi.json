@@ -2,9 +2,9 @@
   "openapi": "3.1.0",
   "info": {
     "title": "RagRadar \u2014 Multi-Chain Intelligence",
-    "version": "10.0.0",
-    "description": "AI-powered on-chain analytics across Base, Arbitrum, and Solana. 52 REST endpoints covering wallet analytics, DeFi yields, token safety, smart money tracking, whale alerts, sniper detection, GMX perps, Solana degen tools, protocol stats, gas tracking, token approvals, and multi-chain balance.",
-    "x-guidance": "RagRadar: 52 paid REST endpoints across Base, Arbitrum, Solana, Ethereum, Optimism, Polygon. Covers wallet analytics, DeFi yields, token safety, sniper tracking, smart money, whale alerts, protocol stats, intelligence, GMX perps, Solana degen tools, social signals, gas tracker, approvals scanner, multi-chain balance. Pay USDC via x402 protocol on Base or Solana.",
+    "version": "10.1.0",
+    "description": "AI-powered on-chain analytics across Base, Arbitrum, and Solana. 55 REST endpoints covering wallet analytics, DeFi yields, token safety, smart money tracking, whale alerts, sniper detection, GMX perps, Solana degen tools, protocol stats, gas tracking, token approvals, multi-chain balance, DEX aggregator quotes, and arbitrage scanning.",
+    "x-guidance": "RagRadar: 55 paid REST endpoints across Base, Arbitrum, Solana, Ethereum, Optimism, Polygon. Covers wallet analytics, DeFi yields, token safety, sniper tracking, smart money, whale alerts, protocol stats, intelligence, GMX perps, Solana degen tools, social signals, gas tracker, approvals scanner, multi-chain balance, DEX aggregator quotes, arbitrage scanning. Pay USDC via x402 protocol on Base or Solana.",
     "contact": {
       "name": "RagRadar",
       "url": "https://ragradar.vercel.app",
@@ -2123,6 +2123,174 @@
           "402": {
             "description": "Payment Required"
           }
+        }
+      }
+    },
+    "/api/quote/{chain}/{from}/{to}": {
+      "get": {
+        "operationId": "getDexQuote",
+        "summary": "DEX Aggregator Quote — best swap route across DEXes",
+        "description": "Compare swap quotes across Aerodrome, Uniswap V3/V4, SushiSwap, PancakeSwap, BaseSwap, Hydrex. Returns best route with alternatives, price impact, and pool liquidity. Uses real pool data from GeckoTerminal.",
+        "tags": [
+          "DEX Aggregator"
+        ],
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.005000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
+        },
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["base", "arbitrum", "ethereum", "polygon", "optimism", "avalanche", "bsc", "celo"]
+            },
+            "description": "Chain identifier"
+          },
+          {
+            "name": "from",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Source token address (0x...) or 'native' for wrapped native token"
+          },
+          {
+            "name": "to",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Destination token address (0x...)"
+          },
+          {
+            "name": "amount",
+            "in": "query",
+            "schema": { "type": "number", "default": 1 },
+            "description": "Amount of source token to swap"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Best swap quote with alternatives",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" }
+              }
+            }
+          },
+          "402": { "description": "Payment Required" }
+        }
+      }
+    },
+    "/api/quote/pools/{chain}/{from}/{to}": {
+      "get": {
+        "operationId": "getQuotePools",
+        "summary": "Pool Discovery — all pools for a token pair",
+        "description": "List all liquidity pools for a token pair across DEXes. Shows liquidity, 24h volume, fees, price changes.",
+        "tags": ["DEX Aggregator"],
+        "x-payment-info": {
+          "price": { "mode": "fixed", "currency": "USD", "amount": "0.003000" },
+          "protocols": [{ "x402": {} }]
+        },
+        "parameters": [
+          { "name": "chain", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Chain identifier" },
+          { "name": "from", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Token A address" },
+          { "name": "to", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Token B address" }
+        ],
+        "responses": {
+          "200": { "description": "Pool list with liquidity and volume data", "content": { "application/json": { "schema": { "type": "object" } } } },
+          "402": { "description": "Payment Required" }
+        }
+      }
+    },
+    "/api/quote/dexes/{chain}": {
+      "get": {
+        "operationId": "getSupportedDexes",
+        "summary": "Supported DEXes — list of DEXes for a chain",
+        "description": "Returns supported DEXes, their types, fee tiers, and native token address.",
+        "tags": ["DEX Aggregator"],
+        "x-payment-info": {
+          "price": { "mode": "fixed", "currency": "USD", "amount": "0.001000" },
+          "protocols": [{ "x402": {} }]
+        },
+        "parameters": [
+          { "name": "chain", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Chain identifier" }
+        ],
+        "responses": {
+          "200": { "description": "Supported DEXes list", "content": { "application/json": { "schema": { "type": "object" } } } },
+          "402": { "description": "Payment Required" }
+        }
+      }
+    },
+    "/api/arb/scan": {
+      "get": {
+        "operationId": "scanArbitrage",
+        "summary": "Arbitrage Scanner — cross-DEX price differences",
+        "description": "Scan all token pairs for arbitrage opportunities across DEXes on Base.",
+        "tags": ["Arbitrage"],
+        "parameters": [
+          { "name": "amount", "in": "query", "schema": { "type": "integer", "default": 1000 }, "description": "Trade amount in USD" }
+        ],
+        "responses": {
+          "200": { "description": "Arbitrage opportunities", "content": { "application/json": { "schema": { "type": "object" } } } }
+        }
+      }
+    },
+    "/api/arb/pair/{from}/{to}": {
+      "get": {
+        "operationId": "scanArbitragePair",
+        "summary": "Arbitrage Pair — price diff for specific pair",
+        "description": "Check arbitrage opportunity between two specific tokens.",
+        "tags": ["Arbitrage"],
+        "parameters": [
+          { "name": "from", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Source token symbol" },
+          { "name": "to", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Target token symbol" },
+          { "name": "amount", "in": "query", "schema": { "type": "integer", "default": 1000 }, "description": "Trade amount in USD" }
+        ],
+        "responses": {
+          "200": { "description": "Arbitrage result", "content": { "application/json": { "schema": { "type": "object" } } } }
+        }
+      }
+    },
+    "/api/arb/tokens": {
+      "get": {
+        "operationId": "getArbTokens",
+        "summary": "Supported Arb Tokens — tokens and DEXes for arbitrage",
+        "description": "List supported tokens and DEXes for arbitrage scanning.",
+        "tags": ["Arbitrage"],
+        "responses": {
+          "200": { "description": "Supported tokens and DEXes", "content": { "application/json": { "schema": { "type": "object" } } } }
+        }
+      }
+    },
+    "/api/protocols": {
+      "get": {
+        "operationId": "listProtocols",
+        "summary": "API Index — all available endpoints",
+        "description": "Free endpoint listing all available API routes organized by category.",
+        "tags": ["Meta"],
+        "responses": {
+          "200": { "description": "API endpoint listing", "content": { "application/json": { "schema": { "type": "object" } } } }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "healthCheck",
+        "summary": "Health Check — server status",
+        "description": "Free endpoint returning server status, version, supported networks.",
+        "tags": ["Meta"],
+        "responses": {
+          "200": { "description": "Health status", "content": { "application/json": { "schema": { "type": "object" } } } }
         }
       }
     }

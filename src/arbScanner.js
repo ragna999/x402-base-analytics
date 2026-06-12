@@ -208,7 +208,7 @@ async function scanPair(tokenIn, tokenOut, amountIn, symbol) {
 }
 
 // Detect arbitrage opportunity
-function detectArbitrage(quotes, tokenInDecimals, tokenOutDecimals, amountInRaw) {
+function detectArbitrage(quotes, tokenInDecimals, tokenOutDecimals, amountInRaw, fromSymbol, toSymbol) {
   if (quotes.length < 2) return null;
 
   // Sort by output (highest first)
@@ -217,36 +217,68 @@ function detectArbitrage(quotes, tokenInDecimals, tokenOutDecimals, amountInRaw)
   const worst = sorted[sorted.length - 1];
 
   const diff = best.output - worst.output;
-  const diffPercent =
-    (diff / worst.output) * 100;
+  const diffPercent = (diff / worst.output) * 100;
+
+  // Prices (approximate)
+  const ethPrice = 2600;
+  const stablecoinSymbols = ["USDC", "DAI", "USDT"];
 
   // Estimate gas cost (Base is very cheap: ~0.005 gwei)
   const gasEstimate = 300000; // ~300K gas for flash loan arb
-  const gasPriceGwei = 0.005; // Base gas price
-  const gasCostETH = (gasEstimate * gasPriceGwei) / 1e9; // Convert to ETH
-  const ethPrice = 2600; // Approximate ETH price
+  const gasPriceGwei = 0.005;
+  const gasCostETH = (gasEstimate * gasPriceGwei) / 1e9;
   const gasCostUSD = gasCostETH * ethPrice;
 
-  // Aave flash loan fee: 0.05% of borrowed amount
+  // Flash loan fee: 0.05% of borrowed amount
+  // Need to figure out the USD value of what we're borrowing
   const borrowedAmount = Number(amountInRaw) / Math.pow(10, tokenInDecimals);
-  const flashLoanFee = borrowedAmount * 0.0005;
+  let borrowedUSD;
+  if (stablecoinSymbols.includes(fromSymbol)) {
+    borrowedUSD = borrowedAmount; // already USD
+  } else if (fromSymbol === "WETH" || fromSymbol === "cbETH") {
+    borrowedUSD = borrowedAmount * ethPrice;
+  } else {
+    // For degen tokens, estimate from the worst quote output
+    // If output is stablecoin, use that; if ETH, multiply by ethPrice
+    const worstOutput = worst.output / Math.pow(10, tokenOutDecimals);
+    if (stablecoinSymbols.includes(toSymbol)) {
+      borrowedUSD = worstOutput; // approximate input value from output
+    } else {
+      borrowedUSD = worstOutput * ethPrice;
+    }
+  }
+  const flashLoanFeeUSD = borrowedUSD * 0.0005;
 
-  // Calculate profit in token terms
+  // Calculate profit in USD
+  // diff is in output token raw units
   const profitRaw = diff;
-  const profitFormatted =
-    profitRaw / Math.pow(10, tokenOutDecimals);
+  const profitFormatted = profitRaw / Math.pow(10, tokenOutDecimals);
+  let profitUSD;
+  if (stablecoinSymbols.includes(toSymbol)) {
+    profitUSD = profitFormatted; // output is stablecoin = already USD
+  } else if (toSymbol === "WETH" || toSymbol === "cbETH") {
+    profitUSD = profitFormatted * ethPrice; // output is ETH
+  } else {
+    // For degen tokens, estimate using the input amount as proxy
+    // If input is stablecoin, profit ≈ profitFormatted * (borrowedUSD / worstOutput)
+    const worstOutput = worst.output / Math.pow(10, tokenOutDecimals);
+    if (worstOutput > 0) {
+      profitUSD = profitFormatted * (borrowedUSD / worstOutput);
+    } else {
+      profitUSD = 0;
+    }
+  }
 
-  const totalCosts = gasCostUSD + flashLoanFee;
-  const profitUSD = profitFormatted * ethPrice;
+  const totalCosts = gasCostUSD + flashLoanFeeUSD;
 
   return {
     profitable: diffPercent > 0.3 && profitUSD > totalCosts,
     buyFrom: worst.dex,
     sellTo: best.dex,
-    spreadPercent: diffPercent.toFixed(2),
+    spreadPercent: diffPercent.toFixed(4),
     estimatedProfitUSD: profitUSD.toFixed(4),
     gasCostUSD: gasCostUSD.toFixed(4),
-    flashLoanFeeUSD: flashLoanFee.toFixed(4),
+    flashLoanFeeUSD: flashLoanFeeUSD.toFixed(4),
     totalCostsUSD: totalCosts.toFixed(4),
     netProfitUSD: (profitUSD - totalCosts).toFixed(4),
   };
@@ -290,7 +322,9 @@ export async function scanAllPairs(amountUSDC = 1000) {
         quotes,
         tokenIn.decimals,
         tokenOut.decimals,
-        adjustedAmountIn
+        adjustedAmountIn,
+        pair.from,
+        pair.to
       );
 
       if (arb && arb.profitable) {
@@ -341,7 +375,7 @@ export async function scanSpecificPair(
     `${fromSymbol}/${toSymbol}`
   );
 
-  const arb = detectArbitrage(quotes, from.decimals, to.decimals, adjustedAmount);
+  const arb = detectArbitrage(quotes, from.decimals, to.decimals, adjustedAmount, fromSymbol, toSymbol);
 
   return {
     pair: `${fromSymbol} → ${toSymbol}`,
