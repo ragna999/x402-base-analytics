@@ -486,6 +486,33 @@ async function main() {
     },
   };
 
+  // --- Security: block method abuse before x402 ---
+  app.use((req, res, next) => {
+    if (req.method === "OPTIONS") return next();
+    if (req.method === "HEAD") return res.status(402).json({ error: "Payment required. Use GET with x402 payment." });
+    if (req.method !== "GET") return res.status(405).json({ error: "Method not allowed" });
+    next();
+  });
+
+  // --- x402 Discovery Endpoints ---
+  app.get("/.well-known/x402", (req, res) => {
+    res.json({
+      version: "1.0",
+      resources: Object.entries(paymentConfig).map(([route, config]) => ({
+        route: route.replace(/^GET /, ""),
+        description: config.description,
+        accepts: config.accepts,
+      })),
+    });
+  });
+
+  app.get("/.well-known/x402-resources", (req, res) => res.redirect(301, "/.well-known/x402"));
+  app.get("/x402-resources", (req, res) => res.redirect(301, "/.well-known/x402"));
+  app.get("/x402/discovery/resources", (req, res) => res.redirect(301, "/.well-known/x402"));
+  app.get("/.well-known/x402/discovery/resources", (req, res) => res.redirect(301, "/.well-known/x402"));
+  app.get("/v1/x402/discovery/resources", (req, res) => res.redirect(301, "/.well-known/x402"));
+  app.get("/v2/x402/discovery/resources", (req, res) => res.redirect(301, "/.well-known/x402"));
+
   // --- Middleware ---
   app.use(cors());
   app.use(paymentMiddleware(paymentConfig, resourceServer));

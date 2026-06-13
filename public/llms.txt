@@ -1,0 +1,99 @@
+# RagRadar — Multi-Chain AI Intelligence API
+
+> AI-powered on-chain analytics across Base, Arbitrum, Solana, Ethereum, Optimism, Polygon. 57 REST endpoints. Pay per call via x402 micropayments (USDC on Base or Solana).
+
+## Base URL
+https://ragradar.vercel.app
+
+## Authentication
+x402 micropayment protocol — pay USDC per request. No API keys needed. See /.well-known/x402 for discovery.
+
+## Free Endpoints
+- GET /health — Server status
+- GET /api/protocols — List all endpoints
+- GET /builder-code — ERC-8021 builder code
+- GET /.well-known/x402 — x402 discovery
+
+## Paid Endpoints (57 total)
+
+### Wallet Analytics
+- GET /api/portfolio/:chain/:address — Token balances ($0.005)
+- GET /api/history/:chain/:address — Transaction history ($0.01)
+- GET /api/summary/:chain/:address — Full wallet analytics ($0.02)
+- GET /api/pnl/:chain/:address — Portfolio P&L breakdown ($0.05)
+- GET /api/pnl/:chain/:address/summary — P&L summary ($0.02)
+- GET /api/balance/:address — Multi-chain balance ($0.01)
+
+### Token Safety
+- GET /api/token-safety/:chain/:address — Rug risk, honeypot check ($0.02)
+- GET /api/wallet-risk/:address — Wallet risk scoring ($0.03)
+- GET /api/approvals/:chain/:address — Token approvals scan ($0.02)
+
+### DeFi Yields
+- GET /api/yields — All Base DeFi yields ($0.02)
+- GET /api/yields/best/:asset — Best yield per asset ($0.01)
+- GET /api/yields/risk — Yields by risk level ($0.02)
+- GET /api/yields/rebalance — Rebalance recommendation ($0.05)
+
+### Protocol Stats
+- GET /api/protocols/base — Base protocol stats ($0.01)
+- GET /api/protocols/base/tvl — TVL history ($0.01)
+- GET /api/protocols/base/movers — Top movers 24h ($0.01)
+
+### Sniper Tracker
+- GET /api/sniper/token/:address — Early buyers analysis ($0.01)
+- GET /api/sniper/wallet/:address — Sniper track record ($0.01)
+- GET /api/sniper/trending — Top snipers on Base ($0.01)
+
+### Smart Money
+- GET /api/smart-money/wallet/:address — Smart money wallet analysis ($0.02)
+- GET /api/smart-money/token/:address — Smart money buyers of token ($0.02)
+- GET /api/smart-money/activity — What smart money is buying ($0.02)
+
+### Whale Alerts
+- GET /api/whale/alerts — Recent whale transfers ($0.01)
+- GET /api/whale/alerts/:token — Token whale activity ($0.02)
+- GET /api/whale/movements — Cross-token whale activity ($0.01)
+- GET /api/whale/heatmap — Whale activity heatmap ($0.01)
+- GET /api/whale/accumulation — Accumulation signals ($0.02)
+
+### Aggregated Intelligence
+- GET /api/intelligence/token/:address — Full token intelligence ($0.05)
+- GET /api/intelligence/wallet/:address — Full wallet intelligence ($0.05)
+- GET /api/market/pulse — Market pulse ($0.05)
+- GET /api/defi/dashboard — DeFi dashboard ($0.03)
+- GET /api/risk/:address — Risk assessment ($0.03)
+
+### GMX Perps (Arbitrum)
+- GET /api/arbitrum/gmx/stats — GMX V2 stats ($0.02)
+- GET /api/arbitrum/gmx/funding — Funding rates ($0.01)
+- GET /api/arbitrum/gmx/glp — GLP/APR yield ($0.01)
+- GET /api/arbitrum/gmx/liquidations — Liquidations feed ($0.02)
+
+### Solana
+- GET /api/solana/token-safety/:mint — Solana token safety ($0.02)
+- GET /api/solana/snipers/:mint — Sniper detection ($0.01)
+- GET /api/solana/snipers/:mint/score — Sniper score 0-100 ($0.01)
+- GET /api/solana/trending — Trending pools ($0.01)
+- GET /api/solana/new-tokens — New token launches ($0.01)
+- GET /api/solana/top-volume — Top volume pools ($0.01)
+
+### Social Signals
+- GET /api/social/token/:chain/:address — Token social presence ($0.03)
+- GET /api/social/trending — Trending with social data ($0.02)
+- GET /api/social/farcaster/crypto — Farcaster crypto discussions ($0.02)
+- GET /api/social/kol/activity — KOL activity ($0.03)
+- GET /api/social/sentiment/:keyword — Multi-source sentiment ($0.03)
+
+### Gas & DEX
+- GET /api/gas — Multi-chain gas prices ($0.001)
+- GET /api/gas/:chain — Chain gas price ($0.001)
+- GET /api/quote/:chain/:from/:to — Best DEX swap quote ($0.005)
+- GET /api/quote/pools/:chain/:from/:to — Pool info ($0.003)
+- GET /api/quote/dexes/:chain — Supported DEXes ($0.001)
+
+## Tech
+- Engine: Node.js + Express
+- Payments: x402 protocol (Base + Solana)
+- Data: DeFiLlama, DexScreener, GeckoTerminal, GoPlus, Etherscan, Blockscout
+- Chains: Base, Arbitrum, Solana, Ethereum, Optimism, Polygon, Avalanche, Celo
