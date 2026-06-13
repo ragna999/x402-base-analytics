@@ -2,9 +2,9 @@
   "openapi": "3.1.0",
   "info": {
     "title": "RagRadar \u2014 Multi-Chain Intelligence",
-    "version": "10.2.0",
-    "description": "AI-powered on-chain analytics across Base, Arbitrum, and Solana. 57 REST endpoints covering wallet analytics, Portfolio P&L tracker, DeFi yields, token safety, smart money tracking, whale alerts, sniper detection, GMX perps, Solana degen tools, protocol stats, gas tracking, token approvals, multi-chain balance, DEX aggregator quotes, and arbitrage scanning.",
-    "x-guidance": "RagRadar: 57 paid REST endpoints across Base, Arbitrum, Solana, Ethereum, Optimism, Polygon. Covers wallet analytics, Portfolio P&L tracker (realized + unrealized, cost basis, win/loss), DeFi yields, token safety, sniper tracking, smart money, whale alerts, protocol stats, intelligence, GMX perps, Solana degen tools, social signals, gas tracker, approvals scanner, multi-chain balance, DEX aggregator quotes, arbitrage scanning. Pay USDC via x402 protocol on Base or Solana.",
+    "version": "10.3.0",
+    "description": "AI-powered on-chain analytics across Base, Arbitrum, Solana, Ethereum, Optimism, Polygon. 62 REST endpoints covering wallet analytics, Portfolio P&L tracker, DeFi yields, token safety, smart money tracking, whale alerts, sniper detection, GMX perps, Solana degen tools, protocol stats, gas tracking, token approvals, multi-chain balance, DEX aggregator quotes, arbitrage scanning, and NFT analytics (powered by Alchemy).",
+    "x-guidance": "RagRadar: 62 paid REST endpoints across Base, Arbitrum, Solana, Ethereum, Optimism, Polygon. Covers wallet analytics, Portfolio P&L tracker (realized + unrealized, cost basis, win/loss), DeFi yields, token safety, sniper tracking, smart money, whale alerts, protocol stats, intelligence, GMX perps, Solana degen tools, social signals, gas tracker, approvals scanner, multi-chain balance, DEX aggregator quotes, arbitrage scanning, and NFT analytics (floor price, collections, sales, ownership). Pay USDC via x402 protocol on Base or Solana.",
     "contact": {
       "name": "RagRadar",
       "url": "https://ragradar.vercel.app",
@@ -2410,6 +2410,112 @@
         "security": [],
         "responses": {
           "200": { "description": "Supported tokens and DEXes", "content": { "application/json": { "schema": { "type": "object" } } } }
+        }
+      }
+    },
+    "/api/nft/portfolio/{address}": {
+      "get": {
+        "operationId": "getNFTPortfolio",
+        "summary": "NFT Portfolio — all NFTs owned by a wallet",
+        "description": "Get all NFTs owned by a wallet address with metadata, images, collection info. Supports Base + Ethereum chains.",
+        "tags": ["NFT Analytics"],
+        "x-payment-info": {
+          "price": { "mode": "fixed", "currency": "USD", "amount": "0.500000" },
+          "protocols": [{ "x402": {} }]
+        },
+        "parameters": [
+          { "name": "address", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Wallet address" },
+          { "name": "chain", "in": "query", "schema": { "type": "string", "enum": ["base", "eth"], "default": "base" }, "description": "Blockchain network" },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 50 }, "description": "Max NFTs to return (1-100)" },
+          { "name": "pageKey", "in": "query", "schema": { "type": "string" }, "description": "Pagination cursor" }
+        ],
+        "responses": {
+          "200": { "description": "NFT portfolio with metadata", "content": { "application/json": { "schema": { "type": "object" } } } },
+          "402": { "description": "Payment Required" }
+        }
+      }
+    },
+    "/api/nft/collection/{chain}/{contract}": {
+      "get": {
+        "operationId": "getCollectionInfo",
+        "summary": "Collection Info — metadata + floor price",
+        "description": "Get collection metadata including name, symbol, total supply, OpenSea data, social links, and floor price.",
+        "tags": ["NFT Analytics"],
+        "x-payment-info": {
+          "price": { "mode": "fixed", "currency": "USD", "amount": "0.250000" },
+          "protocols": [{ "x402": {} }]
+        },
+        "parameters": [
+          { "name": "chain", "in": "path", "required": true, "schema": { "type": "string", "enum": ["base", "eth"] }, "description": "Blockchain network" },
+          { "name": "contract", "in": "path", "required": true, "schema": { "type": "string" }, "description": "NFT contract address" }
+        ],
+        "responses": {
+          "200": { "description": "Collection metadata", "content": { "application/json": { "schema": { "type": "object" } } } },
+          "402": { "description": "Payment Required" }
+        }
+      }
+    },
+    "/api/nft/floor/{chain}/{contract}": {
+      "get": {
+        "operationId": "getFloorPrice",
+        "summary": "Floor Price — OpenSea + LooksRare",
+        "description": "Get floor price for a collection from OpenSea and LooksRare marketplaces.",
+        "tags": ["NFT Analytics"],
+        "x-payment-info": {
+          "price": { "mode": "fixed", "currency": "USD", "amount": "0.200000" },
+          "protocols": [{ "x402": {} }]
+        },
+        "parameters": [
+          { "name": "chain", "in": "path", "required": true, "schema": { "type": "string", "enum": ["base", "eth"] }, "description": "Blockchain network" },
+          { "name": "contract", "in": "path", "required": true, "schema": { "type": "string" }, "description": "NFT contract address" }
+        ],
+        "responses": {
+          "200": { "description": "Floor price data", "content": { "application/json": { "schema": { "type": "object" } } } },
+          "402": { "description": "Payment Required" }
+        }
+      }
+    },
+    "/api/nft/sales/{chain}/{contract}": {
+      "get": {
+        "operationId": "getNFTSales",
+        "summary": "NFT Sales — recent transactions",
+        "description": "Get recent NFT sales for a collection including marketplace, tokenId, buyer, seller, price, and tx hash.",
+        "tags": ["NFT Analytics"],
+        "x-payment-info": {
+          "price": { "mode": "fixed", "currency": "USD", "amount": "0.500000" },
+          "protocols": [{ "x402": {} }]
+        },
+        "parameters": [
+          { "name": "chain", "in": "path", "required": true, "schema": { "type": "string", "enum": ["base", "eth"] }, "description": "Blockchain network" },
+          { "name": "contract", "in": "path", "required": true, "schema": { "type": "string" }, "description": "NFT contract address" },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 20 }, "description": "Max sales to return (1-100)" },
+          { "name": "fromBlock", "in": "query", "schema": { "type": "string" }, "description": "Start block number" },
+          { "name": "toBlock", "in": "query", "schema": { "type": "string" }, "description": "End block number" }
+        ],
+        "responses": {
+          "200": { "description": "Recent NFT sales", "content": { "application/json": { "schema": { "type": "object" } } } },
+          "402": { "description": "Payment Required" }
+        }
+      }
+    },
+    "/api/nft/owners/{chain}/{contract}/{tokenId}": {
+      "get": {
+        "operationId": "getNFTOwners",
+        "summary": "NFT Owners — wallets holding a specific NFT",
+        "description": "Get list of wallets that own a specific NFT token.",
+        "tags": ["NFT Analytics"],
+        "x-payment-info": {
+          "price": { "mode": "fixed", "currency": "USD", "amount": "0.250000" },
+          "protocols": [{ "x402": {} }]
+        },
+        "parameters": [
+          { "name": "chain", "in": "path", "required": true, "schema": { "type": "string", "enum": ["base", "eth"] }, "description": "Blockchain network" },
+          { "name": "contract", "in": "path", "required": true, "schema": { "type": "string" }, "description": "NFT contract address" },
+          { "name": "tokenId", "in": "path", "required": true, "schema": { "type": "string" }, "description": "NFT token ID" }
+        ],
+        "responses": {
+          "200": { "description": "NFT owners list", "content": { "application/json": { "schema": { "type": "object" } } } },
+          "402": { "description": "Payment Required" }
         }
       }
     },
