@@ -1,6 +1,6 @@
 # RagRadar — Multi-Chain AI Intelligence API
 
-> AI-powered on-chain analytics across Base, Arbitrum, Solana, Ethereum, Optimism, Polygon. 62 REST endpoints. Pay per call via x402 micropayments (USDC on Base or Solana).
+> AI-powered on-chain analytics across Base, Arbitrum, Solana, Ethereum, Optimism, Polygon. 66 REST endpoints. Pay per call via x402 micropayments (USDC on Base or Solana).
 
 ## Base URL
 https://ragradar.vercel.app
@@ -99,8 +99,14 @@ x402 micropayment protocol — pay USDC per request. No API keys needed. See /.w
 - GET /api/nft/sales/:chain/:contract — Recent NFT sales ($0.50)
 - GET /api/nft/owners/:chain/:contract/:tokenId — NFT owners ($0.25)
 
+### Solana NFT (NEW — Powered by Magic Eden)
+- GET /api/nft/solana/collection/:symbol — Collection stats + floor price ($0.25)
+- GET /api/nft/solana/portfolio/:wallet — Solana NFT holdings ($0.50)
+- GET /api/nft/solana/token/:mint — Token metadata ($0.20)
+- GET /api/nft/solana/activities/:collection — Recent sales/bids ($0.50)
+
 ## Tech
 - Engine: Node.js + Express
 - Payments: x402 protocol (Base + Solana)
-- Data: DeFiLlama, DexScreener, GeckoTerminal, GoPlus, Etherscan, Blockscout, Alchemy NFT API
+- Data: DeFiLlama, DexScreener, GeckoTerminal, GoPlus, Etherscan, Blockscout, Alchemy NFT API, Magic Eden
 - Chains: Base, Arbitrum, Solana, Ethereum, Optimism, Polygon, Avalanche, Celo

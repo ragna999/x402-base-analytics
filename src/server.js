@@ -68,6 +68,9 @@ import { analyzePnL, getPnLSummary } from "./analytics/pnlTracker.js";
 
 // NFT Analytics (Alchemy)
 import { getNFTPortfolio, getCollectionInfo, getFloorPrice, getNFTSales, getNFTOwners } from "./nftAnalytics.js";
+
+// Solana NFT Analytics (Magic Eden)
+import { getSolanaCollectionStats, getSolanaNFTPortfolio, getSolanaTokenMetadata, getSolanaCollectionActivities } from "./solanaNft.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PAY_TO = process.env.PAY_TO_ADDRESS;
@@ -516,6 +519,32 @@ async function main() {
     "GET /api/nft/owners/:chain/:contract/:tokenId": {
       accepts: multiChainWithSol("$0.25"),
       description: "NFT owners — list of wallets owning a specific NFT token.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+
+    // === SOLANA NFT ANALYTICS (MAGIC EDEN) ===
+    "GET /api/nft/solana/collection/:symbol": {
+      accepts: multiChainWithSol("$0.25"),
+      description: "Solana collection stats — floor price, volume, listed count. Magic Eden data.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+    "GET /api/nft/solana/portfolio/:wallet": {
+      accepts: multiChainWithSol("$0.50"),
+      description: "Solana NFT portfolio — all NFTs owned by a wallet with metadata, images, collection info.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+    "GET /api/nft/solana/token/:mint": {
+      accepts: multiChainWithSol("$0.20"),
+      description: "Solana token metadata — name, image, attributes, price, collection info.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+    "GET /api/nft/solana/activities/:collection": {
+      accepts: multiChainWithSol("$0.50"),
+      description: "Solana collection activities — recent sales, bids, listings from Magic Eden.",
       mimeType: "application/json",
       ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
@@ -1043,6 +1072,51 @@ async function main() {
       res.json(await getNFTOwners(contract, tokenId, chain));
     } catch (err) {
       console.error("NFT owners error:", err.message);
+      res.status(500).json({ error: "Failed" });
+    }
+  });
+
+  // === SOLANA NFT ANALYTICS (MAGIC EDEN) ===
+  app.get("/api/nft/solana/collection/:symbol", async (req, res) => {
+    try {
+      const { symbol } = req.params;
+      res.json(await getSolanaCollectionStats(symbol));
+    } catch (err) {
+      console.error("Solana collection error:", err.message);
+      res.status(500).json({ error: "Failed" });
+    }
+  });
+
+  app.get("/api/nft/solana/portfolio/:wallet", async (req, res) => {
+    try {
+      const { wallet } = req.params;
+      const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+      const offset = parseInt(req.query.offset) || 0;
+      res.json(await getSolanaNFTPortfolio(wallet, limit, offset));
+    } catch (err) {
+      console.error("Solana portfolio error:", err.message);
+      res.status(500).json({ error: "Failed" });
+    }
+  });
+
+  app.get("/api/nft/solana/token/:mint", async (req, res) => {
+    try {
+      const { mint } = req.params;
+      res.json(await getSolanaTokenMetadata(mint));
+    } catch (err) {
+      console.error("Solana token error:", err.message);
+      res.status(500).json({ error: "Failed" });
+    }
+  });
+
+  app.get("/api/nft/solana/activities/:collection", async (req, res) => {
+    try {
+      const { collection } = req.params;
+      const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+      const offset = parseInt(req.query.offset) || 0;
+      res.json(await getSolanaCollectionActivities(collection, limit, offset));
+    } catch (err) {
+      console.error("Solana activities error:", err.message);
       res.status(500).json({ error: "Failed" });
     }
   });

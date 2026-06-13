@@ -2,9 +2,9 @@
   "openapi": "3.1.0",
   "info": {
     "title": "RagRadar \u2014 Multi-Chain Intelligence",
-    "version": "10.3.0",
-    "description": "AI-powered on-chain analytics across Base, Arbitrum, Solana, Ethereum, Optimism, Polygon. 62 REST endpoints covering wallet analytics, Portfolio P&L tracker, DeFi yields, token safety, smart money tracking, whale alerts, sniper detection, GMX perps, Solana degen tools, protocol stats, gas tracking, token approvals, multi-chain balance, DEX aggregator quotes, arbitrage scanning, and NFT analytics (powered by Alchemy).",
-    "x-guidance": "RagRadar: 62 paid REST endpoints across Base, Arbitrum, Solana, Ethereum, Optimism, Polygon. Covers wallet analytics, Portfolio P&L tracker (realized + unrealized, cost basis, win/loss), DeFi yields, token safety, sniper tracking, smart money, whale alerts, protocol stats, intelligence, GMX perps, Solana degen tools, social signals, gas tracker, approvals scanner, multi-chain balance, DEX aggregator quotes, arbitrage scanning, and NFT analytics (floor price, collections, sales, ownership). Pay USDC via x402 protocol on Base or Solana.",
+    "version": "10.4.0",
+    "description": "AI-powered on-chain analytics across Base, Arbitrum, Solana, Ethereum, Optimism, Polygon. 66 REST endpoints covering wallet analytics, Portfolio P&L tracker, DeFi yields, token safety, smart money tracking, whale alerts, sniper detection, GMX perps, Solana degen tools, protocol stats, gas tracking, token approvals, multi-chain balance, DEX aggregator quotes, arbitrage scanning, NFT analytics (powered by Alchemy), and Solana NFT analytics (powered by Magic Eden).",
+    "x-guidance": "RagRadar: 66 paid REST endpoints across Base, Arbitrum, Solana, Ethereum, Optimism, Polygon. Covers wallet analytics, Portfolio P&L tracker (realized + unrealized, cost basis, win/loss), DeFi yields, token safety, sniper tracking, smart money, whale alerts, protocol stats, intelligence, GMX perps, Solana degen tools, social signals, gas tracker, approvals scanner, multi-chain balance, DEX aggregator quotes, arbitrage scanning, NFT analytics (floor price, collections, sales, ownership), and Solana NFT analytics (Magic Eden data). Pay USDC via x402 protocol on Base or Solana.",
     "contact": {
       "name": "RagRadar",
       "url": "https://ragradar.vercel.app",
@@ -2515,6 +2515,86 @@
         ],
         "responses": {
           "200": { "description": "NFT owners list", "content": { "application/json": { "schema": { "type": "object" } } } },
+          "402": { "description": "Payment Required" }
+        }
+      }
+    },
+    "/api/nft/solana/collection/{symbol}": {
+      "get": {
+        "operationId": "getSolanaCollectionStats",
+        "summary": "Solana Collection Stats — floor price + volume",
+        "description": "Get Solana collection stats from Magic Eden including floor price, volume, listed count.",
+        "tags": ["Solana NFT"],
+        "x-payment-info": {
+          "price": { "mode": "fixed", "currency": "USD", "amount": "0.250000" },
+          "protocols": [{ "x402": {} }]
+        },
+        "parameters": [
+          { "name": "symbol", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Collection symbol (e.g. degods, okaybears)" }
+        ],
+        "responses": {
+          "200": { "description": "Collection stats", "content": { "application/json": { "schema": { "type": "object" } } } },
+          "402": { "description": "Payment Required" }
+        }
+      }
+    },
+    "/api/nft/solana/portfolio/{wallet}": {
+      "get": {
+        "operationId": "getSolanaNFTPortfolio",
+        "summary": "Solana NFT Portfolio — wallet holdings",
+        "description": "Get all Solana NFTs owned by a wallet address with metadata, images, collection info.",
+        "tags": ["Solana NFT"],
+        "x-payment-info": {
+          "price": { "mode": "fixed", "currency": "USD", "amount": "0.500000" },
+          "protocols": [{ "x402": {} }]
+        },
+        "parameters": [
+          { "name": "wallet", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Solana wallet address" },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 20 }, "description": "Max NFTs to return (1-100)" },
+          { "name": "offset", "in": "query", "schema": { "type": "integer", "default": 0 }, "description": "Pagination offset" }
+        ],
+        "responses": {
+          "200": { "description": "Solana NFT portfolio", "content": { "application/json": { "schema": { "type": "object" } } } },
+          "402": { "description": "Payment Required" }
+        }
+      }
+    },
+    "/api/nft/solana/token/{mint}": {
+      "get": {
+        "operationId": "getSolanaTokenMetadata",
+        "summary": "Solana Token Metadata — full NFT info",
+        "description": "Get Solana NFT token metadata including name, image, attributes, price, collection info.",
+        "tags": ["Solana NFT"],
+        "x-payment-info": {
+          "price": { "mode": "fixed", "currency": "USD", "amount": "0.200000" },
+          "protocols": [{ "x402": {} }]
+        },
+        "parameters": [
+          { "name": "mint", "in": "path", "required": true, "schema": { "type": "string" }, "description": "NFT mint address" }
+        ],
+        "responses": {
+          "200": { "description": "Token metadata", "content": { "application/json": { "schema": { "type": "object" } } } },
+          "402": { "description": "Payment Required" }
+        }
+      }
+    },
+    "/api/nft/solana/activities/{collection}": {
+      "get": {
+        "operationId": "getSolanaCollectionActivities",
+        "summary": "Solana Collection Activities — sales/bids/listings",
+        "description": "Get recent Solana collection activities from Magic Eden including sales, bids, and listings.",
+        "tags": ["Solana NFT"],
+        "x-payment-info": {
+          "price": { "mode": "fixed", "currency": "USD", "amount": "0.500000" },
+          "protocols": [{ "x402": {} }]
+        },
+        "parameters": [
+          { "name": "collection", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Collection symbol" },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 20 }, "description": "Max activities to return (1-100)" },
+          { "name": "offset", "in": "query", "schema": { "type": "integer", "default": 0 }, "description": "Pagination offset" }
+        ],
+        "responses": {
+          "200": { "description": "Collection activities", "content": { "application/json": { "schema": { "type": "object" } } } },
           "402": { "description": "Payment Required" }
         }
       }
