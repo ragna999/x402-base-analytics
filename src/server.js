@@ -65,6 +65,9 @@ import { getQuote, getPoolInfo, getSupportedDexes } from "./dexQuotes.js";
 
 // Portfolio P&L Tracker
 import { analyzePnL, getPnLSummary } from "./analytics/pnlTracker.js";
+
+// NFT Analytics (Alchemy)
+import { getNFTPortfolio, getCollectionInfo, getFloorPrice, getNFTSales, getNFTOwners } from "./nftAnalytics.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PAY_TO = process.env.PAY_TO_ADDRESS;
@@ -481,6 +484,38 @@ async function main() {
     "GET /api/quote/dexes/:chain": {
       accepts: multiChainWithSol("$0.001"),
       description: "Supported DEXes for a chain — names, types, fee tiers",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+
+    // === NFT ANALYTICS (ALCHEMY) ===
+    "GET /api/nft/portfolio/:address": {
+      accepts: multiChainWithSol("$0.50"),
+      description: "NFT portfolio — all NFTs owned by a wallet with metadata, images, collection info. Base + Ethereum.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+    "GET /api/nft/collection/:chain/:contract": {
+      accepts: multiChainWithSol("$0.25"),
+      description: "Collection metadata + floor price — name, symbol, supply, OpenSea data, social links.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+    "GET /api/nft/floor/:chain/:contract": {
+      accepts: multiChainWithSol("$0.20"),
+      description: "Floor price only — OpenSea + LooksRare floor price for a collection.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+    "GET /api/nft/sales/:chain/:contract": {
+      accepts: multiChainWithSol("$0.50"),
+      description: "Recent NFT sales — marketplace, tokenId, buyer, seller, price, tx hash.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+    "GET /api/nft/owners/:chain/:contract/:tokenId": {
+      accepts: multiChainWithSol("$0.25"),
+      description: "NFT owners — list of wallets owning a specific NFT token.",
       mimeType: "application/json",
       ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
@@ -951,6 +986,63 @@ async function main() {
       res.json(await getSupportedDexes(req.params.chain));
     } catch (err) {
       console.error("Dexes error:", err.message);
+      res.status(500).json({ error: "Failed" });
+    }
+  });
+
+  // === NFT ANALYTICS (ALCHEMY) ===
+  app.get("/api/nft/portfolio/:address", async (req, res) => {
+    try {
+      const { address } = req.params;
+      const chain = req.query.chain || 'base';
+      const limit = Math.min(parseInt(req.query.limit) || 50, 100);
+      const pageKey = req.query.pageKey || undefined;
+      res.json(await getNFTPortfolio(address, chain, limit, pageKey));
+    } catch (err) {
+      console.error("NFT portfolio error:", err.message);
+      res.status(500).json({ error: "Failed" });
+    }
+  });
+
+  app.get("/api/nft/collection/:chain/:contract", async (req, res) => {
+    try {
+      const { chain, contract } = req.params;
+      res.json(await getCollectionInfo(contract, chain));
+    } catch (err) {
+      console.error("NFT collection error:", err.message);
+      res.status(500).json({ error: "Failed" });
+    }
+  });
+
+  app.get("/api/nft/floor/:chain/:contract", async (req, res) => {
+    try {
+      const { chain, contract } = req.params;
+      res.json(await getFloorPrice(contract, chain));
+    } catch (err) {
+      console.error("NFT floor error:", err.message);
+      res.status(500).json({ error: "Failed" });
+    }
+  });
+
+  app.get("/api/nft/sales/:chain/:contract", async (req, res) => {
+    try {
+      const { chain, contract } = req.params;
+      const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+      const fromBlock = req.query.fromBlock || undefined;
+      const toBlock = req.query.toBlock || undefined;
+      res.json(await getNFTSales(contract, chain, limit, fromBlock, toBlock));
+    } catch (err) {
+      console.error("NFT sales error:", err.message);
+      res.status(500).json({ error: "Failed" });
+    }
+  });
+
+  app.get("/api/nft/owners/:chain/:contract/:tokenId", async (req, res) => {
+    try {
+      const { chain, contract, tokenId } = req.params;
+      res.json(await getNFTOwners(contract, tokenId, chain));
+    } catch (err) {
+      console.error("NFT owners error:", err.message);
       res.status(500).json({ error: "Failed" });
     }
   });

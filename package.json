@@ -22,7 +22,9 @@
     "@x402/svm": "^2.14.0",
     "dotenv": "^16.4.0",
     "ethers": "^6.16.0",
-    "express": "^4.21.0"
+    "express": "^4.21.0",
+    "monetizedmcp-sdk": "^0.1.23",
+    "uuid": "^14.0.0"
   },
   "engines": {
     "node": ">=18"
