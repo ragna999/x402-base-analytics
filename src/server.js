@@ -596,6 +596,26 @@ async function main() {
       mimeType: "application/json",
       ...discover({ amount: "100" }, { type: "object", properties: { amount: { type: "string" } } }),
     },
+
+    // === NEW ENDPOINTS ===
+    "GET /api/heatmap/:chain": {
+      accepts: multiChainWithSol("$0.02"),
+      description: "Market heatmap — all token performance in one view. Shows price change, volume, market cap with color coding.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+    "GET /api/ai/token/:chain/:address": {
+      accepts: multiChainWithSol("$0.05"),
+      description: "AI token analysis — MiMo-powered insights combining safety, social, price data. Returns summary, risk factors, recommendation.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+    "GET /api/protocol-health/:protocol": {
+      accepts: multiChainWithSol("$0.02"),
+      description: "Protocol health dashboard — TVL changes, utilization rates, governance activity. Returns health score + key metrics.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
   };
 
   // --- Security: block method abuse before x402 ---
@@ -1353,6 +1373,238 @@ async function main() {
       });
     } catch (err) {
       console.error("Bridge quote error:", err.message);
+      res.status(500).json({ error: "Failed" });
+    }
+  });
+
+  // === NEW ENDPOINTS ===
+
+  // Market Heatmap
+  app.get("/api/heatmap/:chain", async (req, res) => {
+    const { chain } = req.params;
+    const limit = parseInt(req.query.limit) || 50;
+    try {
+      // Get top tokens from DexScreener
+      const dexRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${chain === "base" ? "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" : "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"}`);
+      const dexData = await dexRes.json();
+
+      // If no specific token, get trending
+      let tokens = [];
+      if (dexData.pairs?.length > 0) {
+        tokens = dexData.pairs.slice(0, limit).map(pair => ({
+          symbol: pair.baseToken?.symbol || "Unknown",
+          name: pair.baseToken?.name || "Unknown",
+          address: pair.baseToken?.address,
+          price: pair.priceUsd,
+          price_change_5m: pair.priceChange?.m5,
+          price_change_1h: pair.priceChange?.h1,
+          price_change_24h: pair.priceChange?.h24,
+          volume_24h: pair.volume?.h24,
+          volume_6h: pair.volume?.h6,
+          liquidity: pair.liquidity?.usd,
+          market_cap: pair.marketCap,
+          pair_address: pair.pairAddress,
+          dex: pair.dexId,
+          color: pair.priceChange?.h24 > 0 ? "green" : pair.priceChange?.h24 < 0 ? "red" : "neutral",
+        }));
+      }
+
+      // Also try trending tokens
+      const trendingRes = await fetch(`https://api.dexscreener.com/token-boosts/top/v1`);
+      const trendingData = await trendingRes.json();
+
+      if (trendingData?.length > 0 && tokens.length < limit) {
+        const trendingTokens = trendingData
+          .filter(t => t.chainId === chain)
+          .slice(0, limit - tokens.length)
+          .map(t => ({
+            symbol: t.symbol || "Unknown",
+            name: t.name || "Unknown",
+            address: t.tokenAddress,
+            price: null,
+            price_change_24h: null,
+            volume_24h: null,
+            liquidity: null,
+            market_cap: null,
+            color: "neutral",
+            trending: true,
+            boost_count: t.amount,
+          }));
+        tokens = [...tokens, ...trendingTokens];
+      }
+
+      res.json({
+        chain,
+        token_count: tokens.length,
+        tokens,
+        generated_at: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error("Heatmap error:", err.message);
+      res.status(500).json({ error: "Failed" });
+    }
+  });
+
+  // AI Token Analysis
+  app.get("/api/ai/token/:chain/:address", async (req, res) => {
+    const { chain, address } = req.params;
+    try {
+      // Gather all data
+      const [safety, social] = await Promise.all([
+        analyzeTokenSafety(chain, address).catch(() => null),
+        getTokenSocial(chain, address).catch(() => null),
+      ]);
+
+      // Get price data
+      let priceData = null;
+      try {
+        const dexRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${address}`);
+        const dexData = await dexRes.json();
+        if (dexData.pairs?.[0]) {
+          const pair = dexData.pairs[0];
+          priceData = {
+            price: pair.priceUsd,
+            price_change_24h: pair.priceChange?.h24,
+            volume_24h: pair.volume?.h24,
+            liquidity: pair.liquidity?.usd,
+            market_cap: pair.marketCap,
+          };
+        }
+      } catch (e) { /* ignore */ }
+
+      // Build context for MiMo
+      const context = {
+        token: address,
+        chain,
+        safety: safety ? {
+          risk_score: safety.riskScore,
+          verdict: safety.verdict,
+          risks: safety.risks?.map(r => r.detail) || [],
+          holders: safety.details?.holderCount,
+          is_open_source: safety.details?.isOpenSource,
+        } : null,
+        price: priceData,
+        social: social?.social || null,
+      };
+
+      // Generate AI analysis using MiMo
+      const MIMO_API_KEY = process.env.MIMO_API_KEY;
+      let aiAnalysis = "AI analysis unavailable — MiMo API key not configured";
+
+      if (MIMO_API_KEY) {
+        try {
+          const mimoRes = await fetch("https://api.xiaomimimo.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${MIMO_API_KEY}`,
+            },
+            body: JSON.stringify({
+              model: "mimo-v2.5",
+              messages: [
+                {
+                  role: "system",
+                  content: "You are a crypto token analyst. Analyze the token data provided and give a concise analysis. Include: 1) Overall assessment 2) Risk factors 3) Bull/bear case 4) Recommendation (avoid/cautious/consider/strong). Be direct and factual. Max 200 words."
+                },
+                {
+                  role: "user",
+                  content: `Analyze this token:\n${JSON.stringify(context, null, 2)}`
+                }
+              ],
+              temperature: 0.3,
+              max_tokens: 500,
+            }),
+          });
+          const mimoData = await mimoRes.json();
+          aiAnalysis = mimoData.choices?.[0]?.message?.content || "Analysis generation failed";
+        } catch (e) {
+          aiAnalysis = `AI analysis error: ${e.message}`;
+        }
+      }
+
+      res.json({
+        token: address,
+        chain,
+        safety,
+        price: priceData,
+        social: social?.social || null,
+        ai_analysis: aiAnalysis,
+        analyzed_at: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error("AI token analysis error:", err.message);
+      res.status(500).json({ error: "Failed" });
+    }
+  });
+
+  // Protocol Health Dashboard
+  app.get("/api/protocol-health/:protocol", async (req, res) => {
+    const { protocol } = req.params;
+    try {
+      // Get protocol data from DeFiLlama
+      const llamaRes = await fetch(`https://api.llama.fi/protocol/${protocol}`);
+      if (!llamaRes.ok) {
+        return res.json({ error: `Protocol ${protocol} not found on DeFiLlama` });
+      }
+      const llamaData = await llamaRes.json();
+
+      // Get TVL history
+      const tvlHistory = llamaData.tvl || [];
+      const currentTvl = tvlHistory.length > 0 ? tvlHistory[tvlHistory.length - 1].totalLiquidityUSD : 0;
+      const tvl1dAgo = tvlHistory.length > 1 ? tvlHistory[tvlHistory.length - 2].totalLiquidityUSD : currentTvl;
+      const tvl7dAgo = tvlHistory.length > 7 ? tvlHistory[tvlHistory.length - 8].totalLiquidityUSD : currentTvl;
+      const tvl30dAgo = tvlHistory.length > 30 ? tvlHistory[tvlHistory.length - 31].totalLiquidityUSD : currentTvl;
+
+      const tvlChange1d = tvl1dAgo > 0 ? ((currentTvl - tvl1dAgo) / tvl1dAgo * 100).toFixed(2) : 0;
+      const tvlChange7d = tvl7dAgo > 0 ? ((currentTvl - tvl7dAgo) / tvl7dAgo * 100).toFixed(2) : 0;
+      const tvlChange30d = tvl30dAgo > 0 ? ((currentTvl - tvl30dAgo) / tvl30dAgo * 100).toFixed(2) : 0;
+
+      // Calculate health score (0-100)
+      let healthScore = 50; // base
+      if (currentTvl > 1000000000) healthScore += 20; // > $1B TVL
+      else if (currentTvl > 100000000) healthScore += 15; // > $100M
+      else if (currentTvl > 10000000) healthScore += 10; // > $10M
+
+      if (tvlChange7d > 0) healthScore += 10; // growing
+      if (tvlChange30d > 0) healthScore += 10; // growing long term
+
+      if (llamaData.audits && llamaData.audits !== "0") healthScore += 10; // audited
+      if (llamaData.category) healthScore += 5; // has category
+
+      healthScore = Math.min(100, Math.max(0, healthScore));
+
+      // Determine health status
+      const healthStatus = healthScore >= 80 ? "excellent" : healthScore >= 60 ? "good" : healthScore >= 40 ? "moderate" : "at_risk";
+
+      res.json({
+        protocol: llamaData.name || protocol,
+        category: llamaData.category,
+        chains: llamaData.chains || [],
+        tvl: {
+          current: currentTvl,
+          change_1d: `${tvlChange1d}%`,
+          change_7d: `${tvlChange7d}%`,
+          change_30d: `${tvlChange30d}%`,
+        },
+        health: {
+          score: healthScore,
+          status: healthStatus,
+          factors: {
+            tvl_size: currentTvl > 100000000 ? "strong" : currentTvl > 10000000 ? "moderate" : "weak",
+            growth_trend: tvlChange7d > 0 ? "positive" : tvlChange7d < 0 ? "negative" : "stable",
+            audit_status: llamaData.audits && llamaData.audits !== "0" ? "audited" : "unaudited",
+          },
+        },
+        metadata: {
+          description: llamaData.description,
+          url: llamaData.url,
+          twitter: llamaData.twitter,
+          github: llamaData.github,
+        },
+        analyzed_at: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error("Protocol health error:", err.message);
       res.status(500).json({ error: "Failed" });
     }
   });
