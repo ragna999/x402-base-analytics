@@ -571,31 +571,11 @@ async function main() {
       ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
 
-    // === NEW ENRICHMENT ENDPOINTS ===
-    "GET /api/enrich/wallet/:chain/:address": {
-      accepts: multiChainWithSol("$0.05"),
-      description: "Full wallet enrichment — portfolio, risk, DeFi positions, recent activity, whale status, bot detection.",
-      mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
-    },
-    "GET /api/enrich/token/:chain/:address": {
-      accepts: multiChainWithSol("$0.05"),
-      description: "Token deep dive — price, liquidity, holders, rug score, top holders, recent large trades, AI summary.",
-      mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
-    },
-    "GET /api/enrich/tx/:chain/:hash": {
-      accepts: multiChainWithSol("$0.05"),
-      description: "Transaction analysis — MEV detection, slippage analysis, protocol identification, gas optimization tips.",
-      mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
-    },
-    "GET /api/bridge/quotes/:from/:to/:amount": {
-      accepts: multiChainWithSol("$0.02"),
-      description: "Cross-chain bridge quotes — compares routes across bridges, shows fees, time, and best option.",
-      mimeType: "application/json",
-      ...discover({ amount: "100" }, { type: "object", properties: { amount: { type: "string" } } }),
-    },
+    // === NEW ENRICHMENT ENDPOINTS (TEMP FREE FOR TESTING) ===
+    // "GET /api/enrich/wallet/:chain/:address": { ... },
+    // "GET /api/enrich/token/:chain/:address": { ... },
+    // "GET /api/enrich/tx/:chain/:hash": { ... },
+    // "GET /api/bridge/quotes/:from/:to/:amount": { ... },
   };
 
   // --- Security: block method abuse before x402 ---
