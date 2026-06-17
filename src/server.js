@@ -596,26 +596,6 @@ async function main() {
       mimeType: "application/json",
       ...discover({ amount: "100" }, { type: "object", properties: { amount: { type: "string" } } }),
     },
-
-    // === NEW ENDPOINTS (TEMP FREE FOR TESTING) ===
-    "GET /api/heatmap/:chain": {
-      accepts: multiChainWithSol("$0.00"),
-      description: "Market heatmap — all token performance in one view. Shows price change, volume, market cap with color coding.",
-      mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
-    },
-    "GET /api/ai/token/:chain/:address": {
-      accepts: multiChainWithSol("$0.00"),
-      description: "AI token analysis — MiMo-powered insights combining safety, social, price data. Returns summary, risk factors, recommendation.",
-      mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
-    },
-    "GET /api/protocol-health/:protocol": {
-      accepts: multiChainWithSol("$0.00"),
-      description: "Protocol health dashboard — TVL changes, utilization rates, governance activity. Returns health score + key metrics.",
-      mimeType: "application/json",
-      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
-    },
   };
 
   // --- Security: block method abuse before x402 ---
