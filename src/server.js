@@ -191,7 +191,7 @@ async function main() {
       description: "Rebalance recommendation — compare your current yield vs best available",
       mimeType: "application/json",
       ...discover(
-        { protocol: { description: "Current protocol", type: "string" }, apy: { description: "Current APY", type: "string" } },
+        { protocol: "aave-v3", apy: "5.5" },
         { type: "object", properties: { protocol: { type: "string" }, apy: { type: "string" } }, required: ["protocol", "apy"] }
       ),
     },
@@ -474,7 +474,7 @@ async function main() {
       description: "Best DEX swap quote — compares Aerodrome, Uniswap V3, SushiSwap, PancakeSwap, BaseSwap. Returns best route + alternatives.",
       mimeType: "application/json",
       ...discover(
-        { amount: { description: "Amount of fromToken to swap", type: "string" } },
+        { amount: "1.0" },
         { type: "object", properties: { amount: { type: "string" } } }
       ),
     },
