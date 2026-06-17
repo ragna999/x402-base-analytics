@@ -1384,57 +1384,27 @@ async function main() {
     const { chain } = req.params;
     const limit = parseInt(req.query.limit) || 50;
     try {
-      // Get trending tokens from DexScreener
-      const trendingRes = await fetch(`https://api.dexscreener.com/token-boosts/top/v1`);
-      const trendingData = await trendingRes.json();
-
-      // Get top pairs for the chain
       let tokens = [];
 
-      // Method 1: Get trending tokens for this chain
-      if (trendingData?.length > 0) {
-        const chainTokens = trendingData
-          .filter(t => t.chainId === chain)
-          .slice(0, limit);
+      // Method 1: Search for tokens on this chain
+      const searchRes = await fetch(`https://api.dexscreener.com/latest/dex/search?q=${chain}`);
+      const searchData = await searchRes.json();
 
-        // Fetch price data for each token
-        for (const t of chainTokens.slice(0, 20)) { // limit to 20 to avoid rate limits
-          try {
-            const dexRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${t.tokenAddress}`);
-            const dexData = await dexRes.json();
-            if (dexData.pairs?.[0]) {
-              const pair = dexData.pairs[0];
-              tokens.push({
-                symbol: pair.baseToken?.symbol || t.symbol || "Unknown",
-                name: pair.baseToken?.name || t.name || "Unknown",
-                address: t.tokenAddress,
-                price: pair.priceUsd,
-                price_change_5m: pair.priceChange?.m5,
-                price_change_1h: pair.priceChange?.h1,
-                price_change_24h: pair.priceChange?.h24,
-                volume_24h: pair.volume?.h24,
-                volume_6h: pair.volume?.h6,
-                liquidity: pair.liquidity?.usd,
-                market_cap: pair.marketCap,
-                pair_address: pair.pairAddress,
-                dex: pair.dexId,
-                color: pair.priceChange?.h24 > 0 ? "green" : pair.priceChange?.h24 < 0 ? "red" : "neutral",
-                boost_count: t.amount,
-              });
-            }
-          } catch (e) { /* skip */ }
-        }
-      }
+      if (searchData.pairs?.length > 0) {
+        // Filter by chain and get unique tokens
+        const chainPairs = searchData.pairs.filter(p => p.chainId === chain);
+        const seen = new Set();
 
-      // Method 2: If no trending, try search
-      if (tokens.length === 0) {
-        const searchRes = await fetch(`https://api.dexscreener.com/latest/dex/search?q=${chain}`);
-        const searchData = await searchRes.json();
-        if (searchData.pairs?.length > 0) {
-          tokens = searchData.pairs.slice(0, limit).map(pair => ({
+        for (const pair of chainPairs) {
+          if (tokens.length >= limit) break;
+          const addr = pair.baseToken?.address;
+          if (seen.has(addr)) continue;
+          seen.add(addr);
+
+          tokens.push({
             symbol: pair.baseToken?.symbol || "Unknown",
             name: pair.baseToken?.name || "Unknown",
-            address: pair.baseToken?.address,
+            address: addr,
             price: pair.priceUsd,
             price_change_5m: pair.priceChange?.m5,
             price_change_1h: pair.priceChange?.h1,
@@ -1446,7 +1416,46 @@ async function main() {
             pair_address: pair.pairAddress,
             dex: pair.dexId,
             color: pair.priceChange?.h24 > 0 ? "green" : pair.priceChange?.h24 < 0 ? "red" : "neutral",
-          }));
+          });
+        }
+      }
+
+      // Method 2: Also get trending tokens
+      if (tokens.length < limit) {
+        const trendingRes = await fetch(`https://api.dexscreener.com/token-boosts/top/v1`);
+        const trendingData = await trendingRes.json();
+
+        if (trendingData?.length > 0) {
+          const chainTokens = trendingData
+            .filter(t => t.chainId === chain)
+            .slice(0, limit - tokens.length);
+
+          for (const t of chainTokens) {
+            try {
+              const dexRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${t.tokenAddress}`);
+              const dexData = await dexRes.json();
+              if (dexData.pairs?.[0]) {
+                const pair = dexData.pairs[0];
+                tokens.push({
+                  symbol: pair.baseToken?.symbol || t.symbol || "Unknown",
+                  name: pair.baseToken?.name || t.name || "Unknown",
+                  address: t.tokenAddress,
+                  price: pair.priceUsd,
+                  price_change_5m: pair.priceChange?.m5,
+                  price_change_1h: pair.priceChange?.h1,
+                  price_change_24h: pair.priceChange?.h24,
+                  volume_24h: pair.volume?.h24,
+                  volume_6h: pair.volume?.h6,
+                  liquidity: pair.liquidity?.usd,
+                  market_cap: pair.marketCap,
+                  pair_address: pair.pairAddress,
+                  dex: pair.dexId,
+                  color: pair.priceChange?.h24 > 0 ? "green" : pair.priceChange?.h24 < 0 ? "red" : "neutral",
+                  boost_count: t.amount,
+                });
+              }
+            } catch (e) { /* skip */ }
+          }
         }
       }
 
