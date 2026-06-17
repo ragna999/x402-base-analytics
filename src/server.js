@@ -1234,35 +1234,31 @@ async function main() {
     try {
       // Fetch tx data from chain explorer
       const chainConfig = CHAINS[chain];
-      if (!chainConfig?.explorerApi) {
+      if (!chainConfig?.explorer) {
         return res.json({ error: `Chain ${chain} not supported for tx analysis` });
       }
 
-      const txUrl = `${chainConfig.explorerApi}/api?module=proxy&action=eth_getTransactionByHash&txhash=${hash}`;
-      const receiptUrl = `${chainConfig.explorerApi}/api?module=proxy&action=eth_getTransactionReceipt&txhash=${hash}`;
-
-      const [txRes, receiptRes] = await Promise.all([
-        fetch(txUrl).then(r => r.json()).catch(() => null),
-        fetch(receiptUrl).then(r => r.json()).catch(() => null),
+      // Use Blockscout API for tx data
+      const txUrl = `${chainConfig.explorer}/transactions/${hash}`;
+      const [txRes] = await Promise.all([
+        fetch(txUrl, { headers: { "Accept": "application/json" } }).then(r => r.json()).catch(() => null),
       ]);
 
-      const tx = txRes?.result;
-      const receipt = receiptRes?.result;
-
-      if (!tx) {
+      if (!txRes || txRes.error) {
         return res.json({ error: "Transaction not found" });
       }
 
-      // Basic analysis
-      const value = parseInt(tx.value, 16) / 1e18;
-      const gasUsed = receipt ? parseInt(receipt.gasUsed, 16) : null;
-      const gasPrice = parseInt(tx.gasPrice, 16) / 1e9; // Gwei
-      const status = receipt?.status === "0x1" ? "success" : "failed";
+      const tx = txRes;
+      const value = parseFloat(tx.value || 0) / 1e18;
+      const gasUsed = tx.gas_used || null;
+      const gasPrice = parseFloat(tx.gas_price || 0) / 1e9; // Gwei
+      const status = tx.status === "ok" ? "success" : tx.status || "unknown";
 
-      // Detect if it's a swap (common method IDs)
-      const methodId = tx.input?.slice(0, 10);
-      const isSwap = ["0x38ed1739", "0x8803dbee", "0x7ff36ab5", "0x18cbafe5"].includes(methodId);
-      const isTransfer = methodId === "0xa9059cbb";
+      // Detect method from decoded input or method ID
+      const methodId = tx.method_call?.slice(0, 10) || tx.input?.slice(0, 10);
+      const methodName = tx.decoded_input?.method_call || null;
+      const isSwap = methodName?.toLowerCase().includes("swap") || false;
+      const isTransfer = methodName?.toLowerCase().includes("transfer") || false;
 
       // MEV detection heuristics
       const mevRisk = gasPrice > 100 ? "high" : gasPrice > 50 ? "medium" : "low";
@@ -1270,16 +1266,18 @@ async function main() {
       res.json({
         tx_hash: hash,
         chain,
-        from: tx.from,
-        to: tx.to,
+        from: tx.from?.hash || tx.from,
+        to: tx.to?.hash || tx.to,
         value: `${value.toFixed(6)} ETH`,
         status,
+        block: tx.block,
+        timestamp: tx.timestamp,
         gas_used: gasUsed,
         gas_price_gwei: gasPrice.toFixed(2),
-        method: isSwap ? "swap" : isTransfer ? "transfer" : "other",
+        method: isSwap ? "swap" : isTransfer ? "transfer" : methodName || "other",
+        method_id: methodId,
         mev_risk: mevRisk,
-        is_contract_creation: tx.to === null,
-        input_data_length: tx.input?.length || 0,
+        nonce: tx.nonce,
         analyzed_at: new Date().toISOString(),
       });
     } catch (err) {
