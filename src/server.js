@@ -1384,53 +1384,70 @@ async function main() {
     const { chain } = req.params;
     const limit = parseInt(req.query.limit) || 50;
     try {
-      // Get top tokens from DexScreener
-      const dexRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${chain === "base" ? "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" : "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"}`);
-      const dexData = await dexRes.json();
-
-      // If no specific token, get trending
-      let tokens = [];
-      if (dexData.pairs?.length > 0) {
-        tokens = dexData.pairs.slice(0, limit).map(pair => ({
-          symbol: pair.baseToken?.symbol || "Unknown",
-          name: pair.baseToken?.name || "Unknown",
-          address: pair.baseToken?.address,
-          price: pair.priceUsd,
-          price_change_5m: pair.priceChange?.m5,
-          price_change_1h: pair.priceChange?.h1,
-          price_change_24h: pair.priceChange?.h24,
-          volume_24h: pair.volume?.h24,
-          volume_6h: pair.volume?.h6,
-          liquidity: pair.liquidity?.usd,
-          market_cap: pair.marketCap,
-          pair_address: pair.pairAddress,
-          dex: pair.dexId,
-          color: pair.priceChange?.h24 > 0 ? "green" : pair.priceChange?.h24 < 0 ? "red" : "neutral",
-        }));
-      }
-
-      // Also try trending tokens
+      // Get trending tokens from DexScreener
       const trendingRes = await fetch(`https://api.dexscreener.com/token-boosts/top/v1`);
       const trendingData = await trendingRes.json();
 
-      if (trendingData?.length > 0 && tokens.length < limit) {
-        const trendingTokens = trendingData
+      // Get top pairs for the chain
+      let tokens = [];
+
+      // Method 1: Get trending tokens for this chain
+      if (trendingData?.length > 0) {
+        const chainTokens = trendingData
           .filter(t => t.chainId === chain)
-          .slice(0, limit - tokens.length)
-          .map(t => ({
-            symbol: t.symbol || "Unknown",
-            name: t.name || "Unknown",
-            address: t.tokenAddress,
-            price: null,
-            price_change_24h: null,
-            volume_24h: null,
-            liquidity: null,
-            market_cap: null,
-            color: "neutral",
-            trending: true,
-            boost_count: t.amount,
+          .slice(0, limit);
+
+        // Fetch price data for each token
+        for (const t of chainTokens.slice(0, 20)) { // limit to 20 to avoid rate limits
+          try {
+            const dexRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${t.tokenAddress}`);
+            const dexData = await dexRes.json();
+            if (dexData.pairs?.[0]) {
+              const pair = dexData.pairs[0];
+              tokens.push({
+                symbol: pair.baseToken?.symbol || t.symbol || "Unknown",
+                name: pair.baseToken?.name || t.name || "Unknown",
+                address: t.tokenAddress,
+                price: pair.priceUsd,
+                price_change_5m: pair.priceChange?.m5,
+                price_change_1h: pair.priceChange?.h1,
+                price_change_24h: pair.priceChange?.h24,
+                volume_24h: pair.volume?.h24,
+                volume_6h: pair.volume?.h6,
+                liquidity: pair.liquidity?.usd,
+                market_cap: pair.marketCap,
+                pair_address: pair.pairAddress,
+                dex: pair.dexId,
+                color: pair.priceChange?.h24 > 0 ? "green" : pair.priceChange?.h24 < 0 ? "red" : "neutral",
+                boost_count: t.amount,
+              });
+            }
+          } catch (e) { /* skip */ }
+        }
+      }
+
+      // Method 2: If no trending, try search
+      if (tokens.length === 0) {
+        const searchRes = await fetch(`https://api.dexscreener.com/latest/dex/search?q=${chain}`);
+        const searchData = await searchRes.json();
+        if (searchData.pairs?.length > 0) {
+          tokens = searchData.pairs.slice(0, limit).map(pair => ({
+            symbol: pair.baseToken?.symbol || "Unknown",
+            name: pair.baseToken?.name || "Unknown",
+            address: pair.baseToken?.address,
+            price: pair.priceUsd,
+            price_change_5m: pair.priceChange?.m5,
+            price_change_1h: pair.priceChange?.h1,
+            price_change_24h: pair.priceChange?.h24,
+            volume_24h: pair.volume?.h24,
+            volume_6h: pair.volume?.h6,
+            liquidity: pair.liquidity?.usd,
+            market_cap: pair.marketCap,
+            pair_address: pair.pairAddress,
+            dex: pair.dexId,
+            color: pair.priceChange?.h24 > 0 ? "green" : pair.priceChange?.h24 < 0 ? "red" : "neutral",
           }));
-        tokens = [...tokens, ...trendingTokens];
+        }
       }
 
       res.json({
