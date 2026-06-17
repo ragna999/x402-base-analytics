@@ -548,6 +548,28 @@ async function main() {
       mimeType: "application/json",
       ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
+
+    // === ARBITRAGE SCANNER ===
+    "GET /api/arb/scan": {
+      accepts: multiChainWithSol("$0.01"),
+      description: "Arbitrage scanner — scans DEX pairs for price discrepancies. Returns opportunities with profit estimates.",
+      mimeType: "application/json",
+      ...discover({ amount: "1000" }, { type: "object", properties: { amount: { type: "string" } } }),
+    },
+    "GET /api/arb/tokens": {
+      accepts: multiChainWithSol("$0.01"),
+      description: "Supported tokens and DEXes for arbitrage scanning.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+
+    // === API DIRECTORY ===
+    "GET /api/protocols": {
+      accepts: multiChainWithSol("$0.01"),
+      description: "Full API directory — all available endpoints, supported chains, and categories.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
   };
 
   // --- Security: block method abuse before x402 ---
