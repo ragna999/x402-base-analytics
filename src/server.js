@@ -579,7 +579,15 @@ async function main() {
 
   // --- Middleware ---
   app.use(cors());
-  app.use(paymentMiddleware(paymentConfig, resourceServer));
+  // Initialize resource server manually BEFORE middleware to catch errors properly
+  // (prevents unhandled rejection crash from eager init in paymentMiddleware)
+  try {
+    await resourceServer.initialize();
+    console.log("x402 resource server initialized");
+  } catch (e) {
+    console.warn("x402 resource server init failed (non-fatal, will retry):", e.message);
+  }
+  app.use(paymentMiddleware(paymentConfig, resourceServer, undefined, undefined, false));
 
   // === FREE ROUTES ===
   const __filename = fileURLToPath(import.meta.url);
