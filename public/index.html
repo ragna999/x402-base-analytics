@@ -135,17 +135,16 @@
     .hero::before {
       content: '';
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 800px;
-      height: 800px;
+      top: -200px;
+      right: -200px;
+      width: 600px;
+      height: 600px;
       background: 
         /* Concentric circles */
-        radial-gradient(circle at center, transparent 0%, transparent 19%, rgba(255,255,255,0.03) 19.5%, transparent 20%, transparent 39%, rgba(255,255,255,0.03) 39.5%, transparent 40%, transparent 59%, rgba(255,255,255,0.03) 59.5%, transparent 60%, transparent 79%, rgba(255,255,255,0.03) 79.5%, transparent 80%),
+        radial-gradient(circle at center, transparent 0%, transparent 19%, rgba(255,255,255,0.04) 19.5%, transparent 20%, transparent 39%, rgba(255,255,255,0.04) 39.5%, transparent 40%, transparent 59%, rgba(255,255,255,0.04) 59.5%, transparent 60%, transparent 79%, rgba(255,255,255,0.04) 79.5%, transparent 80%),
         /* Cross lines */
-        linear-gradient(0deg, transparent 49.5%, rgba(255,255,255,0.03) 49.5%, rgba(255,255,255,0.03) 50.5%, transparent 50.5%),
-        linear-gradient(90deg, transparent 49.5%, rgba(255,255,255,0.03) 49.5%, rgba(255,255,255,0.03) 50.5%, transparent 50.5%);
+        linear-gradient(0deg, transparent 49.5%, rgba(255,255,255,0.04) 49.5%, rgba(255,255,255,0.04) 50.5%, transparent 50.5%),
+        linear-gradient(90deg, transparent 49.5%, rgba(255,255,255,0.04) 49.5%, rgba(255,255,255,0.04) 50.5%, transparent 50.5%);
       border-radius: 50%;
       pointer-events: none;
       z-index: 0;
@@ -156,13 +155,13 @@
     .hero::after {
       content: '';
       position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 400px;
+      top: -200px;
+      right: -200px;
+      width: 300px;
       height: 2px;
-      background: linear-gradient(90deg, rgba(255,255,255,0.15), transparent);
+      background: linear-gradient(90deg, rgba(255,255,255,0.2), transparent);
       transform-origin: left center;
-      transform: translate(0, -50%);
+      transform: translate(300px, 300px);
       pointer-events: none;
       z-index: 0;
       animation: radarSweep 4s linear infinite;
@@ -191,11 +190,11 @@
       z-index: 0;
     }
 
-    .radar-blip:nth-child(1) { top: 25%; left: 35%; animation-delay: 0s; }
-    .radar-blip:nth-child(2) { top: 35%; left: 65%; animation-delay: 0.5s; }
-    .radar-blip:nth-child(3) { top: 55%; left: 45%; animation-delay: 1s; }
-    .radar-blip:nth-child(4) { top: 45%; left: 25%; animation-delay: 1.5s; }
-    .radar-blip:nth-child(5) { top: 65%; left: 70%; animation-delay: 2s; }
+    .radar-blip:nth-child(1) { top: 10%; right: 25%; animation-delay: 0s; }
+    .radar-blip:nth-child(2) { top: 20%; right: 15%; animation-delay: 0.5s; }
+    .radar-blip:nth-child(3) { top: 15%; right: 35%; animation-delay: 1s; }
+    .radar-blip:nth-child(4) { top: 5%; right: 20%; animation-delay: 1.5s; }
+    .radar-blip:nth-child(5) { top: 25%; right: 30%; animation-delay: 2s; }
 
     @keyframes blipPulse {
       0%, 100% { opacity: 0; transform: scale(1); }
