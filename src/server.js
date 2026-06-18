@@ -441,6 +441,20 @@ async function main() {
       ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
 
+    // === BLOCK CHECKER ===
+    "GET /api/blocks": {
+      accepts: multiChainWithSol("$0.001"),
+      description: "Latest block data across multiple chains — BTC, ETH, SOL, Base, Arbitrum, Polygon, Avalanche, BNB",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+    "GET /api/blocks/:chain": {
+      accepts: multiChainWithSol("$0.001"),
+      description: "Latest block data for a specific chain",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+
     // === TOKEN APPROVALS SCANNER ===
     "GET /api/approvals/:chain/:address": {
       accepts: multiChainWithSol("$0.02"),
