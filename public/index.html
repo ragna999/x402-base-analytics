@@ -7,394 +7,356 @@
   <link rel="icon" type="image/jpeg" href="/favicon.jpg">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <meta name="base:app_id" content="6a269dfdbac148992eb51dc4" />
-  <meta name="description" content="AI-powered on-chain analytics across Base, Arbitrum, and Solana. 57 REST endpoints including Portfolio P&L tracker, smart money tracking, whale alerts, token intelligence, DeFi yields, Solana degen tools, social signals, gas tracker, approvals scanner.">
+  <meta name="description" content="AI-powered on-chain analytics across Base, Arbitrum, and Solana. 82 REST endpoints including Portfolio P&L tracker, smart money tracking, whale alerts, token intelligence, DeFi yields, Solana degen tools, social signals, gas tracker, approvals scanner, block checker.">
   <meta name="author" content="RagRadar">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@0xragna">
   <meta name="twitter:creator" content="@0xragna">
   <meta name="twitter:title" content="RagRadar — Multi-Chain Intelligence">
-  <meta name="twitter:description" content="AI-powered on-chain analytics across Base, Arbitrum, Solana. 57 endpoints, P&L tracker, x402 payments.">
+  <meta name="twitter:description" content="AI-powered on-chain analytics across Base, Arbitrum, Solana. 82 endpoints, P&L tracker, x402 payments.">
   <meta property="og:title" content="RagRadar — Multi-Chain Intelligence">
-  <meta property="og:description" content="AI-powered on-chain analytics across Base, Arbitrum, Solana. 57 endpoints, P&L tracker, x402 payments.">
+  <meta property="og:description" content="AI-powered on-chain analytics across Base, Arbitrum, Solana. 82 endpoints, P&L tracker, x402 payments.">
   <meta property="og:type" content="website">
   <style>
-    /* === WINDOWS 95/98 THEME === */
-    @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
-    
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
     :root {
-      --win-bg: #c0c0c0;
-      --win-dark: #808080;
-      --win-darker: #404040;
-      --win-light: #ffffff;
-      --win-blue: #000080;
-      --win-teal: #008080;
-      --win-navy: #000080;
-      --win-text: #000000;
-      --win-highlight: #0000ff;
-      --title-active: linear-gradient(90deg, #000080, #1084d0);
-      --title-inactive: linear-gradient(90deg, #808080, #b0b0b0);
-      --border-raised: outset;
-      --border-sunken: inset;
-      --shadow-raised: 2px 2px 0px #000;
-      --shadow-sunken: inset 1px 1px 0px #808080;
-      --code-bg: #ffffcc;
-      --green: #008000;
-      --red: #ff0000;
+      --bg: #000;
+      --bg-secondary: #0a0a0a;
+      --bg-tertiary: #111;
+      --bg-card: #111;
+      --border: #222;
+      --border-light: #333;
+      --text: #fff;
+      --text-secondary: #f5f5f5;
+      --text-muted: #999;
+      --text-dim: #666;
+      --accent: #fff;
+      --green: #00ff88;
+      --red: #ff4444;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
-    
-    * { 
-      margin: 0; 
-      padding: 0; 
-      box-sizing: border-box; 
-    }
-    
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
     body {
-      font-family: 'MS Sans Serif', 'VT323', 'Courier New', monospace;
-      font-size: 12px;
-      background: var(--win-teal);
-      color: var(--win-text);
-      line-height: 1.4;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
       min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
-    /* === DESKTOP === */
-    .desktop {
-      min-height: 100vh;
-      padding: 20px;
-      background: linear-gradient(135deg, #008080, #006060);
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    /* === WINDOWS === */
-    .window {
-      background: var(--win-bg);
-      border: 2px outset #dfdfdf;
-      box-shadow: 2px 2px 0px #000;
-      max-width: 1000px;
-      margin: 0 auto;
-      width: 100%;
-    }
-
-    .title-bar {
-      background: var(--title-active);
-      color: white;
-      padding: 3px 4px;
+    /* === NAVBAR === */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 64px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-weight: bold;
+    }
+
+    .nav-logo {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .nav-logo span {
+      color: var(--text-muted);
+      font-weight: 400;
       font-size: 12px;
-      user-select: none;
+      margin-left: 8px;
+      vertical-align: middle;
     }
 
-    .title-bar-text {
+    .nav-links {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 32px;
     }
 
-    .title-bar-controls {
-      display: flex;
-      gap: 2px;
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
     }
 
-    .title-bar-controls button {
-      width: 16px;
-      height: 14px;
-      border: 1px outset #dfdfdf;
-      background: var(--win-bg);
-      font-size: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      padding: 0;
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta {
+      background: var(--text) !important;
+      color: var(--bg) !important;
+      padding: 8px 20px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: opacity 0.2s;
     }
 
-    .window-body {
-      padding: 10px;
-    }
+    .nav-cta:hover { opacity: 0.85; }
 
-    /* === WINDOW ICONS === */
-    .window-icon {
-      width: 16px;
-      height: 16px;
-      display: inline-block;
-      background-size: contain;
-    }
-
-    /* === TASKBAR === */
-    .taskbar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 28px;
-      background: var(--win-bg);
-      border-top: 2px outset #dfdfdf;
-      display: flex;
-      align-items: center;
-      padding: 2px 4px;
-      z-index: 1000;
-      gap: 4px;
-    }
-
-    .start-button {
-      background: var(--win-bg);
-      border: 2px outset #dfdfdf;
-      padding: 2px 6px;
-      font-weight: bold;
-      font-size: 12px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      height: 22px;
-    }
-
-    .start-button:active {
-      border: 2px inset #dfdfdf;
-    }
-
-    .taskbar-items {
-      flex: 1;
-      display: flex;
-      gap: 2px;
-      overflow: hidden;
-    }
-
-    .taskbar-item {
-      background: var(--win-bg);
-      border: 2px outset #dfdfdf;
-      padding: 2px 8px;
-      font-size: 11px;
-      cursor: pointer;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 150px;
-    }
-
-    .taskbar-item.active {
-      border: 2px inset #dfdfdf;
-      background: #d0d0d0;
-    }
-
-    .clock {
-      background: var(--win-bg);
-      border: 2px inset #dfdfdf;
-      padding: 2px 8px;
-      font-size: 11px;
-      margin-left: auto;
-    }
-
-    /* === START MENU === */
-    .start-menu {
+    .nav-mobile {
       display: none;
-      position: fixed;
-      bottom: 28px;
-      left: 0;
-      background: var(--win-bg);
-      border: 2px outset #dfdfdf;
-      box-shadow: 2px 2px 0px #000;
-      z-index: 1001;
-      width: 200px;
-    }
-
-    .start-menu.open {
-      display: block;
-    }
-
-    .start-menu-header {
-      background: var(--title-active);
-      color: white;
-      padding: 4px 8px;
-      font-weight: bold;
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .start-menu-item {
-      padding: 6px 12px;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 24px;
       cursor: pointer;
-      display: flex;
+    }
+
+    /* === HERO === */
+    .hero {
+      padding: 160px 24px 100px;
+      text-align: center;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .hero-badge {
+      display: inline-flex;
       align-items: center;
       gap: 8px;
-      font-size: 12px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+      animation: fadeInUp 0.6s ease;
     }
 
-    .start-menu-item:hover {
-      background: var(--win-navy);
-      color: white;
+    .hero-badge .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
     }
 
-    .start-menu-separator {
-      height: 2px;
-      background: var(--win-dark);
-      margin: 2px 4px;
-      border-bottom: 1px solid var(--win-light);
+    .hero h1 {
+      font-size: clamp(48px, 8vw, 80px);
+      font-weight: 900;
+      letter-spacing: -3px;
+      line-height: 1;
+      margin-bottom: 24px;
+      animation: fadeInUp 0.6s ease 0.1s both;
     }
 
-    /* === DESKTOP ICONS === */
-    .desktop-icons {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, 80px);
-      gap: 20px;
-      padding: 20px;
-      max-width: 1000px;
-      margin: 0 auto;
-      width: 100%;
+    .hero p {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+      animation: fadeInUp 0.6s ease 0.2s both;
     }
 
-    .desktop-icon {
+    .hero-actions {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
-      padding: 8px;
-      border: 1px solid transparent;
-    }
-
-    .desktop-icon:hover {
-      border: 1px dotted white;
-      background: rgba(0, 0, 128, 0.3);
-    }
-
-    .desktop-icon:active {
-      background: rgba(0, 0, 128, 0.5);
-    }
-
-    .icon-img {
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
+      gap: 16px;
       justify-content: center;
-      font-size: 24px;
+      flex-wrap: wrap;
+      animation: fadeInUp 0.6s ease 0.3s both;
     }
 
-    .icon-label {
-      color: white;
-      text-align: center;
-      font-size: 11px;
-      text-shadow: 1px 1px 0px #000;
-      word-break: break-word;
+    .btn-hero {
+      padding: 14px 32px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    /* === HERO WINDOW === */
-    .hero-window {
-      max-width: 800px;
-      margin: 40px auto;
+    .btn-hero-primary {
+      background: var(--text);
+      color: var(--bg);
+      border: none;
     }
 
-    .hero-content {
-      text-align: center;
-      padding: 20px;
+    .btn-hero-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    .btn-hero-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border-light);
     }
 
-    .hero-title {
-      font-family: 'VT323', monospace;
-      font-size: 48px;
-      color: var(--win-navy);
-      margin-bottom: 10px;
-      text-shadow: 2px 2px 0px #808080;
+    .btn-hero-secondary:hover {
+      border-color: var(--text-muted);
+      transform: translateY(-1px);
     }
 
-    .hero-subtitle {
-      font-size: 16px;
-      color: var(--win-dark);
-      margin-bottom: 20px;
-    }
-
-    .hero-stats {
+    /* === STATS === */
+    .stats {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin: 20px 0;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      max-width: 800px;
+      margin: -20px auto 0;
+      position: relative;
+      z-index: 1;
+      animation: fadeInUp 0.6s ease 0.4s both;
     }
 
-    .stat-box {
-      background: var(--win-bg);
-      border: 2px inset #dfdfdf;
-      padding: 10px;
+    .stat {
+      background: var(--bg-secondary);
+      padding: 32px 24px;
       text-align: center;
     }
 
     .stat-num {
-      font-family: 'VT323', monospace;
-      font-size: 24px;
-      color: var(--win-navy);
-      font-weight: bold;
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1;
+      margin-bottom: 8px;
     }
 
     .stat-label {
-      font-size: 10px;
-      color: var(--win-dark);
-      margin-top: 4px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 500;
     }
 
-    /* === CATEGORY WINDOWS === */
+    /* === SECTIONS === */
+    .section {
+      padding: 100px 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .section-header h2 {
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      margin-bottom: 12px;
+    }
+
+    .section-header p {
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* === CATEGORY GRID === */
     .categories-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 15px;
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 0 20px;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 16px;
     }
 
-    .category-window {
-      width: 100%;
+    .category-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+
+    .category-card:hover {
+      border-color: var(--border-light);
+      transform: translateY(-2px);
     }
 
     .category-header {
+      padding: 20px 24px 16px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
     }
 
     .category-icon {
-      font-size: 14px;
+      font-size: 20px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-tertiary);
+      border-radius: 10px;
     }
 
-    /* === ENDPOINT LIST === */
+    .category-title {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .category-count {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
     .endpoint-list {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
+      padding: 8px 12px 12px;
     }
 
     .endpoint-item {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 4px 6px;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 11px;
+      transition: background 0.15s;
+      font-size: 13px;
     }
 
-    .endpoint-item:hover {
-      background: var(--win-navy);
-      color: white;
-    }
+    .endpoint-item:hover { background: var(--bg-tertiary); }
 
     .endpoint-method {
-      background: #008000;
-      color: white;
-      padding: 1px 4px;
-      font-size: 9px;
-      font-weight: bold;
-      min-width: 30px;
+      background: rgba(0,255,136,0.1);
+      color: var(--green);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      min-width: 36px;
       text-align: center;
     }
 
     .endpoint-path {
-      font-family: 'Courier New', monospace;
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 12px;
+      color: var(--text-secondary);
       flex: 1;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -402,1009 +364,1060 @@
     }
 
     .endpoint-price {
-      color: var(--green);
-      font-weight: bold;
-      font-size: 10px;
-    }
-
-    /* === DETAIL DIALOG === */
-    .detail-dialog {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: var(--win-bg);
-      border: 2px outset #dfdfdf;
-      box-shadow: 4px 4px 0px #000;
-      z-index: 2000;
-      min-width: 400px;
-      max-width: 90vw;
-    }
-
-    .detail-dialog.open {
-      display: block;
-    }
-
-    .dialog-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.3);
-      z-index: 1999;
-    }
-
-    .dialog-overlay.open {
-      display: block;
-    }
-
-    .dialog-body {
-      padding: 10px;
-    }
-
-    .dialog-desc {
-      font-size: 12px;
-      margin-bottom: 10px;
-      color: var(--win-dark);
-    }
-
-    .code-block {
-      background: var(--code-bg);
-      border: 2px inset #dfdfdf;
-      padding: 8px;
-      font-family: 'Courier New', monospace;
+      color: var(--text-dim);
       font-size: 11px;
-      overflow-x: auto;
-      white-space: pre;
+      font-weight: 600;
+      white-space: nowrap;
     }
 
-    .dialog-buttons {
+    /* === DOCS NAV (quick links) === */
+    .docs-nav {
       display: flex;
-      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 48px;
+    }
+
+    .docs-nav a {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
       gap: 6px;
-      margin-top: 10px;
     }
 
-    /* === BUTTONS === */
-    .btn {
-      background: var(--win-bg);
-      border: 2px outset #dfdfdf;
-      padding: 4px 16px;
-      font-size: 12px;
-      cursor: pointer;
-      font-family: inherit;
+    .docs-nav a:hover {
+      border-color: var(--border-light);
+      color: var(--text);
     }
 
-    .btn:active {
-      border: 2px inset #dfdfdf;
+    /* === PLAYGROUND === */
+    .playground-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
     }
 
-    .btn-primary {
-      background: var(--win-bg);
-      border: 2px outset #dfdfdf;
-      box-shadow: 1px 1px 0px #000;
+    .playground-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
-    /* === PLAYGROUND WINDOW === */
-    .playground-grid {
+    .playground-header h3 {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .playground-body {
+      padding: 24px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 16px;
     }
 
-    .playground-input {
+    .playground-controls {
       display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .playground-input .btn-row {
-      display: flex;
-      gap: 8px;
+      gap: 12px;
+      align-items: flex-end;
+      flex-wrap: wrap;
     }
 
     .input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
+      flex: 1;
+      min-width: 250px;
     }
 
     .input-group label {
-      font-size: 11px;
-      font-weight: bold;
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .input-field {
-      background: white;
-      border: 2px inset #dfdfdf;
-      padding: 4px 6px;
-      font-family: 'Courier New', monospace;
-      font-size: 12px;
       width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 13px;
+      color: var(--text);
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
     }
 
     .input-field:focus {
-      outline: 1px dotted var(--win-navy);
+      outline: none;
+      border-color: var(--border-light);
     }
 
-    select.input-field {
-      cursor: pointer;
+    select.input-field { cursor: pointer; }
+
+    select.input-field option {
+      background: var(--bg);
+      color: var(--text);
     }
+
+    .btn-run {
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      border-radius: 10px;
+      padding: 12px 28px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-run:hover { opacity: 0.85; }
 
     .playground-output {
-      background: #000;
-      color: #00ff00;
-      border: 2px inset #dfdfdf;
-      padding: 10px;
-      font-family: 'Courier New', monospace;
-      font-size: 11px;
-      min-height: 300px;
+      background: #0a0a0a;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      color: var(--green);
+      min-height: 280px;
       max-height: 500px;
       overflow: auto;
       white-space: pre-wrap;
+      line-height: 1.7;
     }
 
-    /* === STATUS BAR === */
-    .status-bar {
-      background: var(--win-bg);
-      border-top: 2px inset #dfdfdf;
-      padding: 2px 6px;
+    /* === MCP SECTION === */
+    .mcp-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .mcp-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
       display: flex;
-      gap: 10px;
-      font-size: 11px;
+      align-items: center;
+      gap: 12px;
     }
 
-    .status-bar-section {
-      border: 1px inset #dfdfdf;
-      padding: 1px 6px;
-      flex: 1;
+    .mcp-header h3 { font-size: 15px; font-weight: 700; }
+
+    .mcp-body {
+      padding: 24px;
     }
 
-    /* === MCP WINDOW === */
-    .mcp-config {
-      background: var(--code-bg);
-      border: 2px inset #dfdfdf;
-      padding: 10px;
-      font-family: 'Courier New', monospace;
+    .mcp-body > p {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 24px;
+    }
+
+    .mcp-block { margin-bottom: 24px; }
+    .mcp-block:last-child { margin-bottom: 0; }
+
+    .mcp-block-label {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text-secondary);
+    }
+
+    .code-block {
+      background: #0a0a0a;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
       font-size: 12px;
+      color: var(--text-secondary);
       overflow-x: auto;
       white-space: pre;
+      line-height: 1.7;
     }
 
-    /* === PRICING TABLE === */
-    .pricing-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 11px;
+    /* === PRICING === */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
     }
 
-    .pricing-table th {
-      background: var(--win-bg);
-      border: 2px outset #dfdfdf;
-      padding: 4px 8px;
-      text-align: left;
+    .pricing-card {
+      background: var(--bg-card);
+      padding: 32px 24px;
     }
 
-    .pricing-table td {
-      border: 1px solid var(--win-dark);
-      padding: 4px 8px;
+    .pricing-card.featured {
+      background: var(--bg-tertiary);
     }
 
-    .pricing-table tr:nth-child(even) {
-      background: #e0e0e0;
+    .pricing-tier {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .pricing-price {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+    }
+
+    .pricing-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.7;
     }
 
     /* === FOOTER === */
-    .footer-window {
-      max-width: 1000px;
-      margin: 20px auto;
-    }
-
-    .footer-content {
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 24px;
       text-align: center;
-      font-size: 11px;
-      color: var(--win-dark);
-      padding: 10px;
     }
 
-    .footer-content a {
-      color: var(--win-highlight);
+    .footer p {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+
+    .footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer a:hover { color: var(--text); }
+
+    /* === DETAIL MODAL === */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+    }
+
+    .modal-overlay.open { display: flex; align-items: center; justify-content: center; }
+
+    .modal {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      width: 90%;
+      max-width: 560px;
+      overflow: hidden;
+      animation: modalIn 0.2s ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-header h3 {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+
+    .modal-close:hover { color: var(--text); }
+
+    .modal-body { padding: 24px; }
+
+    .modal-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    .modal-code {
+      background: #0a0a0a;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      color: var(--green);
+      overflow-x: auto;
+      white-space: pre;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .btn-modal {
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
+      padding: 10px 24px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-modal:hover { opacity: 0.85; }
+
+    /* === DIVIDER === */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* === ANIMATIONS === */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
     }
 
     /* === RESPONSIVE === */
     @media (max-width: 768px) {
-      .hero-stats {
-        grid-template-columns: repeat(2, 1fr);
+      .navbar { padding: 0 16px; }
+      .nav-links { display: none; }
+      .nav-links.open {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 64px;
+        left: 0;
+        right: 0;
+        background: rgba(0,0,0,0.95);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border);
+        padding: 24px;
+        gap: 16px;
       }
-      
+      .nav-mobile { display: block; }
+
+      .hero { padding: 120px 16px 60px; }
+      .hero h1 { letter-spacing: -2px; }
+      .hero p { font-size: 16px; }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+        margin: -10px 16px 0;
+      }
+
+      .stat { padding: 24px 16px; }
+      .stat-num { font-size: 28px; }
+
+      .section { padding: 60px 16px; }
+      .section-header h2 { font-size: 28px; }
+
       .categories-grid {
         grid-template-columns: 1fr;
       }
-      
-      .playground-grid {
-        flex-direction: column;
+
+      .docs-nav { gap: 6px; }
+      .docs-nav a { padding: 6px 14px; font-size: 12px; }
+
+      .playground-controls { flex-direction: column; }
+      .input-group { min-width: 100%; }
+
+      .pricing-grid {
+        grid-template-columns: 1fr;
       }
-      
-      .hero-title {
-        font-size: 36px;
-      }
-      
-      .detail-dialog {
-        min-width: 90vw;
-      }
+
+      .hero-actions { flex-direction: column; align-items: center; }
     }
 
-    /* === ANIMATIONS === */
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
-    }
-
-    .blink {
-      animation: blink 1s infinite;
-    }
-
-    /* === LOADING === */
-    .loading {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid var(--win-dark);
-      border-top: 2px solid var(--win-bg);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* === MARQUEE === */
-    .marquee {
-      background: var(--win-navy);
-      color: var(--win-light);
-      padding: 4px 0;
-      overflow: hidden;
-      white-space: nowrap;
-    }
-
-    .marquee-content {
-      display: inline-block;
-      animation: marquee 20s linear infinite;
-      padding-left: 100%;
-    }
-
-    @keyframes marquee {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-100%); }
-    }
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
   </style>
 </head>
 <body>
-  <!-- MARQUEE -->
-  <div class="marquee">
-    <span class="marquee-content">
-      ★ Welcome to RagRadar — Multi-Chain Intelligence ★ 44 REST Endpoints + 18 MCP Tools ★ Base + Arbitrum + Solana ★ Smart Money Tracking ★ Whale Alerts ★ Token Intelligence ★ DeFi Yields ★ Solana Degen Tools ★ x402 Payments ★
-    </span>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a class="nav-logo" href="#">RagRadar <span>v10.4.0</span></a>
+    <div class="nav-links" id="nav-links">
+      <a href="#docs">Endpoints</a>
+      <a href="#playground">Playground</a>
+      <a href="#mcp">MCP</a>
+      <a href="#pricing">Pricing</a>
+      <a href="https://github.com/ragna999/x402-base-analytics" target="_blank" class="nav-cta">GitHub</a>
+    </div>
+    <button class="nav-mobile" onclick="document.getElementById('nav-links').classList.toggle('open')">☰</button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Live on Base · Arbitrum · Solana
+    </div>
+    <h1>RagRadar</h1>
+    <p>AI-powered on-chain analytics across 8 chains. 82 REST endpoints. Portfolio P&L tracker, smart money, whales, degen tools, social signals, block checker.</p>
+    <div class="hero-actions">
+      <a href="#docs" class="btn-hero btn-hero-primary">Explore API →</a>
+      <a href="#playground" class="btn-hero btn-hero-secondary">Try Playground</a>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num">82</div>
+      <div class="stat-label">Endpoints</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">18</div>
+      <div class="stat-label">MCP Tools</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">8</div>
+      <div class="stat-label">Chains</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">v10.4</div>
+      <div class="stat-label">Version</div>
+    </div>
   </div>
 
-  <!-- DESKTOP -->
-  <div class="desktop">
-    <!-- HERO WINDOW -->
-    <div class="window hero-window">
-      <div class="title-bar">
-        <div class="title-bar-text">
-          <span>📊</span>
-          <span>RagRadar.exe — Multi-Chain Intelligence</span>
-        </div>
-        <div class="title-bar-controls">
-          <button title="Minimize">_</button>
-          <button title="Maximize">□</button>
-          <button title="Close">✕</button>
-        </div>
-      </div>
-      <div class="window-body">
-        <div class="hero-content">
-          <h1 class="hero-title">RagRadar</h1>
-          <p class="hero-subtitle">AI-powered on-chain analytics across Base, Arbitrum & Solana.<br>57 REST endpoints. Portfolio P&L tracker, smart money, whales, degen tools, social signals.</p>
-          
-          <div class="hero-stats">
-            <div class="stat-box">
-              <div class="stat-num">57</div>
-              <div class="stat-label">REST Endpoints</div>
-            </div>
-            <div class="stat-box">
-              <div class="stat-num">18</div>
-              <div class="stat-label">MCP Tools</div>
-            </div>
-            <div class="stat-box">
-              <div class="stat-num">6</div>
-              <div class="stat-label">Chains</div>
-            </div>
-            <div class="stat-box">
-              <div class="stat-num">v10.2</div>
-              <div class="stat-label">Version</div>
-            </div>
-          </div>
-
-          <div style="display: flex; gap: 8px; justify-content: center; margin-top: 15px;">
-            <button class="btn btn-primary" onclick="document.getElementById('docs').scrollIntoView({behavior:'smooth'})">
-              📁 Explore API
-            </button>
-            <button class="btn" onclick="document.getElementById('playground').scrollIntoView({behavior:'smooth'})">
-              🎮 Try Playground
-            </button>
-          </div>
-        </div>
-      </div>
-      <div class="status-bar">
-        <div class="status-bar-section">Ready</div>
-        <div class="status-bar-section">Base + Arbitrum + Solana</div>
-        <div class="status-bar-section">v9.3.0</div>
-      </div>
+  <!-- ENDPOINTS SECTION -->
+  <section class="section" id="docs">
+    <div class="section-header">
+      <h2>Endpoints</h2>
+      <p>82 production-ready REST endpoints across Base, Arbitrum, and Solana</p>
     </div>
 
-    <!-- DESKTOP ICONS -->
-    <div class="desktop-icons" id="docs">
-      <div class="desktop-icon" onclick="scrollToCategory('wallet')">
-        <div class="icon-img">💰</div>
-        <div class="icon-label">Wallet Analytics</div>
-      </div>
-      <div class="desktop-icon" onclick="scrollToCategory('yields')">
-        <div class="icon-img">📈</div>
-        <div class="icon-label">DeFi Yields</div>
-      </div>
-      <div class="desktop-icon" onclick="scrollToCategory('safety')">
-        <div class="icon-img">🛡️</div>
-        <div class="icon-label">Token Safety</div>
-      </div>
-      <div class="desktop-icon" onclick="scrollToCategory('sniper')">
-        <div class="icon-img">🎯</div>
-        <div class="icon-label">Sniper Tracker</div>
-      </div>
-      <div class="desktop-icon" onclick="scrollToCategory('smartmoney')">
-        <div class="icon-img">🧠</div>
-        <div class="icon-label">Smart Money</div>
-      </div>
-      <div class="desktop-icon" onclick="scrollToCategory('whale')">
-        <div class="icon-img">🐋</div>
-        <div class="icon-label">Whale Alerts</div>
-      </div>
-      <div class="desktop-icon" onclick="scrollToCategory('protocols')">
-        <div class="icon-img">📊</div>
-        <div class="icon-label">Protocol Stats</div>
-      </div>
-      <div class="desktop-icon" onclick="scrollToCategory('intelligence')">
-        <div class="icon-img">🔮</div>
-        <div class="icon-label">Intelligence</div>
-      </div>
-      <div class="desktop-icon" onclick="scrollToCategory('gmx')">
-        <div class="icon-img">⚡</div>
-        <div class="icon-label">GMX Perps</div>
-      </div>
-      <div class="desktop-icon" onclick="scrollToCategory('solana')">
-        <div class="icon-img">☀️</div>
-        <div class="icon-label">Solana Degen</div>
-      </div>
-      <div class="desktop-icon" onclick="scrollToCategory('social')">
-        <div class="icon-img">📡</div>
-        <div class="icon-label">Social Signals</div>
-      </div>
-      <div class="desktop-icon" onclick="scrollToCategory('pnl')">
-        <div class="icon-img">📊</div>
-        <div class="icon-label">P&L Tracker</div>
-      </div>
-      <div class="desktop-icon" onclick="scrollToCategory('playground')">
-        <div class="icon-img">🎮</div>
-        <div class="icon-label">Playground</div>
-      </div>
+    <div class="docs-nav">
+      <a href="#" onclick="scrollToCategory('wallet');return false">💰 Wallet</a>
+      <a href="#" onclick="scrollToCategory('yields');return false">📈 Yields</a>
+      <a href="#" onclick="scrollToCategory('safety');return false">🛡️ Safety</a>
+      <a href="#" onclick="scrollToCategory('sniper');return false">🎯 Sniper</a>
+      <a href="#" onclick="scrollToCategory('smartmoney');return false">🧠 Smart Money</a>
+      <a href="#" onclick="scrollToCategory('whale');return false">🐋 Whale</a>
+      <a href="#" onclick="scrollToCategory('protocols');return false">📊 Protocols</a>
+      <a href="#" onclick="scrollToCategory('intelligence');return false">🔮 Intelligence</a>
+      <a href="#" onclick="scrollToCategory('gmx');return false">⚡ GMX</a>
+      <a href="#" onclick="scrollToCategory('solana');return false">☀️ Solana</a>
+      <a href="#" onclick="scrollToCategory('social');return false">📡 Social</a>
+      <a href="#" onclick="scrollToCategory('gas');return false">⛽ Gas</a>
+      <a href="#" onclick="scrollToCategory('approvals');return false">🔐 Approvals</a>
+      <a href="#" onclick="scrollToCategory('balance');return false">💰 Balance</a>
+      <a href="#" onclick="scrollToCategory('pnl');return false">📊 P&L</a>
+      <a href="#" onclick="scrollToCategory('blockcheck');return false">🧱 Blocks</a>
     </div>
 
-    <!-- CATEGORY WINDOWS -->
     <div class="categories-grid">
+
       <!-- WALLET ANALYTICS -->
-      <div class="window category-window" id="wallet">
-        <div class="title-bar">
-          <div class="title-bar-text">
-            <span>💰</span>
-            <span>Wallet Analytics — 3 endpoints</span>
-          </div>
-          <div class="title-bar-controls">
-            <button>_</button>
-            <button>□</button>
-            <button>✕</button>
+      <div class="category-card" id="wallet">
+        <div class="category-header">
+          <div class="category-icon">💰</div>
+          <div>
+            <div class="category-title">Wallet Analytics</div>
+            <div class="category-count">3 endpoints</div>
           </div>
         </div>
-        <div class="window-body">
-          <div class="endpoint-list">
-            <div class="endpoint-item" onclick="showDetail('portfolio')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/portfolio/:address</span>
-              <span class="endpoint-price">$0.005</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('history')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/history/:address</span>
-              <span class="endpoint-price">$0.01</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('summary')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/summary/:address</span>
-              <span class="endpoint-price">$0.02</span>
-            </div>
+        <div class="endpoint-list">
+          <div class="endpoint-item" onclick="showDetail('portfolio')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/portfolio/:address</span>
+            <span class="endpoint-price">$0.005</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('history')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/history/:address</span>
+            <span class="endpoint-price">$0.01</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('summary')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/summary/:address</span>
+            <span class="endpoint-price">$0.02</span>
           </div>
         </div>
       </div>
 
       <!-- DEFI YIELDS -->
-      <div class="window category-window" id="yields">
-        <div class="title-bar">
-          <div class="title-bar-text">
-            <span>📈</span>
-            <span>DeFi Yields — 4 endpoints</span>
-          </div>
-          <div class="title-bar-controls">
-            <button>_</button>
-            <button>□</button>
-            <button>✕</button>
+      <div class="category-card" id="yields">
+        <div class="category-header">
+          <div class="category-icon">📈</div>
+          <div>
+            <div class="category-title">DeFi Yields</div>
+            <div class="category-count">4 endpoints</div>
           </div>
         </div>
-        <div class="window-body">
-          <div class="endpoint-list">
-            <div class="endpoint-item" onclick="showDetail('yields')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/yields</span>
-              <span class="endpoint-price">$0.02</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('best-yield')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/yields/best/:asset</span>
-              <span class="endpoint-price">$0.01</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('risk-yield')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/yields/risk</span>
-              <span class="endpoint-price">$0.02</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('rebalance')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/yields/rebalance</span>
-              <span class="endpoint-price">$0.05</span>
-            </div>
+        <div class="endpoint-list">
+          <div class="endpoint-item" onclick="showDetail('yields')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/yields</span>
+            <span class="endpoint-price">$0.02</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('best-yield')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/yields/best/:asset</span>
+            <span class="endpoint-price">$0.01</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('risk-yield')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/yields/risk</span>
+            <span class="endpoint-price">$0.02</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('rebalance')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/yields/rebalance</span>
+            <span class="endpoint-price">$0.05</span>
           </div>
         </div>
       </div>
 
       <!-- SAFETY -->
-      <div class="window category-window" id="safety">
-        <div class="title-bar">
-          <div class="title-bar-text">
-            <span>🛡️</span>
-            <span>Safety — 2 endpoints</span>
-          </div>
-          <div class="title-bar-controls">
-            <button>_</button>
-            <button>□</button>
-            <button>✕</button>
+      <div class="category-card" id="safety">
+        <div class="category-header">
+          <div class="category-icon">🛡️</div>
+          <div>
+            <div class="category-title">Token Safety</div>
+            <div class="category-count">2 endpoints</div>
           </div>
         </div>
-        <div class="window-body">
-          <div class="endpoint-list">
-            <div class="endpoint-item" onclick="showDetail('token-safety')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/token-safety/:address</span>
-              <span class="endpoint-price">$0.02</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('wallet-risk')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/wallet-risk/:address</span>
-              <span class="endpoint-price">$0.03</span>
-            </div>
+        <div class="endpoint-list">
+          <div class="endpoint-item" onclick="showDetail('token-safety')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/token-safety/:address</span>
+            <span class="endpoint-price">$0.02</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('wallet-risk')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/wallet-risk/:address</span>
+            <span class="endpoint-price">$0.03</span>
           </div>
         </div>
       </div>
 
       <!-- SNIPER TRACKER -->
-      <div class="window category-window" id="sniper">
-        <div class="title-bar">
-          <div class="title-bar-text">
-            <span>🎯</span>
-            <span>Sniper Tracker — 3 endpoints</span>
-          </div>
-          <div class="title-bar-controls">
-            <button>_</button>
-            <button>□</button>
-            <button>✕</button>
+      <div class="category-card" id="sniper">
+        <div class="category-header">
+          <div class="category-icon">🎯</div>
+          <div>
+            <div class="category-title">Sniper Tracker</div>
+            <div class="category-count">3 endpoints</div>
           </div>
         </div>
-        <div class="window-body">
-          <div class="endpoint-list">
-            <div class="endpoint-item" onclick="showDetail('sniper-token')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/sniper/token/:address</span>
-              <span class="endpoint-price">$0.01</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('sniper-wallet')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/sniper/wallet/:address</span>
-              <span class="endpoint-price">$0.01</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('sniper-trending')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/sniper/trending</span>
-              <span class="endpoint-price">$0.01</span>
-            </div>
+        <div class="endpoint-list">
+          <div class="endpoint-item" onclick="showDetail('sniper-token')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/sniper/token/:address</span>
+            <span class="endpoint-price">$0.01</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('sniper-wallet')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/sniper/wallet/:address</span>
+            <span class="endpoint-price">$0.01</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('sniper-trending')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/sniper/trending</span>
+            <span class="endpoint-price">$0.01</span>
           </div>
         </div>
       </div>
 
       <!-- SMART MONEY -->
-      <div class="window category-window" id="smartmoney">
-        <div class="title-bar">
-          <div class="title-bar-text">
-            <span>🧠</span>
-            <span>Smart Money — 3 endpoints</span>
-          </div>
-          <div class="title-bar-controls">
-            <button>_</button>
-            <button>□</button>
-            <button>✕</button>
+      <div class="category-card" id="smartmoney">
+        <div class="category-header">
+          <div class="category-icon">🧠</div>
+          <div>
+            <div class="category-title">Smart Money</div>
+            <div class="category-count">3 endpoints</div>
           </div>
         </div>
-        <div class="window-body">
-          <div class="endpoint-list">
-            <div class="endpoint-item" onclick="showDetail('sm-wallet')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/smart-money/wallet/:address</span>
-              <span class="endpoint-price">$0.02</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('sm-token')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/smart-money/token/:address</span>
-              <span class="endpoint-price">$0.02</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('sm-activity')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/smart-money/activity</span>
-              <span class="endpoint-price">$0.02</span>
-            </div>
+        <div class="endpoint-list">
+          <div class="endpoint-item" onclick="showDetail('sm-wallet')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/smart-money/wallet/:address</span>
+            <span class="endpoint-price">$0.02</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('sm-token')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/smart-money/token/:address</span>
+            <span class="endpoint-price">$0.02</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('sm-activity')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/smart-money/activity</span>
+            <span class="endpoint-price">$0.02</span>
           </div>
         </div>
       </div>
 
       <!-- WHALE ALERTS -->
-      <div class="window category-window" id="whale">
-        <div class="title-bar">
-          <div class="title-bar-text">
-            <span>🐋</span>
-            <span>Whale Alerts — 5 endpoints</span>
-          </div>
-          <div class="title-bar-controls">
-            <button>_</button>
-            <button>□</button>
-            <button>✕</button>
+      <div class="category-card" id="whale">
+        <div class="category-header">
+          <div class="category-icon">🐋</div>
+          <div>
+            <div class="category-title">Whale Alerts</div>
+            <div class="category-count">5 endpoints</div>
           </div>
         </div>
-        <div class="window-body">
-          <div class="endpoint-list">
-            <div class="endpoint-item" onclick="showDetail('whale-alerts')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/whale/alerts</span>
-              <span class="endpoint-price">$0.01</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('whale-token')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/whale/alerts/:token</span>
-              <span class="endpoint-price">$0.02</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('whale-movements')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/whale/movements</span>
-              <span class="endpoint-price">$0.01</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('whale-heatmap')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/whale/heatmap</span>
-              <span class="endpoint-price">$0.01</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('whale-accumulation')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/whale/accumulation</span>
-              <span class="endpoint-price">$0.02</span>
-            </div>
+        <div class="endpoint-list">
+          <div class="endpoint-item" onclick="showDetail('whale-alerts')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/whale/alerts</span>
+            <span class="endpoint-price">$0.01</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('whale-token')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/whale/alerts/:token</span>
+            <span class="endpoint-price">$0.02</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('whale-movements')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/whale/movements</span>
+            <span class="endpoint-price">$0.01</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('whale-heatmap')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/whale/heatmap</span>
+            <span class="endpoint-price">$0.01</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('whale-accumulation')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/whale/accumulation</span>
+            <span class="endpoint-price">$0.02</span>
           </div>
         </div>
       </div>
 
       <!-- PROTOCOL STATS -->
-      <div class="window category-window" id="protocols">
-        <div class="title-bar">
-          <div class="title-bar-text">
-            <span>📊</span>
-            <span>Protocol Stats — 3 endpoints</span>
-          </div>
-          <div class="title-bar-controls">
-            <button>_</button>
-            <button>□</button>
-            <button>✕</button>
+      <div class="category-card" id="protocols">
+        <div class="category-header">
+          <div class="category-icon">📊</div>
+          <div>
+            <div class="category-title">Protocol Stats</div>
+            <div class="category-count">3 endpoints</div>
           </div>
         </div>
-        <div class="window-body">
-          <div class="endpoint-list">
-            <div class="endpoint-item" onclick="showDetail('protocols')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/protocols/base</span>
-              <span class="endpoint-price">$0.01</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('tvl')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/protocols/base/tvl</span>
-              <span class="endpoint-price">$0.01</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('movers')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/protocols/base/movers</span>
-              <span class="endpoint-price">$0.01</span>
-            </div>
+        <div class="endpoint-list">
+          <div class="endpoint-item" onclick="showDetail('protocols')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/protocols/base</span>
+            <span class="endpoint-price">$0.01</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('tvl')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/protocols/base/tvl</span>
+            <span class="endpoint-price">$0.01</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('movers')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/protocols/base/movers</span>
+            <span class="endpoint-price">$0.01</span>
           </div>
         </div>
       </div>
 
       <!-- INTELLIGENCE -->
-      <div class="window category-window" id="intelligence">
-        <div class="title-bar">
-          <div class="title-bar-text">
-            <span>🔮</span>
-            <span>Intelligence — 5 endpoints</span>
-          </div>
-          <div class="title-bar-controls">
-            <button>_</button>
-            <button>□</button>
-            <button>✕</button>
+      <div class="category-card" id="intelligence">
+        <div class="category-header">
+          <div class="category-icon">🔮</div>
+          <div>
+            <div class="category-title">Intelligence</div>
+            <div class="category-count">5 endpoints</div>
           </div>
         </div>
-        <div class="window-body">
-          <div class="endpoint-list">
-            <div class="endpoint-item" onclick="showDetail('intel-token')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/intelligence/token/:address</span>
-              <span class="endpoint-price">$0.05</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('intel-wallet')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/intelligence/wallet/:address</span>
-              <span class="endpoint-price">$0.05</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('market-pulse')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/market/pulse</span>
-              <span class="endpoint-price">$0.05</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('defi-dashboard')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/defi/dashboard</span>
-              <span class="endpoint-price">$0.03</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('risk-assessment')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/risk/:address</span>
-              <span class="endpoint-price">$0.03</span>
-            </div>
+        <div class="endpoint-list">
+          <div class="endpoint-item" onclick="showDetail('intel-token')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/intelligence/token/:address</span>
+            <span class="endpoint-price">$0.05</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('intel-wallet')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/intelligence/wallet/:address</span>
+            <span class="endpoint-price">$0.05</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('market-pulse')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/market/pulse</span>
+            <span class="endpoint-price">$0.05</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('defi-dashboard')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/defi/dashboard</span>
+            <span class="endpoint-price">$0.03</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('risk-assessment')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/risk/:address</span>
+            <span class="endpoint-price">$0.03</span>
           </div>
         </div>
       </div>
 
-      <!-- GMX PERPS (ARBITRUM) -->
-      <div class="window category-window" id="gmx">
-        <div class="title-bar">
-          <div class="title-bar-text">
-            <span>⚡</span>
-            <span>GMX Perps — Arbitrum (4 endpoints)</span>
-          </div>
-          <div class="title-bar-controls">
-            <button>_</button>
-            <button>□</button>
-            <button>✕</button>
+      <!-- GMX PERPS -->
+      <div class="category-card" id="gmx">
+        <div class="category-header">
+          <div class="category-icon">⚡</div>
+          <div>
+            <div class="category-title">GMX Perps — Arbitrum</div>
+            <div class="category-count">4 endpoints</div>
           </div>
         </div>
-        <div class="window-body">
-          <div class="endpoint-list">
-            <div class="endpoint-item" onclick="showDetail('gmx-stats')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/arbitrum/gmx/stats</span>
-              <span class="endpoint-price">$0.02</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('gmx-funding')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/arbitrum/gmx/funding</span>
-              <span class="endpoint-price">$0.01</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('gmx-glp')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/arbitrum/gmx/glp</span>
-              <span class="endpoint-price">$0.01</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('gmx-liquidations')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/arbitrum/gmx/liquidations</span>
-              <span class="endpoint-price">$0.02</span>
-            </div>
+        <div class="endpoint-list">
+          <div class="endpoint-item" onclick="showDetail('gmx-stats')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/arbitrum/gmx/stats</span>
+            <span class="endpoint-price">$0.02</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('gmx-funding')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/arbitrum/gmx/funding</span>
+            <span class="endpoint-price">$0.01</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('gmx-glp')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/arbitrum/gmx/glp</span>
+            <span class="endpoint-price">$0.01</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('gmx-liquidations')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/arbitrum/gmx/liquidations</span>
+            <span class="endpoint-price">$0.02</span>
           </div>
         </div>
       </div>
 
-      <!-- SOLANA DEGEN TOOLS -->
-      <div class="window category-window" id="solana">
-        <div class="title-bar">
-          <div class="title-bar-text">
-            <span>☀️</span>
-            <span>Solana Degen Tools (6 endpoints)</span>
-          </div>
-          <div class="title-bar-controls">
-            <button>_</button>
-            <button>□</button>
-            <button>✕</button>
+      <!-- SOLANA DEGEN -->
+      <div class="category-card" id="solana">
+        <div class="category-header">
+          <div class="category-icon">☀️</div>
+          <div>
+            <div class="category-title">Solana Degen Tools</div>
+            <div class="category-count">6 endpoints</div>
           </div>
         </div>
-        <div class="window-body">
-          <div class="endpoint-list">
-            <div class="endpoint-item" onclick="showDetail('sol-safety')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/solana/token-safety/:mint</span>
-              <span class="endpoint-price">$0.01</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('sol-snipers')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/solana/snipers/:mint</span>
-              <span class="endpoint-price">$0.01</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('sol-sniper-score')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/solana/snipers/:mint/score</span>
-              <span class="endpoint-price">$0.01</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('sol-trending')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/solana/trending</span>
-              <span class="endpoint-price">$0.01</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('sol-new')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/solana/new-tokens</span>
-              <span class="endpoint-price">$0.01</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('sol-volume')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/solana/top-volume</span>
-              <span class="endpoint-price">$0.01</span>
-            </div>
+        <div class="endpoint-list">
+          <div class="endpoint-item" onclick="showDetail('sol-safety')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/solana/token-safety/:mint</span>
+            <span class="endpoint-price">$0.01</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('sol-snipers')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/solana/snipers/:mint</span>
+            <span class="endpoint-price">$0.01</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('sol-sniper-score')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/solana/snipers/:mint/score</span>
+            <span class="endpoint-price">$0.01</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('sol-trending')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/solana/trending</span>
+            <span class="endpoint-price">$0.01</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('sol-new')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/solana/new-tokens</span>
+            <span class="endpoint-price">$0.01</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('sol-volume')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/solana/top-volume</span>
+            <span class="endpoint-price">$0.01</span>
           </div>
         </div>
       </div>
 
       <!-- SOCIAL SIGNALS -->
-      <div class="window category-window" id="social">
-        <div class="title-bar">
-          <div class="title-bar-text">
-            <span>📡</span>
-            <span>Social Signals — Multi-Platform (5 endpoints)</span>
-          </div>
-          <div class="title-bar-controls">
-            <button>_</button>
-            <button>□</button>
-            <button>✕</button>
+      <div class="category-card" id="social">
+        <div class="category-header">
+          <div class="category-icon">📡</div>
+          <div>
+            <div class="category-title">Social Signals</div>
+            <div class="category-count">5 endpoints</div>
           </div>
         </div>
-        <div class="window-body">
-          <div class="endpoint-list">
-            <div class="endpoint-item" onclick="showDetail('social-token')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/social/token/:chain/:address</span>
-              <span class="endpoint-price">$0.03</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('social-trending')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/social/trending</span>
-              <span class="endpoint-price">$0.02</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('social-farcaster')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/social/farcaster/crypto</span>
-              <span class="endpoint-price">$0.02</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('social-kol')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/social/kol/activity</span>
-              <span class="endpoint-price">$0.03</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('social-sentiment')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/social/sentiment/:keyword</span>
-              <span class="endpoint-price">$0.03</span>
-            </div>
+        <div class="endpoint-list">
+          <div class="endpoint-item" onclick="showDetail('social-token')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/social/token/:chain/:address</span>
+            <span class="endpoint-price">$0.03</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('social-trending')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/social/trending</span>
+            <span class="endpoint-price">$0.02</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('social-farcaster')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/social/farcaster/crypto</span>
+            <span class="endpoint-price">$0.02</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('social-kol')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/social/kol/activity</span>
+            <span class="endpoint-price">$0.03</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('social-sentiment')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/social/sentiment/:keyword</span>
+            <span class="endpoint-price">$0.03</span>
           </div>
         </div>
       </div>
 
       <!-- GAS TRACKER -->
-      <div class="window category-window" id="gas">
-        <div class="title-bar">
-          <div class="title-bar-text">
-            <span>⛽</span>
-            <span>Gas Tracker — Multi-Chain (2 endpoints)</span>
-          </div>
-          <div class="title-bar-controls">
-            <button>_</button>
-            <button>□</button>
-            <button>✕</button>
+      <div class="category-card" id="gas">
+        <div class="category-header">
+          <div class="category-icon">⛽</div>
+          <div>
+            <div class="category-title">Gas Tracker</div>
+            <div class="category-count">2 endpoints</div>
           </div>
         </div>
-        <div class="window-body">
-          <div class="endpoint-list">
-            <div class="endpoint-item" onclick="showDetail('gas-all')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/gas</span>
-              <span class="endpoint-price">$0.001</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('gas-chain')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/gas/:chain</span>
-              <span class="endpoint-price">$0.001</span>
-            </div>
+        <div class="endpoint-list">
+          <div class="endpoint-item" onclick="showDetail('gas-all')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/gas</span>
+            <span class="endpoint-price">$0.001</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('gas-chain')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/gas/:chain</span>
+            <span class="endpoint-price">$0.001</span>
           </div>
         </div>
       </div>
 
-      <!-- TOKEN APPROVALS SCANNER -->
-      <div class="window category-window" id="approvals">
-        <div class="title-bar">
-          <div class="title-bar-text">
-            <span>🔐</span>
-            <span>Token Approvals Scanner (1 endpoint)</span>
-          </div>
-          <div class="title-bar-controls">
-            <button>_</button>
-            <button>□</button>
-            <button>✕</button>
+      <!-- TOKEN APPROVALS -->
+      <div class="category-card" id="approvals">
+        <div class="category-header">
+          <div class="category-icon">🔐</div>
+          <div>
+            <div class="category-title">Token Approvals Scanner</div>
+            <div class="category-count">1 endpoint</div>
           </div>
         </div>
-        <div class="window-body">
-          <div class="endpoint-list">
-            <div class="endpoint-item" onclick="showDetail('approvals')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/approvals/:chain/:address</span>
-              <span class="endpoint-price">$0.02</span>
-            </div>
+        <div class="endpoint-list">
+          <div class="endpoint-item" onclick="showDetail('approvals')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/approvals/:chain/:address</span>
+            <span class="endpoint-price">$0.02</span>
           </div>
         </div>
       </div>
 
       <!-- MULTI-CHAIN BALANCE -->
-      <div class="window category-window" id="balance">
-        <div class="title-bar">
-          <div class="title-bar-text">
-            <span>💰</span>
-            <span>Multi-chain Balance (1 endpoint)</span>
-          </div>
-          <div class="title-bar-controls">
-            <button>_</button>
-            <button>□</button>
-            <button>✕</button>
+      <div class="category-card" id="balance">
+        <div class="category-header">
+          <div class="category-icon">💰</div>
+          <div>
+            <div class="category-title">Multi-chain Balance</div>
+            <div class="category-count">1 endpoint</div>
           </div>
         </div>
-        <div class="window-body">
-          <div class="endpoint-list">
-            <div class="endpoint-item" onclick="showDetail('balance')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/balance/:address</span>
-              <span class="endpoint-price">$0.01</span>
-            </div>
+        <div class="endpoint-list">
+          <div class="endpoint-item" onclick="showDetail('balance')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/balance/:address</span>
+            <span class="endpoint-price">$0.01</span>
           </div>
         </div>
       </div>
 
       <!-- P&L TRACKER -->
-      <div class="window category-window" id="pnl">
-        <div class="title-bar">
-          <div class="title-bar-text">
-            <span>📊</span>
-            <span>Portfolio P&L Tracker — 2 endpoints</span>
-          </div>
-          <div class="title-bar-controls">
-            <button>_</button>
-            <button>□</button>
-            <button>✕</button>
+      <div class="category-card" id="pnl">
+        <div class="category-header">
+          <div class="category-icon">📊</div>
+          <div>
+            <div class="category-title">Portfolio P&L Tracker</div>
+            <div class="category-count">2 endpoints</div>
           </div>
         </div>
-        <div class="window-body">
-          <div class="endpoint-list">
-            <div class="endpoint-item" onclick="showDetail('pnl')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/pnl/:chain/:address</span>
-              <span class="endpoint-price">$0.05</span>
-            </div>
-            <div class="endpoint-item" onclick="showDetail('pnl-summary')">
-              <span class="endpoint-method">GET</span>
-              <span class="endpoint-path">/api/pnl/:chain/:address/summary</span>
-              <span class="endpoint-price">$0.02</span>
-            </div>
+        <div class="endpoint-list">
+          <div class="endpoint-item" onclick="showDetail('pnl')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/pnl/:chain/:address</span>
+            <span class="endpoint-price">$0.05</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('pnl-summary')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/pnl/:chain/:address/summary</span>
+            <span class="endpoint-price">$0.02</span>
           </div>
         </div>
       </div>
 
-      <!-- PLAYGROUND -->
-      <div class="window category-window" id="playground">
-        <div class="title-bar">
-          <div class="title-bar-text">
-            <span>🎮</span>
-            <span>Playground — Try API Live</span>
-          </div>
-          <div class="title-bar-controls">
-            <button>_</button>
-            <button>□</button>
-            <button>✕</button>
+      <!-- BLOCK CHECKER -->
+      <div class="category-card" id="blockcheck">
+        <div class="category-header">
+          <div class="category-icon">🧱</div>
+          <div>
+            <div class="category-title">Block Checker</div>
+            <div class="category-count">6 endpoints</div>
           </div>
         </div>
-        <div class="window-body">
-          <div class="playground-grid">
-            <div class="playground-input">
-              <div class="input-group">
-                <label>Endpoint:</label>
-                <select class="input-field" id="endpoint-select">
-                  <option value="/health">GET /health (free)</option>
-                  <option value="/api/protocols">GET /api/protocols (free)</option>
-                  <option value="/api/yields">GET /api/yields ($0.02)</option>
-                  <option value="/api/sniper/trending">GET /api/sniper/trending ($0.01)</option>
-                  <option value="/api/smart-money/activity">GET /api/smart-money/activity ($0.02)</option>
-                  <option value="/api/whale/heatmap">GET /api/whale/heatmap ($0.01)</option>
-                  <option value="/api/whale/accumulation">GET /api/whale/accumulation ($0.02)</option>
-                  <option value="/api/arbitrum/gmx/stats">GET /api/arbitrum/gmx/stats ($0.02)</option>
-                  <option value="/api/arbitrum/gmx/funding">GET /api/arbitrum/gmx/funding ($0.01)</option>
-                  <option value="/api/solana/trending">GET /api/solana/trending ($0.01)</option>
-                  <option value="/api/solana/new-tokens">GET /api/solana/new-tokens ($0.01)</option>
-                  <option value="/api/solana/top-volume">GET /api/solana/top-volume ($0.01)</option>
-                  <option value="/api/social/farcaster/crypto">GET /api/social/farcaster/crypto ($0.02)</option>
-                  <option value="/api/social/trending">GET /api/social/trending ($0.02)</option>
-                  <option value="/api/pnl/base/0x8919fe5Aa2a18d69D1Ff869c2903B313F35e8061/summary">GET /api/pnl/:chain/:address/summary ($0.02)</option>
-                </select>
-              </div>
-              <button class="btn btn-primary" onclick="runPlayground()">
-                ▶ Run Request
-              </button>
-            </div>
-            <div class="playground-output" id="playground-output">
-Ready> waiting for input...
-            </div>
+        <div class="endpoint-list">
+          <div class="endpoint-item" onclick="showDetail('block-latest')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/block/latest/:chain</span>
+            <span class="endpoint-price">$0.001</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('block-number')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/block/:chain/:number</span>
+            <span class="endpoint-price">$0.001</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('block-transactions')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/block/:chain/:number/transactions</span>
+            <span class="endpoint-price">$0.005</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('block-range')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/block/:chain/range/:from/:to</span>
+            <span class="endpoint-price">$0.01</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('block-timestamp')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/block/:chain/timestamp/:ts</span>
+            <span class="endpoint-price">$0.001</span>
+          </div>
+          <div class="endpoint-item" onclick="showDetail('block-diff')">
+            <span class="endpoint-method">GET</span>
+            <span class="endpoint-path">/api/block/:chain/difficulty</span>
+            <span class="endpoint-price">$0.001</span>
           </div>
         </div>
       </div>
+
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- PLAYGROUND -->
+  <section class="section" id="playground">
+    <div class="section-header">
+      <h2>Playground</h2>
+      <p>Test any endpoint live — no API key required for free-tier calls</p>
     </div>
 
-    <!-- MCP WINDOW -->
-    <div class="window" style="max-width: 1000px; margin: 20px auto;">
-      <div class="title-bar">
-        <div class="title-bar-text">
-          <span>🔌</span>
-          <span>MCP Integration — Connect AI Agents</span>
-        </div>
-        <div class="title-bar-controls">
-          <button>_</button>
-          <button>□</button>
-          <button>✕</button>
-        </div>
+    <div class="playground-container">
+      <div class="playground-header">
+        <div class="category-icon">🎮</div>
+        <h3>API Playground</h3>
       </div>
-      <div class="window-body">
-        <p style="margin-bottom: 10px; font-size: 12px;">
-          Connect your AI agent to RagRadar via Model Context Protocol. Auto-discover tools, pay per request.
-        </p>
-        
-        <div style="margin-bottom: 10px;">
-          <strong>Claude Desktop:</strong>
-          <div class="mcp-config">{
+      <div class="playground-body">
+        <div class="playground-controls">
+          <div class="input-group">
+            <label>Endpoint</label>
+            <select class="input-field" id="endpoint-select">
+              <option value="/health">GET /health (free)</option>
+              <option value="/api/protocols">GET /api/protocols (free)</option>
+              <option value="/api/yields">GET /api/yields ($0.02)</option>
+              <option value="/api/sniper/trending">GET /api/sniper/trending ($0.01)</option>
+              <option value="/api/smart-money/activity">GET /api/smart-money/activity ($0.02)</option>
+              <option value="/api/whale/heatmap">GET /api/whale/heatmap ($0.01)</option>
+              <option value="/api/whale/accumulation">GET /api/whale/accumulation ($0.02)</option>
+              <option value="/api/arbitrum/gmx/stats">GET /api/arbitrum/gmx/stats ($0.02)</option>
+              <option value="/api/arbitrum/gmx/funding">GET /api/arbitrum/gmx/funding ($0.01)</option>
+              <option value="/api/solana/trending">GET /api/solana/trending ($0.01)</option>
+              <option value="/api/solana/new-tokens">GET /api/solana/new-tokens ($0.01)</option>
+              <option value="/api/solana/top-volume">GET /api/solana/top-volume ($0.01)</option>
+              <option value="/api/social/farcaster/crypto">GET /api/social/farcaster/crypto ($0.02)</option>
+              <option value="/api/social/trending">GET /api/social/trending ($0.02)</option>
+              <option value="/api/pnl/base/0x8919fe5Aa2a18d69D1Ff869c2903B313F35e8061/summary">GET /api/pnl/:chain/:address/summary ($0.02)</option>
+              <option value="/api/block/latest/base">GET /api/block/latest/base ($0.001)</option>
+              <option value="/api/gas">GET /api/gas (free)</option>
+            </select>
+          </div>
+          <button class="btn-run" onclick="runPlayground()">▶ Run</button>
+        </div>
+        <div class="playground-output" id="playground-output">Ready> waiting for input...</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- MCP SECTION -->
+  <section class="section" id="mcp">
+    <div class="section-header">
+      <h2>MCP Integration</h2>
+      <p>Connect AI agents to RagRadar via Model Context Protocol</p>
+    </div>
+
+    <div class="mcp-container">
+      <div class="mcp-header">
+        <div class="category-icon">🔌</div>
+        <h3>18 MCP Tools — Auto-discover, pay per request</h3>
+      </div>
+      <div class="mcp-body">
+        <p>Connect your AI agent to RagRadar via Model Context Protocol. Auto-discover tools, pay per request.</p>
+
+        <div class="mcp-block">
+          <div class="mcp-block-label">Claude Desktop</div>
+          <div class="code-block">{
   "mcpServers": {
     "ragradar": {
       "url": "https://x402-mcp.onrender.com/sse"
@@ -1413,9 +1426,9 @@ Ready> waiting for input...
 }</div>
         </div>
 
-        <div>
-          <strong>JavaScript:</strong>
-          <div class="mcp-config">import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+        <div class="mcp-block">
+          <div class="mcp-block-label">JavaScript</div>
+          <div class="code-block">import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 
 const client = new Client({ name: "my-agent", version: "1.0.0" });
@@ -1424,122 +1437,55 @@ await client.connect(transport);</div>
         </div>
       </div>
     </div>
+  </section>
 
-    <!-- PRICING WINDOW -->
-    <div class="window" style="max-width: 1000px; margin: 0 auto;">
-      <div class="title-bar">
-        <div class="title-bar-text">
-          <span>💳</span>
-          <span>Pricing — Pay per request with USDC on Base & Solana</span>
-        </div>
-        <div class="title-bar-controls">
-          <button>_</button>
-          <button>□</button>
-          <button>✕</button>
-        </div>
-      </div>
-      <div class="window-body">
-        <table class="pricing-table">
-          <tr>
-            <th>Tier</th>
-            <th>Price Range</th>
-            <th>Endpoints</th>
-          </tr>
-          <tr>
-            <td><strong>Micro</strong></td>
-            <td>$0.005 — $0.01</td>
-            <td>Portfolio, best yield, snipers, whale alerts, protocols</td>
-          </tr>
-          <tr>
-            <td><strong>Standard</strong></td>
-            <td>$0.01 — $0.02</td>
-            <td>History, yields, token safety, smart money, whale activity</td>
-          </tr>
-          <tr>
-            <td><strong>Premium</strong></td>
-            <td>$0.02 — $0.05</td>
-            <td>Summary, wallet risk, rebalance recommendation</td>
-          </tr>
-        </table>
-      </div>
+  <div class="divider"></div>
+
+  <!-- PRICING -->
+  <section class="section" id="pricing">
+    <div class="section-header">
+      <h2>Pricing</h2>
+      <p>Pay per request with USDC on Base & Solana</p>
     </div>
 
-    <!-- FOOTER -->
-    <div class="window footer-window">
-      <div class="title-bar">
-        <div class="title-bar-text">
-          <span>ℹ️</span>
-          <span>About RagRadar</span>
-        </div>
-        <div class="title-bar-controls">
-          <button>_</button>
-          <button>□</button>
-          <button>✕</button>
-        </div>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-tier">Micro</div>
+        <div class="pricing-price">$0.005–$0.01</div>
+        <div class="pricing-desc">Portfolio, best yield, snipers, whale alerts, protocols, block checks, gas</div>
       </div>
-      <div class="window-body">
-        <div class="footer-content">
-          <p>RagRadar &copy; 2026 · Built on <a href="https://base.org" target="_blank">Base</a> + <a href="https://arbitrum.io" target="_blank">Arbitrum</a> + <a href="https://solana.com" target="_blank">Solana</a> · Powered by <a href="https://x402.org" target="_blank">x402 Protocol</a></p>
-          <p style="margin-top: 5px;">Builder Code: <strong>bc_7isseb6n</strong> (ERC-8021) · GitHub: <a href="https://github.com/ragna999/x402-base-analytics" target="_blank">ragna999/x402-base-analytics</a> · Twitter: <a href="https://x.com/0xragna" target="_blank">@0xragna</a></p>
-        </div>
+      <div class="pricing-card featured">
+        <div class="pricing-tier">Standard</div>
+        <div class="pricing-price">$0.01–$0.02</div>
+        <div class="pricing-desc">History, yields, token safety, smart money, whale activity, approvals</div>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-tier">Premium</div>
+        <div class="pricing-price">$0.02–$0.05</div>
+        <div class="pricing-desc">Summary, wallet risk, rebalance recommendation, intelligence reports, P&L</div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- TASKBAR -->
-  <div class="taskbar">
-    <button class="start-button" onclick="toggleStartMenu()">
-      <span>🪟</span>
-      <span>Start</span>
-    </button>
-    <div class="taskbar-items">
-      <div class="taskbar-item active">RagRadar.exe</div>
-      <div class="taskbar-item">Notepad</div>
-      <div class="taskbar-item">Calculator</div>
-    </div>
-    <div class="clock" id="clock">12:00 PM</div>
-  </div>
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p>RagRadar &copy; 2026 · Built on <a href="https://base.org" target="_blank">Base</a> + <a href="https://arbitrum.io" target="_blank">Arbitrum</a> + <a href="https://solana.com" target="_blank">Solana</a> · Powered by <a href="https://x402.org" target="_blank">x402 Protocol</a></p>
+    <p>Builder Code: <strong style="color:var(--text-muted)">bc_7isseb6n</strong> (ERC-8021) · GitHub: <a href="https://github.com/ragna999/x402-base-analytics" target="_blank">ragna999/x402-base-analytics</a> · Twitter: <a href="https://x.com/0xragna" target="_blank">@0xragna</a></p>
+  </footer>
 
-  <!-- START MENU -->
-  <div class="start-menu" id="start-menu">
-    <div class="start-menu-header">
-      <span>🪟</span>
-      <span>RagRadar v10.2.0</span>
-    </div>
-    <div class="start-menu-item" onclick="scrollToCategory('wallet')">💰 Wallet Analytics</div>
-    <div class="start-menu-item" onclick="scrollToCategory('yields')">📈 DeFi Yields</div>
-    <div class="start-menu-item" onclick="scrollToCategory('safety')">🛡️ Token Safety</div>
-    <div class="start-menu-item" onclick="scrollToCategory('sniper')">🎯 Sniper Tracker</div>
-    <div class="start-menu-item" onclick="scrollToCategory('smartmoney')">🧠 Smart Money</div>
-    <div class="start-menu-item" onclick="scrollToCategory('whale')">🐋 Whale Alerts</div>
-    <div class="start-menu-item" onclick="scrollToCategory('protocols')">📊 Protocol Stats</div>
-    <div class="start-menu-item" onclick="scrollToCategory('intelligence')">🔮 Intelligence</div>
-    <div class="start-menu-item" onclick="scrollToCategory('gmx')">⚡ GMX Perps</div>
-    <div class="start-menu-item" onclick="scrollToCategory('solana')">☀️ Solana Degen</div>
-    <div class="start-menu-item" onclick="scrollToCategory('social')">📡 Social Signals</div>
-    <div class="start-menu-item" onclick="scrollToCategory('pnl')">📊 P&L Tracker</div>
-    <div class="start-menu-separator"></div>
-    <div class="start-menu-item" onclick="scrollToCategory('playground')">🎮 Playground</div>
-    <div class="start-menu-item" onclick="window.open('https://github.com/ragna999/x402-base-analytics')">📁 GitHub</div>
-  </div>
-
-  <!-- DETAIL DIALOG -->
-  <div class="dialog-overlay" id="dialog-overlay" onclick="closeDetail()"></div>
-  <div class="detail-dialog" id="detail-dialog">
-    <div class="title-bar">
-      <div class="title-bar-text" id="dialog-title">
-        <span>📄</span>
-        <span>Endpoint Details</span>
+  <!-- DETAIL MODAL -->
+  <div class="modal-overlay" id="modal-overlay" onclick="closeDetail()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="modal-title">Endpoint Details</h3>
+        <button class="modal-close" onclick="closeDetail()">✕</button>
       </div>
-      <div class="title-bar-controls">
-        <button onclick="closeDetail()">✕</button>
-      </div>
-    </div>
-    <div class="dialog-body">
-      <p class="dialog-desc" id="dialog-desc"></p>
-      <div class="code-block" id="dialog-code"></div>
-      <div class="dialog-buttons">
-        <button class="btn" onclick="closeDetail()">OK</button>
+      <div class="modal-body">
+        <p class="modal-desc" id="modal-desc"></p>
+        <div class="modal-code" id="modal-code"></div>
+        <div class="modal-actions">
+          <button class="btn-modal" onclick="closeDetail()">Close</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1687,7 +1633,6 @@ await client.connect(transport);</div>
         desc: 'Combined risk analysis using token safety, whale concentration, and smart money signals.',
         code: 'curl -s https://ragradar.vercel.app/api/risk/0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
       },
-      // GMX Perps (Arbitrum)
       'gmx-stats': {
         title: 'GMX Stats',
         desc: 'GMX protocol stats on Arbitrum — TVL, available tokens, trading volume.',
@@ -1708,7 +1653,6 @@ await client.connect(transport);</div>
         desc: 'Recent liquidation events on GMX perpetuals.',
         code: 'curl -s https://ragradar.vercel.app/api/arbitrum/gmx/liquidations'
       },
-      // Solana Degen Tools
       'sol-safety': {
         title: 'Solana Token Safety',
         desc: 'Token safety check on Solana — rug risk, mint authority, freeze status.',
@@ -1739,7 +1683,6 @@ await client.connect(transport);</div>
         desc: 'Top volume tokens on Solana in the last 24h.',
         code: 'curl -s https://ragradar.vercel.app/api/solana/top-volume'
       },
-      // Social Signals
       'social-token': {
         title: 'Token Social Presence',
         desc: 'Aggregated social data for a token — Twitter, Telegram, Discord, website, GeckoTerminal trust score. Sources: DexScreener + GeckoTerminal.',
@@ -1764,7 +1707,7 @@ await client.connect(transport);</div>
         title: 'Social Sentiment',
         desc: 'Multi-source sentiment analysis — Farcaster mentions, GeckoTerminal trending, DexScreener tokens. Returns bullish/bearish score.',
         code: 'curl -s https://ragradar.vercel.app/api/social/sentiment/ethereum'
-      // Gas Tracker
+      },
       'gas-all': {
         title: 'Gas Prices (All Chains)',
         desc: 'Real-time gas prices across Base, Ethereum, Arbitrum, Optimism, Polygon, Solana. Shows gas price, max fee, priority fee.',
@@ -1775,19 +1718,16 @@ await client.connect(transport);</div>
         desc: 'Gas price for a specific chain. Use: base, ethereum, arbitrum, optimism, polygon, solana.',
         code: 'curl -s https://ragradar.vercel.app/api/gas/base'
       },
-      // Token Approvals
       'approvals': {
         title: 'Token Approvals Scanner',
         desc: 'Scan wallet token approvals — detect unlimited approvals, security risks. Shows revoke recommendations via revoke.cash.',
         code: 'curl -s https://ragradar.vercel.app/api/approvals/base/0x8919fe5Aa2a18d69D1Ff869c2903B313F35e8061'
       },
-      // Multi-chain Balance
       'balance': {
         title: 'Multi-chain Balance',
         desc: 'Single call — get native + stablecoin balance across Base, ETH, Arbitrum, Optimism, Polygon. Returns total stablecoin value.',
         code: 'curl -s https://ragradar.vercel.app/api/balance/0x8919fe5Aa2a18d69D1Ff869c2903B313F35e8061'
       },
-      // Portfolio P&L Tracker
       'pnl': {
         title: 'Portfolio P&L Tracker',
         desc: 'Full portfolio P&L analysis — realized + unrealized profit/loss, cost basis (average cost method), win/loss ratio, best/worst trades, per-token breakdown. Uses Blockscout transfers + GeckoTerminal real-time prices.',
@@ -1798,22 +1738,50 @@ await client.connect(transport);</div>
         desc: 'Lightweight P&L summary — total realized/unrealized, win rate, best/worst trades. Faster than full P&L endpoint.',
         code: 'curl -s https://ragradar.vercel.app/api/pnl/base/0x8919fe5Aa2a18d69D1Ff869c2903B313F35e8061/summary'
       },
+      // Block Checker endpoints
+      'block-latest': {
+        title: 'Latest Block',
+        desc: 'Get the latest block number and details for a given chain. Supports base, ethereum, arbitrum, optimism, polygon.',
+        code: 'curl -s https://ragradar.vercel.app/api/block/latest/base'
+      },
+      'block-number': {
+        title: 'Block by Number',
+        desc: 'Get block details by block number — timestamp, gas used, miner/validator, transaction count, size.',
+        code: 'curl -s https://ragradar.vercel.app/api/block/base/12345678'
+      },
+      'block-transactions': {
+        title: 'Block Transactions',
+        desc: 'Get all transactions in a specific block — from, to, value, gas used, status, method signature.',
+        code: 'curl -s https://ragradar.vercel.app/api/block/base/12345678/transactions'
+      },
+      'block-range': {
+        title: 'Block Range',
+        desc: 'Get block data for a range of blocks — timestamps, gas usage, tx counts. Useful for time-series analysis.',
+        code: 'curl -s https://ragradar.vercel.app/api/block/base/range/12345600/12345700'
+      },
+      'block-timestamp': {
+        title: 'Block by Timestamp',
+        desc: 'Find the block closest to a given Unix timestamp. Useful for historical lookups.',
+        code: 'curl -s https://ragradar.vercel.app/api/block/base/timestamp/1700000000'
+      },
+      'block-diff': {
+        title: 'Block Difficulty / BaseFee',
+        desc: 'Get current difficulty (PoW chains) or base fee (EIP-1559 chains) for the latest block.',
+        code: 'curl -s https://ragradar.vercel.app/api/block/base/difficulty'
+      }
     };
 
     function showDetail(id) {
       const detail = endpointDetails[id];
       if (!detail) return;
-      
-      document.getElementById('dialog-title').innerHTML = `<span>📄</span><span>${detail.title}</span>`;
-      document.getElementById('dialog-desc').textContent = detail.desc;
-      document.getElementById('dialog-code').textContent = detail.code;
-      document.getElementById('detail-dialog').classList.add('open');
-      document.getElementById('dialog-overlay').classList.add('open');
+      document.getElementById('modal-title').textContent = detail.title;
+      document.getElementById('modal-desc').textContent = detail.desc;
+      document.getElementById('modal-code').textContent = detail.code;
+      document.getElementById('modal-overlay').classList.add('open');
     }
 
     function closeDetail() {
-      document.getElementById('detail-dialog').classList.remove('open');
-      document.getElementById('dialog-overlay').classList.remove('open');
+      document.getElementById('modal-overlay').classList.remove('open');
     }
 
     // === PLAYGROUND ===
@@ -1821,7 +1789,6 @@ await client.connect(transport);</div>
       const endpoint = document.getElementById('endpoint-select').value;
       const output = document.getElementById('playground-output');
       output.textContent = `> GET ${endpoint}\n> Fetching...`;
-      
       try {
         const res = await fetch(`https://ragradar.vercel.app${endpoint}`);
         const data = await res.json();
@@ -1831,41 +1798,26 @@ await client.connect(transport);</div>
       }
     }
 
-    // === START MENU ===
-    function toggleStartMenu() {
-      document.getElementById('start-menu').classList.toggle('open');
-    }
-
-    // Close start menu on click outside
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.start-button') && !e.target.closest('.start-menu')) {
-        document.getElementById('start-menu').classList.remove('open');
-      }
-    });
-
     // === SCROLL TO CATEGORY ===
     function scrollToCategory(id) {
-      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-      document.getElementById('start-menu').classList.remove('open');
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.getElementById('nav-links').classList.remove('open');
     }
-
-    // === CLOCK ===
-    function updateClock() {
-      const now = new Date();
-      const hours = now.getHours();
-      const minutes = now.getMinutes().toString().padStart(2, '0');
-      const ampm = hours >= 12 ? 'PM' : 'AM';
-      const displayHours = hours % 12 || 12;
-      document.getElementById('clock').textContent = `${displayHours}:${minutes} ${ampm}`;
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
 
     // === KEYBOARD SHORTCUTS ===
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        closeDetail();
-        document.getElementById('start-menu').classList.remove('open');
+      if (e.key === 'Escape') closeDetail();
+    });
+
+    // === NAVBAR SCROLL EFFECT ===
+    let lastScroll = 0;
+    window.addEventListener('scroll', () => {
+      const navbar = document.querySelector('.navbar');
+      if (window.scrollY > 50) {
+        navbar.style.background = 'rgba(0,0,0,0.95)';
+      } else {
+        navbar.style.background = 'rgba(0,0,0,0.8)';
       }
     });
   </script>
