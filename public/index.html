@@ -375,7 +375,7 @@
     }
 
     .category-icon {
-      font-size: 20px;
+      font-size: 18px;
       width: 40px;
       height: 40px;
       display: flex;
@@ -383,6 +383,9 @@
       justify-content: center;
       background: var(--bg-tertiary);
       border-radius: 10px;
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
     }
 
     .category-title {
@@ -926,22 +929,22 @@
     </div>
 
     <div class="docs-nav">
-      <a href="#" onclick="scrollToCategory('wallet');return false">💰 Wallet</a>
-      <a href="#" onclick="scrollToCategory('yields');return false">📈 Yields</a>
-      <a href="#" onclick="scrollToCategory('safety');return false">🛡️ Safety</a>
-      <a href="#" onclick="scrollToCategory('sniper');return false">🎯 Sniper</a>
-      <a href="#" onclick="scrollToCategory('smartmoney');return false">🧠 Smart Money</a>
-      <a href="#" onclick="scrollToCategory('whale');return false">🐋 Whale</a>
-      <a href="#" onclick="scrollToCategory('protocols');return false">📊 Protocols</a>
-      <a href="#" onclick="scrollToCategory('intelligence');return false">🔮 Intelligence</a>
-      <a href="#" onclick="scrollToCategory('gmx');return false">⚡ GMX</a>
-      <a href="#" onclick="scrollToCategory('solana');return false">☀️ Solana</a>
-      <a href="#" onclick="scrollToCategory('social');return false">📡 Social</a>
-      <a href="#" onclick="scrollToCategory('gas');return false">⛽ Gas</a>
-      <a href="#" onclick="scrollToCategory('approvals');return false">🔐 Approvals</a>
-      <a href="#" onclick="scrollToCategory('balance');return false">💰 Balance</a>
-      <a href="#" onclick="scrollToCategory('pnl');return false">📊 P&L</a>
-      <a href="#" onclick="scrollToCategory('blockcheck');return false">🧱 Blocks</a>
+      <a href="#" onclick="scrollToCategory('wallet');return false">Wallet</a>
+      <a href="#" onclick="scrollToCategory('yields');return false">Yields</a>
+      <a href="#" onclick="scrollToCategory('safety');return false">Safety</a>
+      <a href="#" onclick="scrollToCategory('sniper');return false">Sniper</a>
+      <a href="#" onclick="scrollToCategory('smartmoney');return false">Smart Money</a>
+      <a href="#" onclick="scrollToCategory('whale');return false">Whale</a>
+      <a href="#" onclick="scrollToCategory('protocols');return false">Protocols</a>
+      <a href="#" onclick="scrollToCategory('intelligence');return false">Intelligence</a>
+      <a href="#" onclick="scrollToCategory('gmx');return false">GMX</a>
+      <a href="#" onclick="scrollToCategory('solana');return false">Solana</a>
+      <a href="#" onclick="scrollToCategory('social');return false">Social</a>
+      <a href="#" onclick="scrollToCategory('gas');return false">Gas</a>
+      <a href="#" onclick="scrollToCategory('approvals');return false">Approvals</a>
+      <a href="#" onclick="scrollToCategory('balance');return false">Balance</a>
+      <a href="#" onclick="scrollToCategory('pnl');return false">P&L</a>
+      <a href="#" onclick="scrollToCategory('blockcheck');return false">Blocks</a>
     </div>
 
     <div class="categories-grid">
@@ -977,7 +980,7 @@
       <!-- DEFI YIELDS -->
       <div class="category-card" id="yields">
         <div class="category-header">
-          <div class="category-icon">📈</div>
+          <div class="category-icon">↗</div>
           <div>
             <div class="category-title">DeFi Yields</div>
             <div class="category-count">4 endpoints</div>
@@ -1010,7 +1013,7 @@
       <!-- SAFETY -->
       <div class="category-card" id="safety">
         <div class="category-header">
-          <div class="category-icon">🛡️</div>
+          <div class="category-icon">◇</div>
           <div>
             <div class="category-title">Token Safety</div>
             <div class="category-count">2 endpoints</div>
@@ -1033,7 +1036,7 @@
       <!-- SNIPER TRACKER -->
       <div class="category-card" id="sniper">
         <div class="category-header">
-          <div class="category-icon">🎯</div>
+          <div class="category-icon">◎</div>
           <div>
             <div class="category-title">Sniper Tracker</div>
             <div class="category-count">3 endpoints</div>
@@ -1061,7 +1064,7 @@
       <!-- SMART MONEY -->
       <div class="category-card" id="smartmoney">
         <div class="category-header">
-          <div class="category-icon">🧠</div>
+          <div class="category-icon">◈</div>
           <div>
             <div class="category-title">Smart Money</div>
             <div class="category-count">3 endpoints</div>
@@ -1089,7 +1092,7 @@
       <!-- WHALE ALERTS -->
       <div class="category-card" id="whale">
         <div class="category-header">
-          <div class="category-icon">🐋</div>
+          <div class="category-icon">▽</div>
           <div>
             <div class="category-title">Whale Alerts</div>
             <div class="category-count">5 endpoints</div>
@@ -1155,7 +1158,7 @@
       <!-- INTELLIGENCE -->
       <div class="category-card" id="intelligence">
         <div class="category-header">
-          <div class="category-icon">🔮</div>
+          <div class="category-icon">○</div>
           <div>
             <div class="category-title">Intelligence</div>
             <div class="category-count">5 endpoints</div>
@@ -1193,7 +1196,7 @@
       <!-- GMX PERPS -->
       <div class="category-card" id="gmx">
         <div class="category-header">
-          <div class="category-icon">⚡</div>
+          <div class="category-icon">⟡</div>
           <div>
             <div class="category-title">GMX Perps — Arbitrum</div>
             <div class="category-count">4 endpoints</div>
@@ -1226,7 +1229,7 @@
       <!-- SOLANA DEGEN -->
       <div class="category-card" id="solana">
         <div class="category-header">
-          <div class="category-icon">☀️</div>
+          <div class="category-icon">△</div>
           <div>
             <div class="category-title">Solana Degen Tools</div>
             <div class="category-count">6 endpoints</div>
@@ -1269,7 +1272,7 @@
       <!-- SOCIAL SIGNALS -->
       <div class="category-card" id="social">
         <div class="category-header">
-          <div class="category-icon">📡</div>
+          <div class="category-icon">⊕</div>
           <div>
             <div class="category-title">Social Signals</div>
             <div class="category-count">5 endpoints</div>
@@ -1307,7 +1310,7 @@
       <!-- GAS TRACKER -->
       <div class="category-card" id="gas">
         <div class="category-header">
-          <div class="category-icon">⛽</div>
+          <div class="category-icon">◆</div>
           <div>
             <div class="category-title">Gas Tracker</div>
             <div class="category-count">2 endpoints</div>
@@ -1330,7 +1333,7 @@
       <!-- TOKEN APPROVALS -->
       <div class="category-card" id="approvals">
         <div class="category-header">
-          <div class="category-icon">🔐</div>
+          <div class="category-icon">▣</div>
           <div>
             <div class="category-title">Token Approvals Scanner</div>
             <div class="category-count">1 endpoint</div>
@@ -1389,7 +1392,7 @@
       <!-- BLOCK CHECKER -->
       <div class="category-card" id="blockcheck">
         <div class="category-header">
-          <div class="category-icon">🧱</div>
+          <div class="category-icon">▧</div>
           <div>
             <div class="category-title">Block Checker</div>
             <div class="category-count">6 endpoints</div>
