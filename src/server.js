@@ -71,6 +71,9 @@ import { getNFTPortfolio, getCollectionInfo, getFloorPrice, getNFTSales, getNFTO
 
 // Solana NFT Analytics (Magic Eden)
 import { getSolanaCollectionStats, getSolanaNFTPortfolio, getSolanaTokenMetadata, getSolanaCollectionActivities } from "./solanaNft.js";
+
+// Block Checker (multi-chain)
+import { getLatestBlocks, getLatestBlock, CHAINS as BLOCK_CHAINS } from "./blockChecker.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PAY_TO = process.env.PAY_TO_ADDRESS;
@@ -1023,6 +1026,35 @@ async function main() {
     } catch (err) {
       console.error("Gas chain error:", err.message);
       res.status(400).json({ error: err.message });
+    }
+  });
+
+  // === BLOCK CHECKER ===
+  app.get("/api/blocks", async (req, res) => {
+    try {
+      const chains = req.query.chains || null;
+      res.json(await getLatestBlocks(chains));
+    } catch (err) {
+      console.error("Block checker error:", err.message);
+      res.status(500).json({ error: "Failed to fetch blocks" });
+    }
+  });
+
+  app.get("/api/blocks/:chain", async (req, res) => {
+    try {
+      const chain = req.params.chain.toLowerCase();
+      if (!BLOCK_CHAINS[chain]) {
+        return res.status(400).json({ error: `Unsupported chain: ${chain}. Supported: ${Object.keys(BLOCK_CHAINS).join(', ')}` });
+      }
+      const block = await getLatestBlock(chain);
+      res.json({
+        chain,
+        name: BLOCK_CHAINS[chain].name,
+        ...block,
+      });
+    } catch (err) {
+      console.error("Block chain error:", err.message);
+      res.status(500).json({ error: err.message });
     }
   });
 
