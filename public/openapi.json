@@ -3477,6 +3477,46 @@
           "scheme": "exact"
         }
       }
+    },
+    "/api/deployer/{chain}/{address}": {
+      "get": {
+        "summary": "Contract Deployer Intelligence",
+        "description": "Who deployed a contract, their deployment history, verification status, and risk flags. Uses Blockscout + Sourcify.",
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["base", "arbitrum", "polygon", "avalanche", "celo"]
+            },
+            "description": "Blockchain network"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Contract address to investigate"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deployer intel — creator, history, risk flags"
+          },
+          "402": {
+            "description": "Payment required"
+          }
+        },
+        "x-payment-info": {
+          "price": "$0.01",
+          "network": "eip155:8453",
+          "scheme": "exact"
+        }
+      }
     }
   }
 }
