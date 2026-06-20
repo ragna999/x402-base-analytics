@@ -87,6 +87,9 @@ import { analyzeLiquidity } from "./liquidityAnalysis.js";
 // Full Token Scan
 import { fullTokenScan } from "./fullTokenScan.js";
 
+// Clone Detection
+import { detectClones } from "./cloneDetection.js";
+
 // Block Checker (multi-chain)
 import { getLatestBlocks, getLatestBlock, CHAINS as BLOCK_CHAINS } from "./blockChecker.js";
 const app = express();
@@ -1746,6 +1749,15 @@ async function main() {
       if (!SUPPORTED_CHAINS.includes(chain)) return res.status(400).json({ error: `Unsupported chain. Use: ${SUPPORTED_CHAINS.join(", ")}` });
       res.json(await fullTokenScan(chain, address));
     } catch (err) { console.error("Full scan error:", err.message); res.status(500).json({ error: "Failed", details: err.message }); }
+  });
+
+  // === CLONE DETECTION (FREE — playground testing) ===
+  app.get("/api/clones/:chain/:address", async (req, res) => {
+    try {
+      const { chain, address } = req.params;
+      if (!SUPPORTED_CHAINS.includes(chain)) return res.status(400).json({ error: `Unsupported chain. Use: ${SUPPORTED_CHAINS.join(", ")}` });
+      res.json(await detectClones(chain, address));
+    } catch (err) { console.error("Clone detection error:", err.message); res.status(500).json({ error: "Failed", details: err.message }); }
   });
 
   // --- Start ---
