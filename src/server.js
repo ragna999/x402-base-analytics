@@ -78,6 +78,9 @@ import { analyzeDeployer } from "./deployerIntel.js";
 // Holder Analysis
 import { analyzeHolders } from "./holderAnalysis.js";
 
+// MEV Detection
+import { analyzeMev } from "./mevDetection.js";
+
 // Block Checker (multi-chain)
 import { getLatestBlocks, getLatestBlock, CHAINS as BLOCK_CHAINS } from "./blockChecker.js";
 const app = express();
@@ -1711,6 +1714,15 @@ async function main() {
       if (!SUPPORTED_CHAINS.includes(chain)) return res.status(400).json({ error: `Unsupported chain. Use: ${SUPPORTED_CHAINS.join(", ")}` });
       res.json(await analyzeHolders(chain, address));
     } catch (err) { console.error("Holder analysis error:", err.message); res.status(500).json({ error: "Failed", details: err.message }); }
+  });
+
+  // === MEV DETECTION (FREE — playground testing) ===
+  app.get("/api/mev/:chain/:address", async (req, res) => {
+    try {
+      const { chain, address } = req.params;
+      if (!SUPPORTED_CHAINS.includes(chain)) return res.status(400).json({ error: `Unsupported chain. Use: ${SUPPORTED_CHAINS.join(", ")}` });
+      res.json(await analyzeMev(chain, address));
+    } catch (err) { console.error("MEV detection error:", err.message); res.status(500).json({ error: "Failed", details: err.message }); }
   });
 
   // --- Start ---
