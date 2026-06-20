@@ -72,6 +72,9 @@ import { getNFTPortfolio, getCollectionInfo, getFloorPrice, getNFTSales, getNFTO
 // Solana NFT Analytics (Magic Eden)
 import { getSolanaCollectionStats, getSolanaNFTPortfolio, getSolanaTokenMetadata, getSolanaCollectionActivities } from "./solanaNft.js";
 
+// Deployer Intel
+import { analyzeDeployer } from "./deployerIntel.js";
+
 // Block Checker (multi-chain)
 import { getLatestBlocks, getLatestBlock, CHAINS as BLOCK_CHAINS } from "./blockChecker.js";
 const app = express();
@@ -630,6 +633,14 @@ async function main() {
     "GET /api/protocol-health/:protocol": {
       accepts: multiChainWithSol("$0.02"),
       description: "Protocol health dashboard — TVL changes, utilization rates, governance activity. Returns health score + key metrics.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+
+    // === DEPLOYER INTEL ===
+    "GET /api/deployer/:chain/:address": {
+      accepts: multiChainWithSol("$0.01"),
+      description: "Contract deployer intelligence — who deployed it, their history, other contracts, risk flags.",
       mimeType: "application/json",
       ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
@@ -1679,6 +1690,15 @@ async function main() {
       console.error("Protocol health error:", err.message);
       res.status(500).json({ error: "Failed" });
     }
+  });
+
+  // === DEPLOYER INTEL ===
+  app.get("/api/deployer/:chain/:address", async (req, res) => {
+    try {
+      const { chain, address } = req.params;
+      if (!SUPPORTED_CHAINS.includes(chain)) return res.status(400).json({ error: `Unsupported chain. Use: ${SUPPORTED_CHAINS.join(", ")}` });
+      res.json(await analyzeDeployer(chain, address));
+    } catch (err) { console.error("Deployer intel error:", err.message); res.status(500).json({ error: "Failed", details: err.message }); }
   });
 
   // --- Start ---
