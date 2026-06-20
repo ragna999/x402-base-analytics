@@ -81,6 +81,9 @@ import { analyzeHolders } from "./holderAnalysis.js";
 // MEV Detection
 import { analyzeMev } from "./mevDetection.js";
 
+// Liquidity Analysis
+import { analyzeLiquidity } from "./liquidityAnalysis.js";
+
 // Block Checker (multi-chain)
 import { getLatestBlocks, getLatestBlock, CHAINS as BLOCK_CHAINS } from "./blockChecker.js";
 const app = express();
@@ -1723,6 +1726,14 @@ async function main() {
       if (!SUPPORTED_CHAINS.includes(chain)) return res.status(400).json({ error: `Unsupported chain. Use: ${SUPPORTED_CHAINS.join(", ")}` });
       res.json(await analyzeMev(chain, address));
     } catch (err) { console.error("MEV detection error:", err.message); res.status(500).json({ error: "Failed", details: err.message }); }
+  });
+
+  // === LIQUIDITY ANALYSIS (FREE — playground testing) ===
+  app.get("/api/liquidity/:chain/:address", async (req, res) => {
+    try {
+      const { chain, address } = req.params;
+      res.json(await analyzeLiquidity(chain, address));
+    } catch (err) { console.error("Liquidity analysis error:", err.message); res.status(500).json({ error: "Failed", details: err.message }); }
   });
 
   // --- Start ---
