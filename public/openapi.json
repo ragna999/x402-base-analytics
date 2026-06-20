@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "RagRadar \u2014 Multi-Chain Intelligence",
+    "title": "RagRadar — Multi-Chain Intelligence",
     "version": "10.4.0",
     "description": "AI-powered on-chain analytics across Base, Arbitrum, Solana, Ethereum, Optimism, Polygon. 66 REST endpoints covering wallet analytics, Portfolio P&L tracker, DeFi yields, token safety, smart money tracking, whale alerts, sniper detection, GMX perps, Solana degen tools, protocol stats, gas tracking, token approvals, multi-chain balance, DEX aggregator quotes, arbitrage scanning, NFT analytics (powered by Alchemy), and Solana NFT analytics (powered by Magic Eden).",
     "x-guidance": "RagRadar: 66 paid REST endpoints across Base, Arbitrum, Solana, Ethereum, Optimism, Polygon. Covers wallet analytics, Portfolio P&L tracker (realized + unrealized, cost basis, win/loss), DeFi yields, token safety, sniper tracking, smart money, whale alerts, protocol stats, intelligence, GMX perps, Solana degen tools, social signals, gas tracker, approvals scanner, multi-chain balance, DEX aggregator quotes, arbitrage scanning, NFT analytics (floor price, collections, sales, ownership), and Solana NFT analytics (Magic Eden data). Pay USDC via x402 protocol on Base or Solana.",
@@ -22,7 +22,7 @@
     "/api/portfolio/{chain}/{address}": {
       "get": {
         "operationId": "getPortfolio",
-        "summary": "Wallet Portfolio \u2014 token balances on any chain",
+        "summary": "Wallet Portfolio — token balances on any chain",
         "description": "Get native + ERC-20 token balances for any wallet. Supports: base, arbitrum, polygon, avalanche, celo.",
         "tags": [
           "Wallet Analytics"
@@ -87,7 +87,7 @@
     "/api/history/{chain}/{address}": {
       "get": {
         "operationId": "getTxHistory",
-        "summary": "Transaction History \u2014 recent wallet activity",
+        "summary": "Transaction History — recent wallet activity",
         "description": "Get recent transaction history for a wallet. Supports Blockscout chains: base, arbitrum, celo.",
         "tags": [
           "Wallet Analytics"
@@ -160,7 +160,7 @@
     "/api/summary/{chain}/{address}": {
       "get": {
         "operationId": "getWalletSummary",
-        "summary": "Wallet Summary \u2014 full analytics package",
+        "summary": "Wallet Summary — full analytics package",
         "description": "Complete wallet analytics: portfolio, history, activity stats. Supports Blockscout chains: base, arbitrum, celo.",
         "tags": [
           "Wallet Analytics"
@@ -223,7 +223,7 @@
     "/api/token-safety/{chain}/{address}": {
       "get": {
         "operationId": "checkTokenSafety",
-        "summary": "Token Safety \u2014 rug risk analysis",
+        "summary": "Token Safety — rug risk analysis",
         "description": "Token safety analysis using GoPlus Security data. Honeypot check, holder analysis, tax info. Supports all chains: base, arbitrum, polygon, avalanche, celo.",
         "tags": [
           "Safety"
@@ -288,7 +288,7 @@
     "/api/yields": {
       "get": {
         "operationId": "getDefiYields",
-        "summary": "DeFi Yields \u2014 all Base yield opportunities",
+        "summary": "DeFi Yields — all Base yield opportunities",
         "description": "Real-time DeFi yields from DeFiLlama (1,700+ pools on Base). Sorted by APY.",
         "tags": [
           "DeFi Yields"
@@ -325,7 +325,7 @@
     "/api/yields/best/{asset}": {
       "get": {
         "operationId": "getBestYield",
-        "summary": "Best Yield \u2014 top yield for a specific asset",
+        "summary": "Best Yield — top yield for a specific asset",
         "description": "Find the best yield for USDC, ETH, or other assets across all Base DeFi protocols.",
         "tags": [
           "DeFi Yields"
@@ -373,7 +373,7 @@
     "/api/yields/risk": {
       "get": {
         "operationId": "getYieldsByRisk",
-        "summary": "Yields by Risk \u2014 yields categorized by risk level",
+        "summary": "Yields by Risk — yields categorized by risk level",
         "description": "DeFi yields categorized by risk level (low/medium/high).",
         "tags": [
           "DeFi Yields"
@@ -410,7 +410,7 @@
     "/api/yields/rebalance": {
       "get": {
         "operationId": "getRebalanceRecommendation",
-        "summary": "Rebalance Recommendation \u2014 compare current vs best yield",
+        "summary": "Rebalance Recommendation — compare current vs best yield",
         "description": "Compare your current yield vs best available. Suggests rebalancing options.",
         "tags": [
           "DeFi Yields"
@@ -467,8 +467,8 @@
     "/api/wallet-risk/{address}": {
       "get": {
         "operationId": "checkWalletRisk",
-        "summary": "Wallet Risk \u2014 age, activity, scam detection",
-        "description": "Wallet risk scoring \u2014 age, activity patterns, scam interaction, bot detection.",
+        "summary": "Wallet Risk — age, activity, scam detection",
+        "description": "Wallet risk scoring — age, activity patterns, scam interaction, bot detection.",
         "tags": [
           "Safety"
         ],
@@ -516,7 +516,7 @@
     "/api/sniper/token/{address}": {
       "get": {
         "operationId": "findTokenSnipers",
-        "summary": "Token Snipers \u2014 early buyers of a token",
+        "summary": "Token Snipers — early buyers of a token",
         "description": "Find wallets that bought early on a token. Shows position, ROI, still-holding status.",
         "tags": [
           "Sniper Tracker"
@@ -565,8 +565,8 @@
     "/api/sniper/wallet/{address}": {
       "get": {
         "operationId": "getWalletSniperRecord",
-        "summary": "Wallet Sniper Record \u2014 track record for a wallet",
-        "description": "Sniper track record for a wallet \u2014 score, success rate, tokens traded.",
+        "summary": "Wallet Sniper Record — track record for a wallet",
+        "description": "Sniper track record for a wallet — score, success rate, tokens traded.",
         "tags": [
           "Sniper Tracker"
         ],
@@ -614,8 +614,8 @@
     "/api/sniper/trending": {
       "get": {
         "operationId": "getTrendingSnipers",
-        "summary": "Trending Snipers \u2014 top snipers from trending tokens",
-        "description": "Top snipers from trending tokens on Base \u2014 wallets that buy early on multiple tokens.",
+        "summary": "Trending Snipers — top snipers from trending tokens",
+        "description": "Top snipers from trending tokens on Base — wallets that buy early on multiple tokens.",
         "tags": [
           "Sniper Tracker"
         ],
@@ -651,8 +651,8 @@
     "/api/smart-money/wallet/{address}": {
       "get": {
         "operationId": "analyzeSmartMoneyWallet",
-        "summary": "Smart Money Wallet \u2014 analysis for a wallet",
-        "description": "Smart money analysis for a wallet \u2014 score, classification, trading patterns.",
+        "summary": "Smart Money Wallet — analysis for a wallet",
+        "description": "Smart money analysis for a wallet — score, classification, trading patterns.",
         "tags": [
           "Smart Money"
         ],
@@ -700,8 +700,8 @@
     "/api/smart-money/token/{address}": {
       "get": {
         "operationId": "findSmartMoneyBuyers",
-        "summary": "Smart Money Token \u2014 find smart money buyers",
-        "description": "Find smart money buyers of a token \u2014 who's buying, are they still holding.",
+        "summary": "Smart Money Token — find smart money buyers",
+        "description": "Find smart money buyers of a token — who's buying, are they still holding.",
         "tags": [
           "Smart Money"
         ],
@@ -749,7 +749,7 @@
     "/api/smart-money/activity": {
       "get": {
         "operationId": "getSmartMoneyActivity",
-        "summary": "Smart Money Activity \u2014 what smart money is buying",
+        "summary": "Smart Money Activity — what smart money is buying",
         "description": "What smart money wallets are buying right now on Base.",
         "tags": [
           "Smart Money"
@@ -786,8 +786,8 @@
     "/api/whale/alerts": {
       "get": {
         "operationId": "getWhaleAlerts",
-        "summary": "Whale Alerts \u2014 large transfers",
-        "description": "Recent whale alerts \u2014 large transfers from known whale wallets.",
+        "summary": "Whale Alerts — large transfers",
+        "description": "Recent whale alerts — large transfers from known whale wallets.",
         "tags": [
           "Whale Alerts"
         ],
@@ -823,8 +823,8 @@
     "/api/whale/alerts/{token}": {
       "get": {
         "operationId": "getTokenWhaleActivity",
-        "summary": "Token Whale Activity \u2014 holder concentration",
-        "description": "Token whale activity \u2014 holder concentration, risk score.",
+        "summary": "Token Whale Activity — holder concentration",
+        "description": "Token whale activity — holder concentration, risk score.",
         "tags": [
           "Whale Alerts"
         ],
@@ -872,8 +872,8 @@
     "/api/whale/movements": {
       "get": {
         "operationId": "getWhaleMovements",
-        "summary": "Whale Movements \u2014 cross-token activity",
-        "description": "Cross-token whale activity \u2014 volume, buy/sell ratio.",
+        "summary": "Whale Movements — cross-token activity",
+        "description": "Cross-token whale activity — volume, buy/sell ratio.",
         "tags": [
           "Whale Alerts"
         ],
@@ -909,8 +909,8 @@
     "/api/whale/heatmap": {
       "get": {
         "operationId": "getWhaleHeatmap",
-        "summary": "Whale Heatmap \u2014 tokens ranked by whale activity",
-        "description": "Whale heatmap \u2014 tokens ranked by whale activity score.",
+        "summary": "Whale Heatmap — tokens ranked by whale activity",
+        "description": "Whale heatmap — tokens ranked by whale activity score.",
         "tags": [
           "Whale Alerts"
         ],
@@ -946,8 +946,8 @@
     "/api/whale/accumulation": {
       "get": {
         "operationId": "getAccumulationSignals",
-        "summary": "Accumulation Signals \u2014 tokens being accumulated",
-        "description": "Accumulation signals \u2014 tokens being accumulated by large buyers.",
+        "summary": "Accumulation Signals — tokens being accumulated",
+        "description": "Accumulation signals — tokens being accumulated by large buyers.",
         "tags": [
           "Whale Alerts"
         ],
@@ -983,8 +983,8 @@
     "/api/intelligence/token/{address}": {
       "get": {
         "operationId": "getTokenIntelligence",
-        "summary": "Token Intelligence \u2014 complete token analysis",
-        "description": "Complete token intelligence \u2014 safety + whale + smart money + snipers combined.",
+        "summary": "Token Intelligence — complete token analysis",
+        "description": "Complete token intelligence — safety + whale + smart money + snipers combined.",
         "tags": [
           "Intelligence"
         ],
@@ -1032,8 +1032,8 @@
     "/api/intelligence/wallet/{address}": {
       "get": {
         "operationId": "getWalletIntelligence",
-        "summary": "Wallet Intelligence \u2014 complete wallet analysis",
-        "description": "Complete wallet intelligence \u2014 portfolio + smart money + sniper + risk combined.",
+        "summary": "Wallet Intelligence — complete wallet analysis",
+        "description": "Complete wallet intelligence — portfolio + smart money + sniper + risk combined.",
         "tags": [
           "Intelligence"
         ],
@@ -1081,8 +1081,8 @@
     "/api/market/pulse": {
       "get": {
         "operationId": "getMarketPulse",
-        "summary": "Market Pulse \u2014 real-time market overview",
-        "description": "Real-time market pulse \u2014 whale picks + smart money activity + top movers + yields.",
+        "summary": "Market Pulse — real-time market overview",
+        "description": "Real-time market pulse — whale picks + smart money activity + top movers + yields.",
         "tags": [
           "Intelligence"
         ],
@@ -1118,8 +1118,8 @@
     "/api/defi/dashboard": {
       "get": {
         "operationId": "getDefiDashboard",
-        "summary": "DeFi Dashboard \u2014 yields + protocols + TVL",
-        "description": "DeFi dashboard \u2014 yields + protocols + TVL + movers combined.",
+        "summary": "DeFi Dashboard — yields + protocols + TVL",
+        "description": "DeFi dashboard — yields + protocols + TVL + movers combined.",
         "tags": [
           "Intelligence"
         ],
@@ -1155,8 +1155,8 @@
     "/api/risk/{address}": {
       "get": {
         "operationId": "getRiskAssessment",
-        "summary": "Risk Assessment \u2014 token safety + whale + signals",
-        "description": "Risk assessment \u2014 token safety + whale concentration + smart money signal.",
+        "summary": "Risk Assessment — token safety + whale + signals",
+        "description": "Risk assessment — token safety + whale concentration + smart money signal.",
         "tags": [
           "Intelligence"
         ],
@@ -1204,8 +1204,8 @@
     "/api/arbitrum/gmx/stats": {
       "get": {
         "operationId": "getGmxStats",
-        "summary": "GMX Stats \u2014 TVL, volume, fees on Arbitrum",
-        "description": "GMX V2 stats \u2014 TVL $152M+, 127 tokens, protocol data. Arbitrum-specific.",
+        "summary": "GMX Stats — TVL, volume, fees on Arbitrum",
+        "description": "GMX V2 stats — TVL $152M+, 127 tokens, protocol data. Arbitrum-specific.",
         "tags": [
           "GMX Perps"
         ],
@@ -1241,8 +1241,8 @@
     "/api/arbitrum/gmx/funding": {
       "get": {
         "operationId": "getGmxFundingRates",
-        "summary": "GMX Funding Rates \u2014 yield pools",
-        "description": "GMX yield pools \u2014 20+ pools with APY, TVL data. Arbitrum-specific.",
+        "summary": "GMX Funding Rates — yield pools",
+        "description": "GMX yield pools — 20+ pools with APY, TVL data. Arbitrum-specific.",
         "tags": [
           "GMX Perps"
         ],
@@ -1278,7 +1278,7 @@
     "/api/arbitrum/gmx/glp": {
       "get": {
         "operationId": "getGlpYield",
-        "summary": "GLP Yield \u2014 GMX/GLP staking yields",
+        "summary": "GLP Yield — GMX/GLP staking yields",
         "description": "GLP and GMX staking yield data. Arbitrum-specific.",
         "tags": [
           "GMX Perps"
@@ -1315,7 +1315,7 @@
     "/api/arbitrum/gmx/liquidations": {
       "get": {
         "operationId": "getGmxLiquidations",
-        "summary": "GMX Liquidations \u2014 liquidation feed",
+        "summary": "GMX Liquidations — liquidation feed",
         "description": "Recent GMX liquidations feed. Arbitrum-specific.",
         "tags": [
           "GMX Perps"
@@ -1352,7 +1352,7 @@
     "/api/solana/token-safety/{mint}": {
       "get": {
         "operationId": "checkSolanaTokenSafety",
-        "summary": "Solana Token Safety \u2014 rug check",
+        "summary": "Solana Token Safety — rug check",
         "description": "Solana token safety analysis using GoPlus Security data. Honeypot, mint authority, freeze, holder analysis.",
         "tags": [
           "Solana"
@@ -1400,7 +1400,7 @@
     "/api/solana/snipers/{mint}": {
       "get": {
         "operationId": "findSolanaSnipers",
-        "summary": "Solana Snipers \u2014 early buyers detection",
+        "summary": "Solana Snipers — early buyers detection",
         "description": "Find early buyers (snipers) for a Solana token. Shows who bought in first 5 minutes.",
         "tags": [
           "Solana"
@@ -1448,7 +1448,7 @@
     "/api/solana/snipers/{mint}/score": {
       "get": {
         "operationId": "getSolanaSniperScore",
-        "summary": "Solana Sniper Score \u2014 sniping activity",
+        "summary": "Solana Sniper Score — sniping activity",
         "description": "Sniper score for a Solana token (0-100). Higher = more sniping activity.",
         "tags": [
           "Solana"
@@ -1496,8 +1496,8 @@
     "/api/solana/trending": {
       "get": {
         "operationId": "getSolanaTrending",
-        "summary": "Solana Trending \u2014 top tokens by activity",
-        "description": "Trending Solana pools \u2014 top tokens by activity on Solana DEXes.",
+        "summary": "Solana Trending — top tokens by activity",
+        "description": "Trending Solana pools — top tokens by activity on Solana DEXes.",
         "tags": [
           "Solana"
         ],
@@ -1533,8 +1533,8 @@
     "/api/solana/new-tokens": {
       "get": {
         "operationId": "getSolanaNewTokens",
-        "summary": "Solana New Tokens \u2014 degen alpha signal",
-        "description": "New Solana tokens \u2014 recently created pools (degen alpha signal).",
+        "summary": "Solana New Tokens — degen alpha signal",
+        "description": "New Solana tokens — recently created pools (degen alpha signal).",
         "tags": [
           "Solana"
         ],
@@ -1570,7 +1570,7 @@
     "/api/solana/top-volume": {
       "get": {
         "operationId": "getSolanaTopVolume",
-        "summary": "Solana Top Volume \u2014 highest volume pools",
+        "summary": "Solana Top Volume — highest volume pools",
         "description": "Top Solana pools by 24h volume.",
         "tags": [
           "Solana"
@@ -1607,7 +1607,7 @@
     "/api/social/token/{chain}/{address}": {
       "get": {
         "operationId": "getTokenSocial",
-        "summary": "Token social presence \u2014 aggregated from DexScreener + GeckoTerminal",
+        "summary": "Token social presence — aggregated from DexScreener + GeckoTerminal",
         "tags": [
           "Social Signals"
         ],
@@ -1656,7 +1656,7 @@
     "/api/social/trending": {
       "get": {
         "operationId": "getSocialTrending",
-        "summary": "Trending tokens with social data \u2014 volume, links, trust score",
+        "summary": "Trending tokens with social data — volume, links, trust score",
         "tags": [
           "Social Signals"
         ],
@@ -1705,7 +1705,7 @@
     "/api/social/farcaster/crypto": {
       "get": {
         "operationId": "getFarcasterCrypto",
-        "summary": "Farcaster crypto signals \u2014 top casts, channels, engagement",
+        "summary": "Farcaster crypto signals — top casts, channels, engagement",
         "tags": [
           "Social Signals"
         ],
@@ -1745,7 +1745,7 @@
     "/api/social/kol/activity": {
       "get": {
         "operationId": "getKolActivity",
-        "summary": "KOL activity \u2014 what influencers are buying, cluster signals",
+        "summary": "KOL activity — what influencers are buying, cluster signals",
         "tags": [
           "Social Signals"
         ],
@@ -1794,7 +1794,7 @@
     "/api/social/sentiment/{keyword}": {
       "get": {
         "operationId": "getSocialSentiment",
-        "summary": "Multi-source social sentiment \u2014 Farcaster, GeckoTerminal, DexScreener",
+        "summary": "Multi-source social sentiment — Farcaster, GeckoTerminal, DexScreener",
         "tags": [
           "Social Signals"
         ],
@@ -1834,7 +1834,7 @@
     "/api/protocols/base": {
       "get": {
         "operationId": "getBaseProtocols",
-        "summary": "Base protocol stats \u2014 TVL, categories, top protocols",
+        "summary": "Base protocol stats — TVL, categories, top protocols",
         "tags": [
           "Protocol Stats"
         ],
@@ -1864,7 +1864,7 @@
     "/api/protocols/base/tvl": {
       "get": {
         "operationId": "getBaseTvl",
-        "summary": "Base chain TVL history \u2014 30 day trend",
+        "summary": "Base chain TVL history — 30 day trend",
         "tags": [
           "Protocol Stats"
         ],
@@ -1924,7 +1924,7 @@
     "/api/gas": {
       "get": {
         "operationId": "getGasPrices",
-        "summary": "Gas Tracker \u2014 real-time gas prices across all chains",
+        "summary": "Gas Tracker — real-time gas prices across all chains",
         "description": "Get current gas prices on Base, Ethereum, Arbitrum, Optimism, Polygon, and Solana. Returns gasPrice, maxFeePerGas, maxPriorityFeePerGas in gwei (EVM) or microLamports (Solana).",
         "tags": [
           "Gas Tracker"
@@ -1962,7 +1962,7 @@
     "/api/gas/{chain}": {
       "get": {
         "operationId": "getGasForChain",
-        "summary": "Gas Price \u2014 single chain",
+        "summary": "Gas Price — single chain",
         "description": "Get gas price for a specific chain. Supported: base, ethereum, arbitrum, optimism, polygon, solana.",
         "tags": [
           "Gas Tracker"
@@ -2018,7 +2018,7 @@
     "/api/approvals/{chain}/{address}": {
       "get": {
         "operationId": "scanApprovals",
-        "summary": "Token Approvals Scanner \u2014 detect unlimited approvals",
+        "summary": "Token Approvals Scanner — detect unlimited approvals",
         "description": "Scan a wallet's token approvals. Detects unlimited approvals, maps known spenders (Uniswap, 1inch, Aerodrome, Morpho), and provides revoke recommendations via revoke.cash. Supports: base, ethereum, arbitrum.",
         "tags": [
           "Security"
@@ -2081,7 +2081,7 @@
     "/api/balance/{address}": {
       "get": {
         "operationId": "getMultichainBalance",
-        "summary": "Multi-chain Balance \u2014 all chains in one call",
+        "summary": "Multi-chain Balance — all chains in one call",
         "description": "Get native + stablecoin (USDC, USDT, DAI) balance across 5 chains (Ethereum, Base, Arbitrum, Optimism, Polygon) in a single call. Returns total stablecoin value.",
         "tags": [
           "Wallet Analytics"
@@ -2130,7 +2130,7 @@
     "/api/pnl/{chain}/{address}": {
       "get": {
         "operationId": "getPortfolioPnL",
-        "summary": "Portfolio P&L Tracker \u2014 realized + unrealized profit/loss",
+        "summary": "Portfolio P&L Tracker — realized + unrealized profit/loss",
         "description": "Full portfolio P&L analysis for any wallet. Tracks cost basis (average cost method), realized P&L from closed positions, unrealized P&L from open positions using real-time GeckoTerminal prices. Includes win/loss ratio, best/worst trades, and per-token breakdown. Supports Base, Arbitrum, Celo (Blockscout chains).",
         "tags": [
           "P&L Tracker"
@@ -2212,7 +2212,7 @@
     "/api/pnl/{chain}/{address}/summary": {
       "get": {
         "operationId": "getPnLSummary",
-        "summary": "P&L Summary \u2014 lightweight total P&L stats",
+        "summary": "P&L Summary — lightweight total P&L stats",
         "description": "Quick P&L summary for a wallet: total realized/unrealized P&L, win rate, best/worst trades. Faster than full P&L endpoint.",
         "tags": [
           "P&L Tracker"
@@ -2275,7 +2275,7 @@
     "/api/quote/{chain}/{from}/{to}": {
       "get": {
         "operationId": "getDexQuote",
-        "summary": "DEX Aggregator Quote \u2014 best swap route across DEXes",
+        "summary": "DEX Aggregator Quote — best swap route across DEXes",
         "description": "Compare swap quotes across Aerodrome, Uniswap V3/V4, SushiSwap, PancakeSwap, BaseSwap, Hydrex. Returns best route with alternatives, price impact, and pool liquidity. Uses real pool data from GeckoTerminal.",
         "tags": [
           "DEX Aggregator"
@@ -2360,7 +2360,7 @@
     "/api/quote/pools/{chain}/{from}/{to}": {
       "get": {
         "operationId": "getQuotePools",
-        "summary": "Pool Discovery \u2014 all pools for a token pair",
+        "summary": "Pool Discovery — all pools for a token pair",
         "description": "List all liquidity pools for a token pair across DEXes. Shows liquidity, 24h volume, fees, price changes.",
         "tags": [
           "DEX Aggregator"
@@ -2426,7 +2426,7 @@
     "/api/quote/dexes/{chain}": {
       "get": {
         "operationId": "getSupportedDexes",
-        "summary": "Supported DEXes \u2014 list of DEXes for a chain",
+        "summary": "Supported DEXes — list of DEXes for a chain",
         "description": "Returns supported DEXes, their types, fee tiers, and native token address.",
         "tags": [
           "DEX Aggregator"
@@ -2474,7 +2474,7 @@
     "/api/arb/scan": {
       "get": {
         "operationId": "scanArbitrage",
-        "summary": "Arbitrage Scanner \u2014 cross-DEX price differences",
+        "summary": "Arbitrage Scanner — cross-DEX price differences",
         "description": "Scan all token pairs for arbitrage opportunities across DEXes on Base.",
         "tags": [
           "Arbitrage"
@@ -2508,7 +2508,7 @@
     "/api/arb/pair/{from}/{to}": {
       "get": {
         "operationId": "scanArbitragePair",
-        "summary": "Arbitrage Pair \u2014 price diff for specific pair",
+        "summary": "Arbitrage Pair — price diff for specific pair",
         "description": "Check arbitrage opportunity between two specific tokens.",
         "tags": [
           "Arbitrage"
@@ -2560,7 +2560,7 @@
     "/api/arb/tokens": {
       "get": {
         "operationId": "getArbTokens",
-        "summary": "Supported Arb Tokens \u2014 tokens and DEXes for arbitrage",
+        "summary": "Supported Arb Tokens — tokens and DEXes for arbitrage",
         "description": "List supported tokens and DEXes for arbitrage scanning.",
         "tags": [
           "Arbitrage"
@@ -2583,7 +2583,7 @@
     "/api/nft/portfolio/{address}": {
       "get": {
         "operationId": "getNFTPortfolio",
-        "summary": "NFT Portfolio \u2014 all NFTs owned by a wallet",
+        "summary": "NFT Portfolio — all NFTs owned by a wallet",
         "description": "Get all NFTs owned by a wallet address with metadata, images, collection info. Supports Base + Ethereum chains.",
         "tags": [
           "NFT Analytics"
@@ -2661,7 +2661,7 @@
     "/api/nft/collection/{chain}/{contract}": {
       "get": {
         "operationId": "getCollectionInfo",
-        "summary": "Collection Info \u2014 metadata + floor price",
+        "summary": "Collection Info — metadata + floor price",
         "description": "Get collection metadata including name, symbol, total supply, OpenSea data, social links, and floor price.",
         "tags": [
           "NFT Analytics"
@@ -2722,7 +2722,7 @@
     "/api/nft/floor/{chain}/{contract}": {
       "get": {
         "operationId": "getFloorPrice",
-        "summary": "Floor Price \u2014 OpenSea + LooksRare",
+        "summary": "Floor Price — OpenSea + LooksRare",
         "description": "Get floor price for a collection from OpenSea and LooksRare marketplaces.",
         "tags": [
           "NFT Analytics"
@@ -2783,7 +2783,7 @@
     "/api/nft/sales/{chain}/{contract}": {
       "get": {
         "operationId": "getNFTSales",
-        "summary": "NFT Sales \u2014 recent transactions",
+        "summary": "NFT Sales — recent transactions",
         "description": "Get recent NFT sales for a collection including marketplace, tokenId, buyer, seller, price, and tx hash.",
         "tags": [
           "NFT Analytics"
@@ -2869,7 +2869,7 @@
     "/api/nft/owners/{chain}/{contract}/{tokenId}": {
       "get": {
         "operationId": "getNFTOwners",
-        "summary": "NFT Owners \u2014 wallets holding a specific NFT",
+        "summary": "NFT Owners — wallets holding a specific NFT",
         "description": "Get list of wallets that own a specific NFT token.",
         "tags": [
           "NFT Analytics"
@@ -2939,7 +2939,7 @@
     "/api/nft/solana/collection/{symbol}": {
       "get": {
         "operationId": "getSolanaCollectionStats",
-        "summary": "Solana Collection Stats \u2014 floor price + volume",
+        "summary": "Solana Collection Stats — floor price + volume",
         "description": "Get Solana collection stats from Magic Eden including floor price, volume, listed count.",
         "tags": [
           "Solana NFT"
@@ -2987,7 +2987,7 @@
     "/api/nft/solana/portfolio/{wallet}": {
       "get": {
         "operationId": "getSolanaNFTPortfolio",
-        "summary": "Solana NFT Portfolio \u2014 wallet holdings",
+        "summary": "Solana NFT Portfolio — wallet holdings",
         "description": "Get all Solana NFTs owned by a wallet address with metadata, images, collection info.",
         "tags": [
           "Solana NFT"
@@ -3053,7 +3053,7 @@
     "/api/nft/solana/token/{mint}": {
       "get": {
         "operationId": "getSolanaTokenMetadata",
-        "summary": "Solana Token Metadata \u2014 full NFT info",
+        "summary": "Solana Token Metadata — full NFT info",
         "description": "Get Solana NFT token metadata including name, image, attributes, price, collection info.",
         "tags": [
           "Solana NFT"
@@ -3101,7 +3101,7 @@
     "/api/nft/solana/activities/{collection}": {
       "get": {
         "operationId": "getSolanaCollectionActivities",
-        "summary": "Solana Collection Activities \u2014 sales/bids/listings",
+        "summary": "Solana Collection Activities — sales/bids/listings",
         "description": "Get recent Solana collection activities from Magic Eden including sales, bids, and listings.",
         "tags": [
           "Solana NFT"
@@ -3167,7 +3167,7 @@
     "/api/protocols": {
       "get": {
         "operationId": "listProtocols",
-        "summary": "API Index \u2014 all available endpoints",
+        "summary": "API Index — all available endpoints",
         "description": "Free endpoint listing all available API routes organized by category.",
         "tags": [
           "Meta"
@@ -3190,7 +3190,7 @@
     "/health": {
       "get": {
         "operationId": "healthCheck",
-        "summary": "Health Check \u2014 server status",
+        "summary": "Health Check — server status",
         "description": "Free endpoint returning server status, version, supported networks.",
         "tags": [
           "Meta"
@@ -3326,7 +3326,7 @@
     "/api/bridge/quotes/{from}/{to}/{amount}": {
       "get": {
         "summary": "Bridge Quotes",
-        "description": "Cross-chain bridge quotes \u2014 compares routes across bridges, shows fees, time, and best option. Uses LiFi API.",
+        "description": "Cross-chain bridge quotes — compares routes across bridges, shows fees, time, and best option. Uses LiFi API.",
         "parameters": [
           {
             "name": "from",
@@ -3489,7 +3489,13 @@
             "required": true,
             "schema": {
               "type": "string",
-              "enum": ["base", "arbitrum", "polygon", "avalanche", "celo"]
+              "enum": [
+                "base",
+                "arbitrum",
+                "polygon",
+                "avalanche",
+                "celo"
+              ]
             },
             "description": "Blockchain network"
           },
@@ -3513,6 +3519,271 @@
         },
         "x-payment-info": {
           "price": "$0.01",
+          "network": "eip155:8453",
+          "scheme": "exact"
+        }
+      }
+    },
+    "/api/holders/{chain}/{address}": {
+      "get": {
+        "summary": "Token Holder Analysis",
+        "description": "Top 50 holders, concentration risk, whale detection, contract vs EOA breakdown. Uses Blockscout.",
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "base",
+                "arbitrum",
+                "polygon",
+                "avalanche",
+                "celo"
+              ]
+            },
+            "description": "Blockchain network"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token/contract address"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Holder analysis data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required"
+          }
+        },
+        "x-payment-info": {
+          "price": "$0.01",
+          "network": "eip155:8453",
+          "scheme": "exact"
+        }
+      }
+    },
+    "/api/mev/{chain}/{address}": {
+      "get": {
+        "summary": "MEV Activity Detection",
+        "description": "Sandwich attacks, frontrunning, wash trading detection. Risk scoring 0-100.",
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "base",
+                "arbitrum",
+                "polygon",
+                "avalanche",
+                "celo"
+              ]
+            },
+            "description": "Blockchain network"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token/contract address"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "MEV analysis data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required"
+          }
+        },
+        "x-payment-info": {
+          "price": "$0.02",
+          "network": "eip155:8453",
+          "scheme": "exact"
+        }
+      }
+    },
+    "/api/liquidity/{chain}/{address}": {
+      "get": {
+        "summary": "DEX Liquidity Analysis",
+        "description": "Pool depth, slippage estimates, volume/liquidity ratio, best routes. Uses DexScreener.",
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "base",
+                "arbitrum",
+                "polygon",
+                "avalanche",
+                "celo"
+              ]
+            },
+            "description": "Blockchain network"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token/contract address"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liquidity analysis data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required"
+          }
+        },
+        "x-payment-info": {
+          "price": "$0.01",
+          "network": "eip155:8453",
+          "scheme": "exact"
+        }
+      }
+    },
+    "/api/clones/{chain}/{address}": {
+      "get": {
+        "summary": "Token Clone Detection",
+        "description": "Find impersonators and scam copies. Risk scoring per clone. Uses DexScreener.",
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "base",
+                "arbitrum",
+                "polygon",
+                "avalanche",
+                "celo"
+              ]
+            },
+            "description": "Blockchain network"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token/contract address"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Clone detection data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required"
+          }
+        },
+        "x-payment-info": {
+          "price": "$0.02",
+          "network": "eip155:8453",
+          "scheme": "exact"
+        }
+      }
+    },
+    "/api/scan/{chain}/{address}": {
+      "get": {
+        "summary": "Full Token Scan",
+        "description": "Comprehensive scan combining holders, MEV, liquidity, deployer, safety. Weighted risk scoring.",
+        "parameters": [
+          {
+            "name": "chain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "base",
+                "arbitrum",
+                "polygon",
+                "avalanche",
+                "celo"
+              ]
+            },
+            "description": "Blockchain network"
+          },
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token/contract address"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Full scan results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required"
+          }
+        },
+        "x-payment-info": {
+          "price": "$0.05",
           "network": "eip155:8453",
           "scheme": "exact"
         }
