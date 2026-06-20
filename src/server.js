@@ -659,6 +659,46 @@ async function main() {
       mimeType: "application/json",
       ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
+
+    // === HOLDER ANALYSIS ===
+    "GET /api/holders/:chain/:address": {
+      accepts: multiChainWithSol("$0.01"),
+      description: "Token holder analysis — top 50 holders, concentration risk, whale detection, contract vs EOA.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+
+    // === MEV DETECTION ===
+    "GET /api/mev/:chain/:address": {
+      accepts: multiChainWithSol("$0.02"),
+      description: "MEV activity detection — sandwich attacks, frontrunning, wash trading. Risk scoring.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+
+    // === LIQUIDITY ANALYSIS ===
+    "GET /api/liquidity/:chain/:address": {
+      accepts: multiChainWithSol("$0.01"),
+      description: "DEX liquidity analysis — pool depth, slippage estimates, volume/liquidity ratio, best routes.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+
+    // === CLONE DETECTION ===
+    "GET /api/clones/:chain/:address": {
+      accepts: multiChainWithSol("$0.02"),
+      description: "Token clone/impersonation detection — find scam copies, risk scoring per clone.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+
+    // === FULL TOKEN SCAN ===
+    "GET /api/scan/:chain/:address": {
+      accepts: multiChainWithSol("$0.05"),
+      description: "Full token scan — holders + MEV + liquidity + deployer + safety. Weighted risk scoring.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
   };
 
   // --- Security: block method abuse before x402 ---
