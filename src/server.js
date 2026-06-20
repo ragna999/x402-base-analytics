@@ -84,6 +84,9 @@ import { analyzeMev } from "./mevDetection.js";
 // Liquidity Analysis
 import { analyzeLiquidity } from "./liquidityAnalysis.js";
 
+// Full Token Scan
+import { fullTokenScan } from "./fullTokenScan.js";
+
 // Block Checker (multi-chain)
 import { getLatestBlocks, getLatestBlock, CHAINS as BLOCK_CHAINS } from "./blockChecker.js";
 const app = express();
@@ -1734,6 +1737,15 @@ async function main() {
       const { chain, address } = req.params;
       res.json(await analyzeLiquidity(chain, address));
     } catch (err) { console.error("Liquidity analysis error:", err.message); res.status(500).json({ error: "Failed", details: err.message }); }
+  });
+
+  // === FULL TOKEN SCAN (FREE — playground testing) ===
+  app.get("/api/scan/:chain/:address", async (req, res) => {
+    try {
+      const { chain, address } = req.params;
+      if (!SUPPORTED_CHAINS.includes(chain)) return res.status(400).json({ error: `Unsupported chain. Use: ${SUPPORTED_CHAINS.join(", ")}` });
+      res.json(await fullTokenScan(chain, address));
+    } catch (err) { console.error("Full scan error:", err.message); res.status(500).json({ error: "Failed", details: err.message }); }
   });
 
   // --- Start ---
