@@ -2,9 +2,9 @@
   "openapi": "3.1.0",
   "info": {
     "title": "RagRadar — Multi-Chain Intelligence",
-    "version": "10.4.0",
-    "description": "AI-powered on-chain analytics across Base, Arbitrum, Solana, Ethereum, Optimism, Polygon. 66 REST endpoints covering wallet analytics, Portfolio P&L tracker, DeFi yields, token safety, smart money tracking, whale alerts, sniper detection, GMX perps, Solana degen tools, protocol stats, gas tracking, token approvals, multi-chain balance, DEX aggregator quotes, arbitrage scanning, NFT analytics (powered by Alchemy), and Solana NFT analytics (powered by Magic Eden).",
-    "x-guidance": "RagRadar: 66 paid REST endpoints across Base, Arbitrum, Solana, Ethereum, Optimism, Polygon. Covers wallet analytics, Portfolio P&L tracker (realized + unrealized, cost basis, win/loss), DeFi yields, token safety, sniper tracking, smart money, whale alerts, protocol stats, intelligence, GMX perps, Solana degen tools, social signals, gas tracker, approvals scanner, multi-chain balance, DEX aggregator quotes, arbitrage scanning, NFT analytics (floor price, collections, sales, ownership), and Solana NFT analytics (Magic Eden data). Pay USDC via x402 protocol on Base or Solana.",
+    "version": "10.4.1",
+    "description": "AI-powered on-chain analytics across Base, Arbitrum, Solana, Ethereum, Optimism, Polygon. 69 REST endpoints covering wallet analytics, Portfolio P&L tracker, DeFi yields, token safety, smart money tracking, whale alerts, sniper detection, GMX perps, Solana degen tools, protocol stats, gas tracking, token approvals, multi-chain balance, DEX aggregator quotes, arbitrage scanning, NFT analytics (powered by Alchemy), Solana NFT analytics (powered by Magic Eden), and stablecoin health monitoring.",
+    "x-guidance": "RagRadar: 69 paid REST endpoints across Base, Arbitrum, Solana, Ethereum, Optimism, Polygon. Covers wallet analytics, Portfolio P&L tracker (realized + unrealized, cost basis, win/loss), DeFi yields, token safety, sniper tracking, smart money, whale alerts, protocol stats, intelligence, GMX perps, Solana degen tools, social signals, gas tracker, approvals scanner, multi-chain balance, DEX aggregator quotes, arbitrage scanning, NFT analytics (floor price, collections, sales, ownership), Solana NFT analytics (Magic Eden data), and stablecoin health monitoring (depeg detection, chain distribution). Pay USDC via x402 protocol on Base or Solana.",
     "contact": {
       "name": "RagRadar",
       "url": "https://ragradar.vercel.app",
@@ -3786,6 +3786,144 @@
           "price": "$0.05",
           "network": "eip155:8453",
           "scheme": "exact"
+        }
+      }
+    },
+    "/api/stablecoins": {
+      "get": {
+        "operationId": "getStablecoinHealth",
+        "summary": "Stablecoin Health Monitor — prices, depeg detection, market cap",
+        "description": "Real-time stablecoin health dashboard. Tracks USDT, USDC, DAI, USDe, FDUSD, TUSD, USDP, PYUSD, USDS. Returns current prices, deviation from $1 peg, health scores (0-100), market cap changes, and chain distribution. Data from CoinGecko + DeFiLlama.",
+        "tags": [
+          "Stablecoins"
+        ],
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
+        },
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Stablecoin health dashboard",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "timestamp": { "type": "string" },
+                    "overallHealth": { "type": "string", "enum": ["STABLE", "ALERT"] },
+                    "totalStablecoins": { "type": "integer" },
+                    "alerts": { "type": "array" },
+                    "stablecoins": { "type": "array" }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required"
+          }
+        }
+      }
+    },
+    "/api/stablecoins/alerts": {
+      "get": {
+        "operationId": "getStablecoinAlerts",
+        "summary": "Stablecoin Depeg Alerts — only coins not at perfect peg",
+        "description": "Quick depeg check. Returns only stablecoins that deviate from $1 peg. Statuses: HEALTHY (within 0.2%), WARNING (within 0.5%), DANGER (within 1%), CRITICAL (beyond 1%).",
+        "tags": [
+          "Stablecoins"
+        ],
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
+        },
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Depeg alerts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "timestamp": { "type": "string" },
+                    "overallHealth": { "type": "string" },
+                    "alertCount": { "type": "integer" },
+                    "alerts": { "type": "array" }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required"
+          }
+        }
+      }
+    },
+    "/api/stablecoins/{symbol}": {
+      "get": {
+        "operationId": "getStablecoinBySymbol",
+        "summary": "Single Stablecoin Deep Dive — price, health, chain distribution",
+        "description": "Deep dive into a single stablecoin. Returns current price, deviation from peg, health score, market cap, 24h change, and top 5 chains by circulating supply.",
+        "tags": [
+          "Stablecoins"
+        ],
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
+        },
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["USDT", "USDC", "DAI", "USDe", "FDUSD", "TUSD", "USDP", "PYUSD", "USDS"]
+            },
+            "description": "Stablecoin symbol"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stablecoin detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required"
+          }
         }
       }
     }

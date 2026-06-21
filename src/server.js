@@ -92,6 +92,9 @@ import { detectClones } from "./cloneDetection.js";
 
 // Block Checker (multi-chain)
 import { getLatestBlocks, getLatestBlock, CHAINS as BLOCK_CHAINS } from "./blockChecker.js";
+
+// Stablecoin Health Monitor
+import { getStablecoinHealth, getStablecoinBySymbol, getStablecoinAlerts } from "./stablecoins.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PAY_TO = process.env.PAY_TO_ADDRESS;
@@ -699,6 +702,26 @@ async function main() {
       mimeType: "application/json",
       ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
     },
+
+    // === STABLECOIN HEALTH MONITOR ===
+    "GET /api/stablecoins": {
+      accepts: multiChainWithSol("$0.01"),
+      description: "Stablecoin health monitor — prices, depeg detection, market cap changes, chain distribution. USDT, USDC, DAI, USDe, FDUSD, PYUSD, USDS and more.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+    "GET /api/stablecoins/alerts": {
+      accepts: multiChainWithSol("$0.01"),
+      description: "Stablecoin depeg alerts — only coins not at perfect peg. Quick health check.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
+    "GET /api/stablecoins/:symbol": {
+      accepts: multiChainWithSol("$0.01"),
+      description: "Single stablecoin deep dive — price, deviation, health score, chain distribution.",
+      mimeType: "application/json",
+      ...discover({}, { type: "object", properties: {} }, { status: "ok" }),
+    },
   };
 
   // --- Security: block method abuse before x402 ---
@@ -757,7 +780,7 @@ async function main() {
       networks,
       payTo: PAY_TO,
       solanaPayTo: SOLANA_PAY_TO || "not configured",
-      version: "10.2.0-pnl-tracker",
+      version: "10.3.0-stablecoins",
       builderCode: BUILDER_CODE,
     });
   });
@@ -1800,10 +1823,26 @@ async function main() {
     } catch (err) { console.error("Clone detection error:", err.message); res.status(500).json({ error: "Failed", details: err.message }); }
   });
 
+  // === STABLECOIN HEALTH MONITOR ===
+  app.get("/api/stablecoins", async (req, res) => {
+    try { res.json(await getStablecoinHealth()); }
+    catch (err) { console.error("Stablecoins error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/stablecoins/alerts", async (req, res) => {
+    try { res.json(await getStablecoinAlerts()); }
+    catch (err) { console.error("Stablecoin alerts error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/stablecoins/:symbol", async (req, res) => {
+    try { res.json(await getStablecoinBySymbol(req.params.symbol)); }
+    catch (err) { console.error("Stablecoin symbol error:", err.message); res.status(500).json({ error: "Failed" }); }
+  });
+
   // --- Start ---
   app.listen(PORT, () => {
     console.log(`
-RagRadar v10.2.0-pnl-tracker on port ${PORT}
+RagRadar v10.3.0-stablecoins on port ${PORT}
 Payments -> ${PAY_TO}
 Networks -> ${SUPPORTED_CHAINS.join(", ")}
 
