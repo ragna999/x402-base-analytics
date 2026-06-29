@@ -95,6 +95,12 @@ import { getLatestBlocks, getLatestBlock, CHAINS as BLOCK_CHAINS } from "./block
 
 // Stablecoin Health Monitor
 import { getStablecoinHealth, getStablecoinBySymbol, getStablecoinAlerts } from "./stablecoins.js";
+
+// Cache layer
+import { cached, clearCache, cacheStats, TTL } from "./cache.js";
+
+// NIM AI client
+import { analyzeTokenWithAI, quickInsight } from "./nimClient.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PAY_TO = process.env.PAY_TO_ADDRESS;
@@ -780,9 +786,16 @@ async function main() {
       networks,
       payTo: PAY_TO,
       solanaPayTo: SOLANA_PAY_TO || "not configured",
-      version: "10.3.0-stablecoins",
+      version: "10.4.1",
       builderCode: BUILDER_CODE,
     });
+  });
+
+  // Cache admin (free — internal use)
+  app.get("/cache/stats", (req, res) => res.json(cacheStats()));
+  app.post("/cache/clear", (req, res) => {
+    clearCache();
+    res.json({ status: "cleared" });
   });
 
   app.get("/builder-code", (req, res) => {
@@ -854,10 +867,12 @@ async function main() {
     } catch (err) { console.error("Token safety error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
-  // === DEFI YIELDS ===
+  // === DEFI YIELDS (CACHED) ===
   app.get("/api/yields", async (req, res) => {
-    try { res.json(await getAllYields()); }
-    catch (err) { console.error("Yields error:", err.message); res.status(500).json({ error: "Failed" }); }
+    try {
+      const data = await cached("yields:all", () => getAllYields(), TTL.MEDIUM);
+      res.json(data);
+    } catch (err) { console.error("Yields error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
   app.get("/api/yields/best/:asset", async (req, res) => {
@@ -884,15 +899,19 @@ async function main() {
     catch (err) { console.error("Wallet risk error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
-  // === BASE PROTOCOL STATS ===
+  // === BASE PROTOCOL STATS (CACHED) ===
   app.get("/api/protocols/base", async (req, res) => {
-    try { res.json(await getBaseProtocolStats()); }
-    catch (err) { console.error("Protocol stats error:", err.message); res.status(500).json({ error: "Failed" }); }
+    try {
+      const data = await cached("protocols:base", () => getBaseProtocolStats(), TTL.MEDIUM);
+      res.json(data);
+    } catch (err) { console.error("Protocol stats error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
   app.get("/api/protocols/base/tvl", async (req, res) => {
-    try { res.json(await getBaseTvlHistory()); }
-    catch (err) { console.error("TVL error:", err.message); res.status(500).json({ error: "Failed" }); }
+    try {
+      const data = await cached("protocols:base:tvl", () => getBaseTvlHistory(), TTL.SLOW);
+      res.json(data);
+    } catch (err) { console.error("TVL error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
   app.get("/api/protocols/base/movers", async (req, res) => {
@@ -1113,10 +1132,11 @@ async function main() {
     catch (err) { console.error("Social sentiment error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
-  // === GAS TRACKER ===
+  // === GAS TRACKER (CACHED) ===
   app.get("/api/gas", async (req, res) => {
     try {
-      res.json(await getGasPrices());
+      const data = await cached("gas:all", () => getGasPrices(), TTL.FAST);
+      res.json(data);
     } catch (err) {
       console.error("Gas prices error:", err.message);
       res.status(500).json({ error: "Failed" });
@@ -1606,92 +1626,94 @@ async function main() {
     }
   });
 
-  // AI Token Analysis
+  // AI Token Analysis — Powered by NVIDIA NIM (free)
   app.get("/api/ai/token/:chain/:address", async (req, res) => {
     const { chain, address } = req.params;
+    const cacheKey = `ai:${chain}:${address.toLowerCase()}`;
     try {
-      // Gather all data
-      const [safety, social] = await Promise.all([
-        analyzeTokenSafety(chain, address).catch(() => null),
-        getTokenSocial(chain, address).catch(() => null),
-      ]);
+      const result = await cached(cacheKey, async () => {
+        // Gather all data in parallel
+        const [safety, social] = await Promise.all([
+          analyzeTokenSafety(chain, address).catch(() => null),
+          getTokenSocial(chain, address).catch(() => null),
+        ]);
 
-      // Get price data
-      let priceData = null;
-      try {
-        const dexRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${address}`);
-        const dexData = await dexRes.json();
-        if (dexData.pairs?.[0]) {
-          const pair = dexData.pairs[0];
-          priceData = {
-            price: pair.priceUsd,
-            price_change_24h: pair.priceChange?.h24,
-            volume_24h: pair.volume?.h24,
-            liquidity: pair.liquidity?.usd,
-            market_cap: pair.marketCap,
-          };
-        }
-      } catch (e) { /* ignore */ }
-
-      // Build context for MiMo
-      const context = {
-        token: address,
-        chain,
-        safety: safety ? {
-          risk_score: safety.riskScore,
-          verdict: safety.verdict,
-          risks: safety.risks?.map(r => r.detail) || [],
-          holders: safety.details?.holderCount,
-          is_open_source: safety.details?.isOpenSource,
-        } : null,
-        price: priceData,
-        social: social?.social || null,
-      };
-
-      // Generate AI analysis using MiMo
-      const MIMO_API_KEY = process.env.MIMO_API_KEY;
-      let aiAnalysis = "AI analysis unavailable — MiMo API key not configured";
-
-      if (MIMO_API_KEY) {
+        // Get price + liquidity data from DexScreener
+        let priceData = null;
         try {
-          const mimoRes = await fetch("https://api.xiaomimimo.com/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${MIMO_API_KEY}`,
-            },
-            body: JSON.stringify({
-              model: "mimo-v2.5",
-              messages: [
-                {
-                  role: "system",
-                  content: "You are a crypto token analyst. Analyze the token data provided and give a concise analysis. Include: 1) Overall assessment 2) Risk factors 3) Bull/bear case 4) Recommendation (avoid/cautious/consider/strong). Be direct and factual. Max 200 words."
-                },
-                {
-                  role: "user",
-                  content: `Analyze this token:\n${JSON.stringify(context, null, 2)}`
-                }
-              ],
-              temperature: 0.3,
-              max_tokens: 500,
-            }),
-          });
-          const mimoData = await mimoRes.json();
-          aiAnalysis = mimoData.choices?.[0]?.message?.content || "Analysis generation failed";
-        } catch (e) {
-          aiAnalysis = `AI analysis error: ${e.message}`;
-        }
-      }
+          const dexRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${address}`);
+          const dexData = await dexRes.json();
+          if (dexData.pairs?.[0]) {
+            const pair = dexData.pairs[0];
+            priceData = {
+              price: pair.priceUsd,
+              price_change_5m: pair.priceChange?.m5,
+              price_change_1h: pair.priceChange?.h1,
+              price_change_6h: pair.priceChange?.h6,
+              price_change_24h: pair.priceChange?.h24,
+              volume_24h: pair.volume?.h24,
+              volume_6h: pair.volume?.h6,
+              liquidity: pair.liquidity?.usd,
+              market_cap: pair.marketCap,
+              pair_address: pair.pairAddress,
+              dex: pair.dexId,
+              buys_24h: pair.txns?.h24?.buys,
+              sells_24h: pair.txns?.h24?.sells,
+            };
+          }
+        } catch (e) { /* ignore */ }
 
-      res.json({
-        token: address,
-        chain,
-        safety,
-        price: priceData,
-        social: social?.social || null,
-        ai_analysis: aiAnalysis,
-        analyzed_at: new Date().toISOString(),
-      });
+        // Get holder data if available
+        let holderData = null;
+        try {
+          holderData = await analyzeHolders(chain, address).catch(() => null);
+        } catch { /* ignore */ }
+
+        // Build rich context for AI
+        const context = {
+          token: address,
+          chain,
+          safety: safety ? {
+            risk_score: safety.riskScore,
+            verdict: safety.verdict,
+            risks: safety.risks?.map(r => r.detail) || [],
+            holders: safety.details?.holderCount,
+            is_open_source: safety.details?.isOpenSource,
+            is_honeypot: safety.details?.isHoneypot,
+            is_proxy: safety.details?.isProxy,
+            owner_can_mint: safety.details?.ownerCanMint,
+            owner_can_change_balance: safety.details?.ownerCanChangeBalance,
+            buy_tax: safety.details?.buyTax,
+            sell_tax: safety.details?.sellTax,
+          } : null,
+          price: priceData,
+          social: social?.social || null,
+          holders: holderData ? {
+            top_holder_pct: holderData.concentration?.top10Pct,
+            whale_count: holderData.whales?.length,
+            contract_holders: holderData.contractHolders,
+          } : null,
+        };
+
+        // Generate AI analysis
+        const ai = await analyzeTokenWithAI(context);
+
+        return {
+          token: address,
+          chain,
+          safety,
+          price: priceData,
+          social: social?.social || null,
+          holders: holderData?.summary || null,
+          ai: {
+            ...ai.analysis,
+            provider: ai.provider,
+          },
+          analyzed_at: new Date().toISOString(),
+        };
+      }, TTL.SHORT); // 30s cache
+
+      res.json(result);
     } catch (err) {
       console.error("AI token analysis error:", err.message);
       res.status(500).json({ error: "Failed" });
@@ -1823,15 +1845,19 @@ async function main() {
     } catch (err) { console.error("Clone detection error:", err.message); res.status(500).json({ error: "Failed", details: err.message }); }
   });
 
-  // === STABLECOIN HEALTH MONITOR ===
+  // === STABLECOIN HEALTH MONITOR (CACHED) ===
   app.get("/api/stablecoins", async (req, res) => {
-    try { res.json(await getStablecoinHealth()); }
-    catch (err) { console.error("Stablecoins error:", err.message); res.status(500).json({ error: "Failed" }); }
+    try {
+      const data = await cached("stablecoins:all", () => getStablecoinHealth(), TTL.SLOW);
+      res.json(data);
+    } catch (err) { console.error("Stablecoins error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
   app.get("/api/stablecoins/alerts", async (req, res) => {
-    try { res.json(await getStablecoinAlerts()); }
-    catch (err) { console.error("Stablecoin alerts error:", err.message); res.status(500).json({ error: "Failed" }); }
+    try {
+      const data = await cached("stablecoins:alerts", () => getStablecoinAlerts(), TTL.MEDIUM);
+      res.json(data);
+    } catch (err) { console.error("Stablecoin alerts error:", err.message); res.status(500).json({ error: "Failed" }); }
   });
 
   app.get("/api/stablecoins/:symbol", async (req, res) => {

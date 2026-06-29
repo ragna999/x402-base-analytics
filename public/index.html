@@ -4,237 +4,331 @@
   <meta charset="UTF-8">
   <link rel="icon" type="image/jpeg" href="/favicon.jpg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RagRadar</title>
-  <meta name="description" content="On-chain intelligence for AI agents. 73+ endpoints across Base, Arbitrum, Solana. x402 micropayments.">
-  <meta name="twitter:card" content="summary">
+  <title>RagRadar — On-Chain Intelligence for AI Agents</title>
+  <meta name="description" content="69+ AI-powered on-chain analytics endpoints. Wallet intelligence, smart money tracking, whale alerts, DeFi yields, token safety. Pay per call via x402.">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@0xragna">
-  <meta name="twitter:title" content="RagRadar">
-  <meta name="twitter:description" content="On-chain intelligence for AI agents. 70+ endpoints.">
+  <meta name="twitter:title" content="RagRadar — On-Chain Intelligence for AI Agents">
+  <meta name="twitter:description" content="69+ endpoints across 6 chains. AI-powered analysis. x402 micropayments.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Space Grotesk',sans-serif;background:#0a0a0a;color:#e0e0e0;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    body{font-family:'Space Grotesk',sans-serif;background:#060608;color:#c8c8d0;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
     a{color:inherit;text-decoration:none}
-    ::selection{background:#00ff8822;color:#00ff88}
+    ::selection{background:#00ff8830;color:#00ff88}
 
-    /* Radar pulse background */
-    .radar-bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
-    .radar-bg::before{content:'';position:absolute;top:-30%;right:-10%;width:700px;height:700px;background:radial-gradient(circle,rgba(0,255,136,0.03) 0%,transparent 70%);animation:pulse 8s ease-in-out infinite}
-    .radar-bg::after{content:'';position:absolute;top:-30%;right:-10%;width:700px;height:700px;background:radial-gradient(circle,rgba(0,255,136,0.02) 0%,transparent 60%);animation:pulse 8s ease-in-out 2s infinite}
-    @keyframes pulse{0%,100%{transform:scale(1);opacity:0.5}50%{transform:scale(1.15);opacity:1}}
+    /* Background grid + glow */
+    .bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+    .bg::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background-image:radial-gradient(circle at 1px 1px,#ffffff03 1px,transparent 0);background-size:48px 48px}
+    .bg::after{content:'';position:absolute;top:-200px;right:-200px;width:800px;height:800px;background:radial-gradient(circle,rgba(0,255,136,0.06) 0%,transparent 60%);animation:glow 6s ease-in-out infinite alternate}
+    @keyframes glow{0%{opacity:0.4;transform:scale(1)}100%{opacity:1;transform:scale(1.1)}}
 
-    .container{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:0 28px}
+    .container{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 32px}
+
+    /* Nav */
+    nav{display:flex;justify-content:space-between;align-items:center;padding:24px 0;position:relative;z-index:10}
+    nav .brand{font-size:1.1rem;font-weight:700;letter-spacing:-0.02em;display:flex;align-items:center;gap:10px}
+    nav .brand .r{color:#00ff88}
+    nav .status{display:flex;align-items:center;gap:8px;font-size:0.7rem;color:#555;font-family:'JetBrains Mono',monospace}
+    nav .status .dot{width:6px;height:6px;border-radius:50%;background:#00ff88;box-shadow:0 0 8px #00ff8860;animation:pulse 2s ease infinite}
+    @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 8px #00ff8860}50%{opacity:0.4;box-shadow:0 0 2px #00ff8820}}
+    nav .links{display:flex;gap:20px}
+    nav .links a{font-size:0.75rem;color:#555;font-family:'JetBrains Mono',monospace;transition:color 0.2s;border:1px solid transparent;padding:6px 12px;border-radius:6px}
+    nav .links a:hover{color:#00ff88;border-color:#00ff8822}
 
     /* Hero */
-    .hero{padding:140px 0 80px;display:flex;flex-direction:column;gap:24px}
-    .hero-badge{display:inline-flex;align-items:center;gap:8px;background:#00ff880a;border:1px solid #00ff8822;border-radius:100px;padding:6px 16px;width:fit-content}
-    .hero-badge .dot{width:6px;height:6px;border-radius:50%;background:#00ff88;animation:blink 2s ease infinite}
-    @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-    .hero-badge span{font-size:0.7rem;color:#00ff88;font-weight:500;letter-spacing:0.08em;text-transform:uppercase}
-    .hero h1{font-size:4rem;font-weight:700;letter-spacing:-0.03em;line-height:1}
+    .hero{padding:100px 0 60px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:24px}
+    .hero .badge{display:inline-flex;align-items:center;gap:8px;background:#00ff8808;border:1px solid #00ff8818;border-radius:100px;padding:8px 20px;font-size:0.72rem;color:#00ff88;font-weight:500;letter-spacing:0.06em;text-transform:uppercase}
+    .hero .badge .dot{width:5px;height:5px;border-radius:50%;background:#00ff88}
+    .hero h1{font-size:clamp(2.8rem,6vw,5rem);font-weight:700;letter-spacing:-0.04em;line-height:0.95;color:#fff}
     .hero h1 .accent{color:#00ff88}
-    .hero .tagline{font-size:1.1rem;color:#666;font-weight:300;max-width:440px;line-height:1.7}
-    .hero .meta{display:flex;gap:32px;margin-top:8px}
-    .hero .meta span{font-size:0.8rem;color:#444;font-weight:400}
-    .hero .meta span strong{color:#999;font-weight:500}
+    .hero .subtitle{font-size:1.15rem;color:#666;font-weight:300;max-width:520px;line-height:1.7}
+    .hero .subtitle strong{color:#999;font-weight:500}
 
-    /* Stats bar */
-    .stats-bar{display:flex;gap:1px;background:#161616;border-radius:12px;overflow:hidden;margin-bottom:80px}
-    .stats-bar .item{flex:1;background:#111;padding:28px 24px;text-align:center}
-    .stats-bar .item .num{font-size:1.8rem;font-weight:600;color:#fff;font-family:'JetBrains Mono',monospace}
-    .stats-bar .item .label{font-size:0.65rem;color:#555;text-transform:uppercase;letter-spacing:0.12em;margin-top:6px;font-weight:500}
+    /* CTA row */
+    .cta-row{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;justify-content:center}
+    .cta-row a{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:8px;font-size:0.82rem;font-weight:500;transition:all 0.2s;font-family:'JetBrains Mono',monospace}
+    .cta-primary{background:#00ff88;color:#060608;border:1px solid #00ff88}
+    .cta-primary:hover{background:#00ff99;box-shadow:0 0 24px #00ff8830}
+    .cta-secondary{background:transparent;color:#888;border:1px solid #222}
+    .cta-secondary:hover{color:#00ff88;border-color:#00ff8833}
 
-    /* Sections */
-    .section{margin-bottom:64px}
-    .section-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #1a1a1a}
-    .section-header .icon{width:32px;height:32px;border-radius:8px;background:#00ff880a;border:1px solid #00ff8815;display:flex;align-items:center;justify-content:center;font-size:0.8rem}
-    .section-header h2{font-size:1rem;font-weight:600;letter-spacing:0.02em}
-    .section-header .badge{margin-left:auto;font-size:0.65rem;color:#555;background:#161616;padding:4px 10px;border-radius:100px;font-weight:500}
+    /* Stats strip */
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#111;border-radius:14px;overflow:hidden;margin:60px 0 80px}
+    .stats .stat{background:#0c0c0e;padding:32px 20px;text-align:center}
+    .stats .stat .num{font-size:2rem;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace}
+    .stats .stat .num .unit{font-size:0.9rem;color:#00ff88;font-weight:400}
+    .stats .stat .label{font-size:0.6rem;color:#444;text-transform:uppercase;letter-spacing:0.14em;margin-top:8px;font-weight:500}
 
-    .routes{display:flex;flex-direction:column}
-    .route{display:grid;grid-template-columns:48px 1fr auto auto;gap:16px;align-items:center;padding:14px 16px;border-radius:8px;transition:background 0.15s}
-    .route:hover{background:#111}
-    .route .method{font-family:'JetBrains Mono',monospace;font-size:0.65rem;font-weight:500;color:#00ff88;background:#00ff880a;padding:3px 8px;border-radius:4px;text-align:center}
-    .route .path{font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:#888;font-weight:300}
-    .route .price{font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:#fff;font-weight:400;text-align:right}
-    .route .desc{font-size:0.72rem;color:#444;text-align:right;min-width:160px}
+    /* Category cards */
+    .categories{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-bottom:80px}
+    .cat-card{background:#0c0c0e;border:1px solid #161618;border-radius:14px;padding:28px 24px;transition:all 0.25s;cursor:default}
+    .cat-card:hover{border-color:#00ff8822;background:#0e0e10;transform:translateY(-2px)}
+    .cat-card .cat-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+    .cat-card .cat-icon{width:36px;height:36px;border-radius:10px;background:#00ff8808;border:1px solid #00ff8815;display:flex;align-items:center;justify-content:center;font-size:1rem}
+    .cat-card .cat-title{font-size:0.9rem;font-weight:600;color:#fff}
+    .cat-card .cat-count{margin-left:auto;font-size:0.6rem;color:#444;background:#161618;padding:3px 10px;border-radius:100px;font-family:'JetBrains Mono',monospace}
+    .cat-card .cat-desc{font-size:0.75rem;color:#555;line-height:1.6;margin-bottom:16px}
+    .cat-card .cat-routes{display:flex;flex-direction:column;gap:6px}
+    .cat-card .cat-route{display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:0.68rem;padding:6px 0}
+    .cat-card .cat-route .m{color:#00ff88;background:#00ff880a;padding:2px 6px;border-radius:3px;font-weight:500;min-width:32px;text-align:center}
+    .cat-card .cat-route .p{color:#666;flex:1}
+    .cat-card .cat-route .pr{color:#999;font-weight:400}
+
+    /* AI highlight */
+    .ai-banner{background:linear-gradient(135deg,#00ff8808 0%,#00ff8802 100%);border:1px solid #00ff8818;border-radius:14px;padding:40px;text-align:center;margin-bottom:80px}
+    .ai-banner h3{font-size:1.3rem;font-weight:600;color:#fff;margin-bottom:12px}
+    .ai-banner p{font-size:0.85rem;color:#666;max-width:500px;margin:0 auto;line-height:1.7}
+    .ai-banner .ai-endpoints{display:flex;gap:12px;justify-content:center;margin-top:24px;flex-wrap:wrap}
+    .ai-banner .ai-ep{background:#0c0c0e;border:1px solid #00ff8818;border-radius:8px;padding:10px 16px;font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#00ff88}
+
+    /* How it works */
+    .how{margin-bottom:80px}
+    .how h3{font-size:1.1rem;font-weight:600;color:#fff;text-align:center;margin-bottom:40px}
+    .how-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+    .how-step{text-align:center;padding:24px}
+    .how-step .step-num{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#00ff88;background:#00ff880a;border:1px solid #00ff8815;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px}
+    .how-step h4{font-size:0.85rem;font-weight:600;color:#fff;margin-bottom:8px}
+    .how-step p{font-size:0.75rem;color:#555;line-height:1.6}
+
+    /* Code example */
+    .code-block{background:#0a0a0c;border:1px solid #161618;border-radius:12px;padding:24px;margin-bottom:80px;overflow-x:auto}
+    .code-block .code-header{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #161618}
+    .code-block .code-header .dot{width:8px;height:8px;border-radius:50%;background:#333}
+    .code-block .code-header .dot.g{background:#00ff88}
+    .code-block .code-header span{font-size:0.7rem;color:#444;font-family:'JetBrains Mono',monospace;margin-left:8px}
+    .code-block pre{font-family:'JetBrains Mono',monospace;font-size:0.75rem;line-height:1.8;color:#888}
+    .code-block pre .comment{color:#333}
+    .code-block pre .key{color:#00ff88}
+    .code-block pre .str{color:#666}
+    .code-block pre .num{color:#999}
 
     /* Footer */
-    .footer{padding:80px 0 40px;border-top:1px solid #161616;margin-top:40px;display:flex;justify-content:space-between;align-items:center}
-    .footer .logo{font-size:1rem;font-weight:600;letter-spacing:0.02em}
-    .footer .links{display:flex;gap:24px}
-    .footer .links a{font-size:0.75rem;color:#444;transition:color 0.2s}
-    .footer .links a:hover{color:#00ff88}
+    footer{padding:40px 0;border-top:1px solid #111;display:flex;justify-content:space-between;align-items:center}
+    footer .left{font-size:0.75rem;color:#333}
+    footer .right{display:flex;gap:20px}
+    footer .right a{font-size:0.72rem;color:#444;font-family:'JetBrains Mono',monospace;transition:color 0.2s}
+    footer .right a:hover{color:#00ff88}
 
     @media(max-width:768px){
-      .hero h1{font-size:2.6rem}
-      .hero .meta{flex-direction:column;gap:8px}
-      .stats-bar{flex-direction:column}
-      .route{grid-template-columns:40px 1fr auto;gap:10px;padding:12px 8px}
-      .route .desc{display:none}
-      .footer{flex-direction:column;gap:16px;text-align:center}
+      .stats{grid-template-columns:repeat(2,1fr)}
+      .categories{grid-template-columns:1fr}
+      .how-steps{grid-template-columns:1fr}
+      nav{flex-direction:column;gap:12px}
+      .hero{padding:60px 0 40px}
+      .hero h1{font-size:2.4rem}
+      .cta-row{flex-direction:column;align-items:center}
+      .ai-banner .ai-endpoints{flex-direction:column;align-items:center}
     }
   </style>
 </head>
 <body>
-  <div class="radar-bg"></div>
+  <div class="bg"></div>
 
   <div class="container">
-    <div class="hero">
-      <div class="hero-badge"><div class="dot"></div><span>x402 Enabled</span></div>
-      <h1>Rag<span class="accent">Radar</span></h1>
-      <p class="tagline">On-chain intelligence for AI agents. Wallet analytics, smart money tracking, whale alerts, DeFi yields, token safety.</p>
-      <div class="meta">
-        <span><strong>73+</strong> endpoints</span>
-        <span><strong>6+</strong> chains</span>
-        <span><strong>$0.01</strong> per call</span>
-      </div>
-    </div>
-
-    <div class="stats-bar">
-      <div class="item"><div class="num">73+</div><div class="label">Endpoints</div></div>
-      <div class="item"><div class="num">6+</div><div class="label">Chains</div></div>
-      <div class="item"><div class="num">$0.01</div><div class="label">Starting</div></div>
-      <div class="item"><div class="num">8</div><div class="label">AI-Powered</div></div>
-    </div>
-
-    <div class="section">
-      <div class="section-header"><div class="icon">$</div><h2>Wallet Analytics</h2><span class="badge">6</span></div>
-      <div class="routes">
-        <div class="route"><span class="method">GET</span><span class="path">/api/portfolio/:chain/:address</span><span class="price">$0.01</span><span class="desc">Token portfolio</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/history/:chain/:address</span><span class="price">$0.01</span><span class="desc">Transaction history</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/summary/:chain/:address</span><span class="price">$0.03</span><span class="desc">Full wallet summary</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/pnl/:chain/:address</span><span class="price">$0.05</span><span class="desc">Portfolio P&L</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/pnl/:chain/:address/summary</span><span class="price">$0.03</span><span class="desc">P&L summary</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/balance/:address</span><span class="price">$0.01</span><span class="desc">Multi-chain balance</span></div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-header"><div class="icon">!</div><h2>Token Safety</h2><span class="badge">4</span></div>
-      <div class="routes">
-        <div class="route"><span class="method">GET</span><span class="path">/api/token-safety/:chain/:address</span><span class="price">$0.03</span><span class="desc">Rug risk, honeypot</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/wallet-risk/:address</span><span class="price">$0.03</span><span class="desc">Wallet risk scoring</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/approvals/:chain/:address</span><span class="price">$0.03</span><span class="desc">Approvals scan</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/risk/:address</span><span class="price">$0.03</span><span class="desc">Risk assessment</span></div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-header"><div class="icon">%</div><h2>DeFi & Yields</h2><span class="badge">8</span></div>
-      <div class="routes">
-        <div class="route"><span class="method">GET</span><span class="path">/api/yields</span><span class="price">$0.03</span><span class="desc">All DeFi yields</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/yields/best/:asset</span><span class="price">$0.01</span><span class="desc">Best yield for asset</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/yields/risk</span><span class="price">$0.03</span><span class="desc">Yields by risk</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/protocols/base</span><span class="price">$0.01</span><span class="desc">Base protocols</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/protocols/base/tvl</span><span class="price">$0.01</span><span class="desc">Base TVL</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/quote/:chain/:from/:to</span><span class="price">$0.01</span><span class="desc">Best DEX quote</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/defi/dashboard</span><span class="price">$0.05</span><span class="desc">DeFi dashboard</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/arb/scan</span><span class="price">$0.05</span><span class="desc">Arbitrage scanner</span></div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-header"><div class="icon">#</div><h2>Smart Money</h2><span class="badge">3</span></div>
-      <div class="routes">
-        <div class="route"><span class="method">GET</span><span class="path">/api/smart-money/wallet/:address</span><span class="price">$0.03</span><span class="desc">Wallet analysis</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/smart-money/token/:address</span><span class="price">$0.03</span><span class="desc">Token buyers</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/smart-money/activity</span><span class="price">$0.03</span><span class="desc">Current activity</span></div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-header"><div class="icon">~</div><h2>Whale Tracking</h2><span class="badge">5</span></div>
-      <div class="routes">
-        <div class="route"><span class="method">GET</span><span class="path">/api/whale/alerts</span><span class="price">$0.01</span><span class="desc">Whale alerts</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/whale/alerts/:token</span><span class="price">$0.01</span><span class="desc">Token whale alerts</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/whale/movements</span><span class="price">$0.01</span><span class="desc">Whale movements</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/whale/heatmap</span><span class="price">$0.01</span><span class="desc">Whale heatmap</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/whale/accumulation</span><span class="price">$0.03</span><span class="desc">Accumulation signals</span></div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-header"><div class="icon">*</div><h2>Snipers</h2><span class="badge">3</span></div>
-      <div class="routes">
-        <div class="route"><span class="method">GET</span><span class="path">/api/sniper/token/:address</span><span class="price">$0.01</span><span class="desc">Token snipers</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/sniper/wallet/:address</span><span class="price">$0.01</span><span class="desc">Wallet record</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/sniper/trending</span><span class="price">$0.01</span><span class="desc">Trending snipers</span></div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-header"><div class="icon">S</div><h2>Solana</h2><span class="badge">6</span></div>
-      <div class="routes">
-        <div class="route"><span class="method">GET</span><span class="path">/api/solana/token-safety/:mint</span><span class="price">$0.03</span><span class="desc">Token safety</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/solana/snipers/:mint</span><span class="price">$0.01</span><span class="desc">Snipers</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/solana/trending</span><span class="price">$0.01</span><span class="desc">Trending</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/solana/new-tokens</span><span class="price">$0.01</span><span class="desc">New tokens</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/solana/top-volume</span><span class="price">$0.01</span><span class="desc">Top volume</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/nft/solana/collection/:symbol</span><span class="price">$0.01</span><span class="desc">Collection stats</span></div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-header"><div class="icon">@</div><h2>Social Signals</h2><span class="badge">5</span></div>
-      <div class="routes">
-        <div class="route"><span class="method">GET</span><span class="path">/api/social/token/:chain/:address</span><span class="price">$0.03</span><span class="desc">Token social</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/social/trending</span><span class="price">$0.01</span><span class="desc">Social trending</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/social/farcaster/crypto</span><span class="price">$0.01</span><span class="desc">Farcaster crypto</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/social/kol/activity</span><span class="price">$0.03</span><span class="desc">KOL activity</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/social/sentiment/:keyword</span><span class="price">$0.03</span><span class="desc">Sentiment</span></div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-header"><div class="icon">+</div><h2>Intelligence</h2><span class="badge">4</span></div>
-      <div class="routes">
-        <div class="route"><span class="method">GET</span><span class="path">/api/intelligence/token/:address</span><span class="price">$0.05</span><span class="desc">Token intelligence</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/intelligence/wallet/:address</span><span class="price">$0.05</span><span class="desc">Wallet intelligence</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/market/pulse</span><span class="price">$0.05</span><span class="desc">Market pulse</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/enrich/token/:chain/:address</span><span class="price">$0.05</span><span class="desc">Token deep dive</span></div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-header"><div class="icon">⊘</div><h2>Stablecoins</h2><span class="badge">3</span></div>
-      <div class="routes">
-        <div class="route"><span class="method">GET</span><span class="path">/api/stablecoins</span><span class="price">$0.01</span><span class="desc">Health dashboard</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/stablecoins/alerts</span><span class="price">$0.01</span><span class="desc">Depeg alerts</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/stablecoins/:symbol</span><span class="price">$0.01</span><span class="desc">Single coin deep dive</span></div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-header"><div class="icon">N</div><h2>NFT</h2><span class="badge">5</span></div>
-      <div class="routes">
-        <div class="route"><span class="method">GET</span><span class="path">/api/nft/portfolio/:address</span><span class="price">$0.03</span><span class="desc">NFT portfolio</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/nft/collection/:chain/:contract</span><span class="price">$0.01</span><span class="desc">Collection info</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/nft/floor/:chain/:contract</span><span class="price">$0.01</span><span class="desc">Floor price</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/nft/sales/:chain/:contract</span><span class="price">$0.01</span><span class="desc">Recent sales</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/nft/solana/portfolio/:wallet</span><span class="price">$0.03</span><span class="desc">Solana NFTs</span></div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-header"><div class="icon">G</div><h2>Gas & Utility</h2><span class="badge">4</span></div>
-      <div class="routes">
-        <div class="route"><span class="method">GET</span><span class="path">/api/gas</span><span class="price">$0.01</span><span class="desc">All gas prices</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/gas/:chain</span><span class="price">$0.01</span><span class="desc">Chain gas</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/blocks/:chain</span><span class="price">$0.01</span><span class="desc">Latest block</span></div>
-        <div class="route"><span class="method">GET</span><span class="path">/api/heatmap/:chain</span><span class="price">$0.03</span><span class="desc">Market heatmap</span></div>
-      </div>
-    </div>
-
-    <div class="footer">
-      <div class="logo">RagRadar</div>
+    <nav>
+      <div class="brand">Rag<span class="r">Radar</span></div>
+      <div class="status"><div class="dot"></div> live on base mainnet</div>
       <div class="links">
         <a href="/openapi.json">OpenAPI</a>
         <a href="/.well-known/x402">Discovery</a>
         <a href="/health">Health</a>
       </div>
+    </nav>
+
+    <div class="hero">
+      <div class="badge"><div class="dot"></div> x402 Micropayments</div>
+      <h1>On-chain intelligence<br>for <span class="accent">AI agents</span></h1>
+      <p class="subtitle">69 endpoints across 6 chains. Wallet analytics, smart money tracking, whale alerts, token safety, DeFi yields. <strong>Pay per call. No API keys.</strong></p>
+      <div class="cta-row">
+        <a href="/.well-known/x402" class="cta-primary">&#9654; Browse Endpoints</a>
+        <a href="/openapi.json" class="cta-secondary">{ } OpenAPI Spec</a>
+      </div>
     </div>
+
+    <div class="stats">
+      <div class="stat"><div class="num">69</div><div class="label">Endpoints</div></div>
+      <div class="stat"><div class="num">6</div><div class="label">Chains</div></div>
+      <div class="stat"><div class="num"><span class="unit">$</span>0.01</div><div class="label">Starting Price</div></div>
+      <div class="stat"><div class="num">AI</div><div class="label">Powered by NIM</div></div>
+    </div>
+
+    <!-- AI Highlight -->
+    <div class="ai-banner">
+      <h3>&#10024; AI-Powered Token Analysis</h3>
+      <p>NVIDIA NIM-powered deep analysis combining safety scores, smart money signals, holder concentration, liquidity health, and social momentum into a single structured verdict.</p>
+      <div class="ai-endpoints">
+        <div class="ai-ep">GET /api/ai/token/:chain/:address</div>
+        <div class="ai-ep">GET /api/intelligence/token/:address</div>
+        <div class="ai-ep">GET /api/scan/:chain/:address</div>
+      </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="categories">
+      <div class="cat-card">
+        <div class="cat-head">
+          <div class="cat-icon">&#128179;</div>
+          <div class="cat-title">Wallet Analytics</div>
+          <div class="cat-count">6 EP</div>
+        </div>
+        <div class="cat-desc">Portfolio, transaction history, P&L tracker with realized/unrealized gains, cost basis, win/loss ratio.</div>
+        <div class="cat-routes">
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/portfolio/:chain/:address</span><span class="pr">$0.005</span></div>
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/pnl/:chain/:address</span><span class="pr">$0.05</span></div>
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/balance/:address</span><span class="pr">$0.01</span></div>
+        </div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-head">
+          <div class="cat-icon">&#9888;</div>
+          <div class="cat-title">Token Safety</div>
+          <div class="cat-count">7 EP</div>
+        </div>
+        <div class="cat-desc">Rug detection, honeypot checks, clone detection, MEV analysis, deployer intel, holder concentration.</div>
+        <div class="cat-routes">
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/token-safety/:chain/:address</span><span class="pr">$0.02</span></div>
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/scan/:chain/:address</span><span class="pr">$0.05</span></div>
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/clones/:chain/:address</span><span class="pr">$0.02</span></div>
+        </div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-head">
+          <div class="cat-icon">&#129300;</div>
+          <div class="cat-title">Smart Money</div>
+          <div class="cat-count">3 EP</div>
+        </div>
+        <div class="cat-desc">Track profitable wallets. See what smart money is buying right now. Token-level buyer analysis.</div>
+        <div class="cat-routes">
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/smart-money/wallet/:address</span><span class="pr">$0.02</span></div>
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/smart-money/token/:address</span><span class="pr">$0.02</span></div>
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/smart-money/activity</span><span class="pr">$0.02</span></div>
+        </div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-head">
+          <div class="cat-icon">&#128172;</div>
+          <div class="cat-title">Whale Tracking</div>
+          <div class="cat-count">5 EP</div>
+        </div>
+        <div class="cat-desc">Real-time whale alerts, accumulation signals, cross-token movements, whale heatmap.</div>
+        <div class="cat-routes">
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/whale/alerts</span><span class="pr">$0.01</span></div>
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/whale/accumulation</span><span class="pr">$0.02</span></div>
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/whale/heatmap</span><span class="pr">$0.01</span></div>
+        </div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-head">
+          <div class="cat-icon">&#127968;</div>
+          <div class="cat-title">DeFi & Yields</div>
+          <div class="cat-count">8 EP</div>
+        </div>
+        <div class="cat-desc">Real-time yields from Morpho, Moonwell, Aerodrome. Best yield finder, risk categorization, rebalance recommendations.</div>
+        <div class="cat-routes">
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/yields</span><span class="pr">$0.02</span></div>
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/yields/best/:asset</span><span class="pr">$0.01</span></div>
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/quote/:chain/:from/:to</span><span class="pr">$0.005</span></div>
+        </div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-head">
+          <div class="cat-icon">&#128171;</div>
+          <div class="cat-title">Social Signals</div>
+          <div class="cat-count">5 EP</div>
+        </div>
+        <div class="cat-desc">Multi-platform social intelligence. Twitter, Telegram, Farcaster. KOL activity tracking. Sentiment analysis.</div>
+        <div class="cat-routes">
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/social/token/:chain/:address</span><span class="pr">$0.03</span></div>
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/social/kol/activity</span><span class="pr">$0.03</span></div>
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/social/sentiment/:keyword</span><span class="pr">$0.03</span></div>
+        </div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-head">
+          <div class="cat-icon">&#9889;</div>
+          <div class="cat-title">Solana Degen</div>
+          <div class="cat-count">6 EP</div>
+        </div>
+        <div class="cat-desc">Solana token safety, sniper detection, trending pools, new tokens, top volume. Magic Eden NFT data.</div>
+        <div class="cat-routes">
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/solana/trending</span><span class="pr">$0.01</span></div>
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/solana/new-tokens</span><span class="pr">$0.01</span></div>
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/solana/snipers/:mint</span><span class="pr">$0.01</span></div>
+        </div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-head">
+          <div class="cat-icon">&#128200;</div>
+          <div class="cat-title">Intelligence</div>
+          <div class="cat-count">6 EP</div>
+        </div>
+        <div class="cat-desc">Aggregated endpoints combining multiple data sources. Token intelligence, market pulse, enrichment.</div>
+        <div class="cat-routes">
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/intelligence/token/:address</span><span class="pr">$0.05</span></div>
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/market/pulse</span><span class="pr">$0.05</span></div>
+          <div class="cat-route"><span class="m">GET</span><span class="p">/api/enrich/token/:chain/:address</span><span class="pr">$0.05</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- How it works -->
+    <div class="how">
+      <h3>How it works</h3>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="step-num">1</div>
+          <h4>Call any endpoint</h4>
+          <p>Send a GET request to any of the 69 endpoints. No API key needed.</p>
+        </div>
+        <div class="how-step">
+          <div class="step-num">2</div>
+          <h4>Pay with x402</h4>
+          <p>Server returns 402. Your agent pays USDC on Base or Solana. Automatic.</p>
+        </div>
+        <div class="how-step">
+          <div class="step-num">3</div>
+          <h4>Get the data</h4>
+          <p>Structured JSON response. On-chain intelligence in milliseconds.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Code example -->
+    <div class="code-block">
+      <div class="code-header">
+        <div class="dot r"></div><div class="dot"></div><div class="dot"></div>
+        <span>quickstart.sh</span>
+      </div>
+      <pre><span class="comment"># Discover all endpoints</span>
+<span class="key">curl</span> <span class="str">https://ragradar.space/.well-known/x402</span>
+
+<span class="comment"># Get token safety (x402 payment required)</span>
+<span class="key">curl</span> <span class="str">https://ragradar.space/api/token-safety/base/0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb</span>
+
+<span class="comment"># AI-powered token analysis</span>
+<span class="key">curl</span> <span class="str">https://ragradar.space/api/ai/token/base/0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb</span>
+
+<span class="comment"># Smart money activity on Base</span>
+<span class="key">curl</span> <span class="str">https://ragradar.space/api/smart-money/activity</span></pre>
+    </div>
+
+    <footer>
+      <div class="left">RagRadar v10.4.1 &middot; Built by <a href="https://x.com/0xragna" style="color:#00ff88">@0xragna</a></div>
+      <div class="right">
+        <a href="/openapi.json">OpenAPI</a>
+        <a href="https://x.com/0xragna">Twitter</a>
+        <a href="/health">Status</a>
+      </div>
+    </footer>
   </div>
 </body>
 </html>
